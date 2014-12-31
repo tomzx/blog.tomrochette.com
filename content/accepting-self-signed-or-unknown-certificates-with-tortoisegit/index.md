@@ -19,9 +19,9 @@ What you will want to do next is go to `C:\Program Files (x86)\Git\.subversion` 
 
 Another, and possibly better solution, is to create a symbolic link so that those 2 folders are in fact a single one. For instance, you could do something such as
 
-<pre class="brush: bash; title: ; notranslate" title="">move %USERPROFILE%\.subversion %USERPROFILE%\.subversion_backup
+<pre><code class="bash">move %USERPROFILE%\.subversion %USERPROFILE%\.subversion_backup
 mklink /D %USERPROFILE%\.subversion "C:\Program Files (x86)\Git\.subversion"
-</pre>
+</code></pre>
 
 which will make `%USERPROFILE%\.subversion` point to your `C:\Program Files (x86)\Git\.subversion` folder. This has the benefit that any future certificate will work both for msysgit and TortoiseGit.
 

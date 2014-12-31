@@ -19,16 +19,16 @@ First off, let&#8217;s begin with a description of the problem. I posted the fol
 > 
 > returns me
 > 
-> <pre class="brush: bash; title: ; notranslate" title="">IPC::ShareLite store() error: Identifier removed at /usr/lib/perl5/vendor_perl/5.8.8/Cache/SharedMemoryBackend.pm line 156
-</pre>
+> <pre><code class="bash">IPC::ShareLite store() error: Identifier removed at /usr/lib/perl5/vendor_perl/5.8.8/Cache/SharedMemoryBackend.pm line 156
+</code></pre>
 > 
 > but sometimes it will also return
 > 
-> <pre class="brush: bash; title: ; notranslate" title="">table_open_cache.value 64
+> <pre><code class="bash">table_open_cache.value 64
 Open_files.value 58
 Open_tables.value 64
 Opened_tables.value 19341
-</pre>
+</code></pre>
 > 
 > but after a while it will revert to the previous error.
 > 
@@ -46,7 +46,7 @@ I had left this issue on the side for a couple of days hoping to come back to it
 
 Tonight I remembered about `strace`, which is pretty awesome in circumstances like this one. I went ahead and launched `strace munin-run mysql_files_tables` which outputted a lot of stuff and then stopped at the following point:
 
-<pre class="brush: bash; title: ; notranslate" title="">...
+<pre><code class="bash">...
 ioctl(4, SNDCTL_TMR_TIMEBASE or TCGETS, 0x7fff13da8e30) = -1 ENOTTY (Inappropriate ioctl for device)
 lseek(4, 0, SEEK_CUR)                   = 0
 read(4, "# Carp::Heavy uses some variable"..., 4096) = 4096
@@ -57,11 +57,11 @@ close(4)                                = 0
 write(2, "IPC::ShareLite store() error: Id"..., 123IPC::ShareLite store() error: Identifier removed at /usr/lib/perl5/vendor_perl/5.8.8/Cache/SharedMemoryBackend.pm line 156
 ) = 123
 semop(14581770, 0x2ab08bb67cf0, 3
-</pre>
+</code></pre>
 
 and when it is actually fixed, the application would end instead (outputting a bunch of stuff such as the following)
 
-<pre class="brush: bash; title: ; notranslate" title="">...
+<pre><code class="bash">...
 stat("/usr/lib64/perl5/auto/Storable/_freeze.al", {st_mode=S_IFREG|0644, st_size=706, ...}) = 0
 stat("/usr/lib64/perl5/auto/Storable/_freeze.al", {st_mode=S_IFREG|0644, st_size=706, ...}) = 0
 open("/usr/lib64/perl5/auto/Storable/_freeze.al", O_RDONLY) = 4
@@ -76,30 +76,28 @@ semop(917514, {{1, 0, 0}, {2, 0, 0}, {2, 1, SEM_UNDO}}, 3) = 0
 shmdt(0x7fc30021f000)                   = 0
 semop(917514, {{2, -1, SEM_UNDO|IPC_NOWAIT}}, 1) = 0
 ...
-</pre>
+</code></pre>
 
-#### How to &#8220;fix&#8221; the problem
+### How to &#8220;fix&#8221; the problem
 
 What you can see in the first output above is pretty interesting. The semop call gives you the semid the process is trying to obtain (the semaphore used to synchronize different processes using the same shared memory). The signature of the semop function is as follow:
 
-<pre class="brush: cpp; title: ; notranslate" title="">int semop(int semid, struct sembuf *sops, unsigned nsops);
-</pre>
+<pre><code class="cpp">int semop(int semid, struct sembuf *sops, unsigned nsops);</code></pre>
 
 where  
 **semid:** semaphore id  
 **sops:** pointer to a sembuf struct
 
-<pre class="brush: cpp; title: ; notranslate" title="">struct sembuf {
-    u_short sem_num; /* semaphore # */
-    short   sem_op;  /* semaphore operation */
-    short   sem_flg; /* operation flags */
+<pre><code class="cpp">struct sembuf {
+	u_short sem_num; /* semaphore # */
+	short   sem_op;  /* semaphore operation */
+	short   sem_flg; /* operation flags */
 };
-</pre>
+</code></pre>
 
 **nsops:** the length of sops
 
-Upon first inspection, you can see that the sembuf in the first case seems to be invalid if you compare it with the working version where it is actually resolved (strace displays something such as  
-`{{2, -1, SEM_UNDO|IPC_NOWAIT}}` instead of `0x2ab08bb67cf0`. But that is not helping me much.
+Upon first inspection, you can see that the sembuf in the first case seems to be invalid if you compare it with the working version where it is actually resolved (strace displays something such as `{{2, -1, SEM_UNDO|IPC_NOWAIT}}` instead of `0x2ab08bb67cf0`. But that is not helping me much.
 
 With that semid you can do two things: first, you can check if it is still alive by calling `ipcs`, second, you can remove it with `ipcrm -s semid`.
 

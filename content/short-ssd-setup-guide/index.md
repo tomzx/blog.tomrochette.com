@@ -9,7 +9,7 @@
 */
 Backup everything. First rename, then remove when you confirmed it worked. Better safe than sorry.
 
-<pre class="brush: bash; title: ; notranslate" title="">REM Set the new root location
+<pre><code class="bash">REM Set the new root location
 REM Ex. NEW_ROOT=D:
 REM     NEW_ROOT=D:\Data
 REM     NEW_ROOT=D:\MyStuff\MyComputer
@@ -31,4 +31,4 @@ setx /m TMP %NEW_ROOT%\Windows\Temp
 move C:\Windows\Temp C:\Windows\Temp.Backup
 mklink /J C:\Windows\Temp %NEW_ROOT%\Windows\Temp
 REM END DO NOT DO
-</pre>
+</code></pre>

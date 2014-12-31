@@ -13,7 +13,7 @@ One small problem when you use the Serializable attribute of C# is that you cann
 
 I haven't coded any of this, so thanks to user [Loudenvier][1] from [Stackoverflow.com][2]! This solution allows you to turn ANY object into an XML string representation. It also allows you to turn that string back into an object representation. Very useful.
 
-<pre class="brush: csharp; title: ; notranslate" title="">public static class SerializationExtensions
+<pre><code class="csharp">public static class SerializationExtensions
 {
     public static string Serialize&lt;T&gt;(this T obj)
     {
@@ -35,11 +35,11 @@ I haven't coded any of this, so thanks to user [Loudenvier][1] from [Stackoverfl
         }
     }
 }
-</pre>
+</code></pre>
 
 How to use example
 
-<pre class="brush: csharp; title: ; notranslate" title="">// dictionary to serialize to string
+<pre><code class="csharp">// dictionary to serialize to string
 Dictionary&lt;string, object&gt; myDict = new Dictionary&lt;string, object&gt;();
 // add items to the dictionary...
 myDict.Add(...);
@@ -48,7 +48,7 @@ string serialized = myDict.Serialize();
 ...
 // deserialization is just as simple
 Dictionary&lt;string, object&gt; myDictCopy = serialized.Deserialize&lt;Dictionary&lt;string,object&gt;&gt;();
-</pre>
+</code></pre>
 
 **Source:** [http://www.stackoverflow.com][3]
 

@@ -28,12 +28,12 @@ For code coverage to be included in your report, you have to add a filter, be it
 
 So I quickly added a filter such as
 
-<pre class="brush: xml; title: ; notranslate" title="">&lt;filter&gt;
+<pre><code class="xml">&lt;filter&gt;
 	&lt;whitelist&gt;
 		&lt;directory&gt;../&lt;/directory&gt;
 	&lt;/whitelist&gt;
 &lt;/filter&gt;
-</pre>
+</code></pre>
 
 which would whitelist everything that is in the project (my project root is one level above test). Ran **phpunit ** in the test folder and I finally got a report with data!
 

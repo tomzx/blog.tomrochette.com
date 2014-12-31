@@ -294,7 +294,7 @@ I've played through the whole campaign of **Torchlight II**, which was pretty aw
 
 The important part of this process, other than reviewing what time was spent on this year, is to decide new objectives going forward. This means deciding what should be cut down, reduced, increased or added. For each application I've already determined what was my goal/limits thus I simply need to make sure I follow them. A monthly review should be sufficient.
 
-### Recommandations
+### Recommendations
 
 *   Reduce reddit usage below 1h/day
 *   Reduce/cut time spend doing remoting for work
