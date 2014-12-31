@@ -39,6 +39,7 @@
 						<li class="menu-home"><a href="{{ base_url }}">Home</a></li>
 						<li class="menu-about"><a href="{{ base_url }}/about/">About</a></li>
 						<li class="menu-cv"><a href="{{ base_url }}/cv/">CV</a></li>
+						<li class="menu-cv"><a href="{{ base_url }}/tools-of-the-trade/">Tools of the trade</a></li>
 					</ul>
 				</div><!--/.nav-collapse -->
 			</div>
@@ -64,6 +65,19 @@
 				{% if meta.title %}<h2>{{ meta.title }}</h2>{% endif %}
 				{% if meta.date %}<p class="meta">{{ meta.date_formatted }}</p>{% endif %}
 				{{ content }}
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+					/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+					var disqus_shortname = 'tomrochettecom'; // required: replace example with your forum shortname
+
+					/* * * DON'T EDIT BELOW THIS LINE * * */
+					(function() {
+						var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+						dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+						(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+					})();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 			</div>
 		{% endif %}
 		</section>
