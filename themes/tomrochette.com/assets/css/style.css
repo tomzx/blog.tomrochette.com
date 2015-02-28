@@ -13,3 +13,9 @@ pre {
 footer {
 	border-top: 1px solid #ddd;
 }
+
+@media (min-width: 768px) {
+	.frontpage .date {
+		text-align: right;
+	}
+}
