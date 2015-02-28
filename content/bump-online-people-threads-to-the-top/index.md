@@ -12,4 +12,4 @@ When you are online, varying from 5-10 of your "latest" post would be bumped to 
 
 Doing so will help your own forum to grow as members who are online longer have better chances of getting replies and then to reply so more posts. The problem with current forums is that threads which aren't always done end up not being answered. Why not make sure all threads are getting the reply they should get? When a user is satisfied with the answer, he can remove the thread from his list => yes, this means we could ask for others people thread to get replied to.
 
-Yet, this is only an idea. I'm sure that forums such as vBulletin and Invision Power Board will find this thread and will add it to their next release as people are avid of answers. By giving them a better opportunity to get their answer, community grows, people are happy, everyone's happy :)
+Yet, this is only an idea. I'm sure that forums such as vBulletin and Invision Power Board will find this thread and will add it to their next release as people are avid of answers. By giving them a better opportunity to get their answer, community grows, people are happy, everyone's happy :).
