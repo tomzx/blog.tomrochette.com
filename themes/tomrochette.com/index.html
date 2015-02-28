@@ -14,6 +14,7 @@
 
 	<link href="{{ theme_url }}/assets/css/bootstrap.min.css" rel="stylesheet">
 	<link href="{{ theme_url }}/assets/css/bootstrap-theme.min.css" rel="stylesheet">
+	<link href="{{ theme_url }}/assets/css/font-awesome.min.css" rel="stylesheet">
 	<link href="{{ theme_url }}/assets/css/highlight_idea.css" rel="stylesheet">
 	<link href="{{ theme_url }}/assets/css/style.css" rel="stylesheet">
 	<!--[if lt IE 9]>
@@ -37,12 +38,12 @@
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
-						<li class="menu-home"><a href="{{ base_url }}">Home</a></li>
-						<li class="menu-about"><a href="{{ base_url }}/about/">About</a></li>
-						<li class="menu-cv"><a href="{{ base_url }}/cv/">CV</a></li>
-						<li class="menu-cv"><a href="{{ base_url }}/tools-of-the-trade/">Tools of the trade</a></li>
+						<li class="menu-home"><a href="{{ base_url }}"><i class="fa fa-home"></i> Home</a></li>
+						<li class="menu-about"><a href="{{ base_url }}/about/"><i class="fa fa-info-circle"></i> About</a></li>
+						<li class="menu-cv"><a href="{{ base_url }}/cv/"><i class="fa fa-file-text"></i> CV</a></li>
+						<li class="menu-tools-of-the-trade"><a href="{{ base_url }}/tools-of-the-trade/"><i class="fa fa-wrench"></i> Tools of the trade</a></li>
 					</ul>
-				</div><!--/.nav-collapse -->
+				</div>
 			</div>
 		</div>
 	</header>
@@ -50,22 +51,22 @@
 	<div class="container">
 		<section id="content">
 		{% if is_front_page %}
-			<div id="posts">
+			<ul id="posts" class="list-unstyled">
 			{% for page in pages %}
-				{% if page.date %} <!-- Note we check for Date field (posts) here -->
-				<div class="post">
-					<h3><a href="{{ page.url }}">{{ page.title }}</a></h3>
-					<p class="meta">{{ page.date_formatted }}</p>
-					<p class="excerpt">{{ page.excerpt }}</p>
-				</div>
+				{% if page.date %}
+				<li class="post row">
+					<span class="col-sm-2 meta">{{ page.date_formatted }}</span>
+					<span class="col-sm-10"><a href="{{ page.url }}">{{ page.title }}</a></span>
+				</li>
 				{% endif %}
 			{% endfor %}
-			</div>
+			</ul>
 		{% else %}
 			<div class="post">
 				{% if meta.title %}<h2>{{ meta.title }}</h2>{% endif %}
 				{% if meta.date %}<p class="meta">{{ meta.date_formatted }}</p>{% endif %}
 				{{ content }}
+				{% if meta.title != 'Error 404' %}
 				<div id="disqus_thread"></div>
 				<script type="text/javascript">
 					/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
@@ -79,10 +80,15 @@
 					})();
 				</script>
 				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+				{% endif %}
 			</div>
 		{% endif %}
 		</section>
-	</div><!-- /.container -->
+		<footer class="text-center">
+			<span class="github"><i class="fa fa-github"></i> <a href="https://github.com/tomzx">@tomzx</a></span>
+			<span class="twitter"><i class="fa fa-twitter"></i> <a href="https://twitter.com/Tom_Rochette">@Tom_Rochette</a></span>
+		</footer>
+	</div>
 
 	<script src="{{ theme_url }}/assets/js/jquery-1.11.2.min.js"></script>
 	<script src="{{ theme_url }}/assets/js/bootstrap.min.js"></script>
