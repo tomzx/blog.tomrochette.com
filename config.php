@@ -26,3 +26,4 @@ $config['site_title'] = 'tomrochette.com';
 $config['theme'] = 'tomrochette.com';
 $config['pages_order_by'] = 'date';
 $config['pages_order'] = 'desc';
+$config['date_format'] = 'M jS, Y';
