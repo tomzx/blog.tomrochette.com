@@ -1,5 +1,7 @@
 <?php
-use \Michelf\MarkdownExtra;
+
+use Michelf\MarkdownExtra;
+use Emojione\Emojione;
 
 /**
  * Pico
@@ -22,6 +24,8 @@ class Pico {
 		// Load plugins
 		$this->load_plugins();
 		$this->run_hooks('plugins_loaded');
+
+		Emojione::$ascii = true;
 
 		// Load the settings
 		$settings = $this->get_config();
@@ -62,8 +66,8 @@ class Pico {
 		$this->run_hooks('before_parse_content', array(&$content));
 		$content = $this->parse_content($content);
 		$this->run_hooks('after_parse_content', array(&$content));
-		$this->run_hooks('content_parsed', array(&$content)); // Depreciated @ v0.8
-		
+		$this->run_hooks('content_parsed', array(&$content)); // Deprecated @ v0.8
+
 		// Get all the pages
 		$pages = $this->get_pages($settings['base_url'], $settings['pages_order_by'], $settings['pages_order'], $settings['excerpt_length']);
 		$prev_page = array();
@@ -108,7 +112,7 @@ class Pico {
 		$this->run_hooks('after_render', array(&$output));
 		echo $output;
 	}
-	
+
 	/**
 	 * Load any plugins
 	 */
@@ -139,6 +143,7 @@ class Pico {
 		$content = preg_replace('#/\*.+?\*/#s', '', $content); // Remove comments and meta
 		$content = str_replace('%base_url%', $this->base_url(), $content);
 		$content = MarkdownExtra::defaultTransform($content);
+		$content = Emojione::toImage($content);
 
 		return $content;
 	}
@@ -152,7 +157,7 @@ class Pico {
 	protected function read_file_meta($content)
 	{
 		global $config;
-		
+
 		$headers = array(
 			'title'       	=> 'Title',
 			'description' 	=> 'Description',
@@ -165,14 +170,14 @@ class Pico {
 		// Add support for custom headers by hooking into the headers array
 		$this->run_hooks('before_read_file_meta', array(&$headers));
 
-	 	foreach ($headers as $field => $regex){
+		foreach ($headers as $field => $regex){
 			if (preg_match('/^[ \t\/*#@]*' . preg_quote($regex, '/') . ':(.*)$/mi', $content, $match) && $match[1]){
 				$headers[ $field ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
 			} else {
 				$headers[ $field ] = '';
 			}
 		}
-		
+
 		if(isset($headers['date'])) $headers['date_formatted'] = date($config['date_format'], strtotime($headers['date']));
 
 		return $headers;
@@ -204,7 +209,7 @@ class Pico {
 
 		return $config;
 	}
-	
+
 	/**
 	 * Get a list of pages
 	 *
@@ -216,7 +221,7 @@ class Pico {
 	protected function get_pages($base_url, $order_by = 'alpha', $order = 'asc', $excerpt_length = 50)
 	{
 		global $config;
-		
+
 		$pages = $this->get_files(CONTENT_DIR, CONTENT_EXT);
 		$sorted_pages = array();
 		$date_id = 0;
@@ -231,7 +236,7 @@ class Pico {
 			if (in_array(substr($page, -1), array('~','#'))) {
 				unset($pages[$key]);
 				continue;
-			}			
+			}
 			// Get title and format $page
 			$page_content = file_get_contents($page);
 			$page_meta = $this->read_file_meta($page_content);
@@ -258,13 +263,13 @@ class Pico {
 			}
 			else $sorted_pages[] = $data;
 		}
-		
+
 		if($order == 'desc') krsort($sorted_pages);
 		else ksort($sorted_pages);
-		
+
 		return $sorted_pages;
 	}
-	
+
 	/**
 	 * Processes any hooks and runs them
 	 *
@@ -314,40 +319,40 @@ class Pico {
 		}
 		return $protocol;
 	}
-	     
+
 	/**
 	 * Helper function to recusively get all files in a directory
 	 *
 	 * @param string $directory start directory
 	 * @param string $ext optional limit to file extensions
 	 * @return array the matched files
-	 */ 
+	 */
 	protected function get_files($directory, $ext = '')
 	{
-	    $array_items = array();
-	    if($handle = opendir($directory)){
-	        while(false !== ($file = readdir($handle))){
-	            if(preg_match("/^(^\.)/", $file) === 0){
-	                if(is_dir($directory. "/" . $file)){
-	                    $array_items = array_merge($array_items, $this->get_files($directory. "/" . $file, $ext));
-	                } else {
-	                    $file = $directory . "/" . $file;
-	                    if(!$ext || strstr($file, $ext)) $array_items[] = preg_replace("/\/\//si", "/", $file);
-	                }
-	            }
-	        }
-	        closedir($handle);
-	    }
-	    return $array_items;
+		$array_items = array();
+		if($handle = opendir($directory)){
+			while(false !== ($file = readdir($handle))){
+				if(preg_match("/^(^\.)/", $file) === 0){
+					if(is_dir($directory. "/" . $file)){
+						$array_items = array_merge($array_items, $this->get_files($directory. "/" . $file, $ext));
+					} else {
+						$file = $directory . "/" . $file;
+						if(!$ext || strstr($file, $ext)) $array_items[] = preg_replace("/\/\//si", "/", $file);
+					}
+				}
+			}
+			closedir($handle);
+		}
+		return $array_items;
 	}
-	
+
 	/**
 	 * Helper function to limit the words in a string
 	 *
 	 * @param string $string the given string
 	 * @param int $word_limit the number of words to limit to
 	 * @return string the limited string
-	 */ 
+	 */
 	protected function limit_words($string, $word_limit)
 	{
 		$words = explode(' ',$string);
