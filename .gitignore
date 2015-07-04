@@ -19,6 +19,7 @@ images/*
 !images/.*
 user/data/*
 !user/data/.*
+user/pages
 user/plugins/*
 !user/plugins/.*
 user/themes/*
