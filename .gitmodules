@@ -1,0 +1,6 @@
+[submodule "user/data/smileys/emoji"]
+	path = user/data/smileys/emoji
+	url = https://github.com/Sommerregen/grav-data-smileys-emoji.git
+[submodule "user/data/smileys/simple_smileys"]
+	path = user/data/smileys/simple_smileys
+	url = https://github.com/Sommerregen/grav-data-smileys-simple-smileys.git
