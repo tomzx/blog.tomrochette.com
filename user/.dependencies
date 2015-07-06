@@ -1,0 +1,90 @@
+git:
+    error:
+        url: https://github.com/getgrav/grav-plugin-error
+        path: user/plugins/error
+        branch: develop
+    feed:
+        url: https://github.com/getgrav/grav-plugin-feed
+        path: user/plugins/feed
+        branch: develop
+    highlight:
+        url: https://github.com/getgrav/grav-plugin-highlight
+        path: user/plugins/highlight
+        branch: develop
+    mathjax:
+        url:  https://github.com/Sommerregen/grav-plugin-mathjax
+        path: user/plugins/mathjax
+        branch: develop
+    problems:
+        url: https://github.com/getgrav/grav-plugin-problems
+        path: user/plugins/problems
+        branch: develop
+    simplesearch:
+        url: https://github.com/getgrav/grav-plugin-simplesearch
+        path: user/plugins/simplesearch
+        branch: develop
+    sitemap:
+        url: https://github.com/getgrav/grav-plugin-sitemap
+        path: user/plugins/sitemap
+        branch: develop
+    smileys:
+        url: https://github.com/Sommerregen/grav-plugin-smileys
+        path: user/plugins/smileys
+        branch: develop
+    taxonomylist:
+        url: https://github.com/getgrav/grav-plugin-taxonomylist
+        path: user/plugins/taxonomylist
+        branch: develop
+    toc:
+        url: https://github.com/Sommerregen/grav-plugin-toc
+        path: user/plugins/toc
+        branch: develop
+    antimatter:
+        url: https://github.com/getgrav/grav-theme-antimatter
+        path: user/themes/antimatter
+        branch: develop
+links:
+    error:
+        src: grav-plugin-error
+        path: user/plugins/error
+        scm: github
+    feed:
+        src: grav-plugin-feed
+        path: user/plugins/feed
+        scm: github
+    highlight:
+        src: grav-plugin-highlight
+        path: user/plugins/highlight
+        scm: github
+    mathjax:
+        src: grav-plugin-mathjax
+        path: user/plugins/mathjax
+        scm: github
+    problems:
+        src: grav-plugin-problems
+        path: user/plugins/problems
+        scm: github
+    simplesearch:
+        src: grav-plugin-simplesearch
+        path: user/plugins/simplesearch
+        scm: github
+    sitemap:
+        src: grav-plugin-sitemap
+        path: user/plugins/sitemap
+        scm: github
+    smileys:
+        src: grav-plugin-smileys
+        path: user/plugins/smileys
+        scm: github
+    taxonomylist:
+        src: grav-plugin-taxonomylist
+        path: user/plugins/taxonomylist
+        scm: github
+    toc:
+        src: grav-plugin-toc
+        path: user/plugins/toc
+        scm: github
+    antimatter:
+        src: grav-theme-antimatter
+        path: user/themes/antimatter
+        scm: github
