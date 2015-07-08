@@ -258,7 +258,7 @@ class Page
                 $this->order_manual = (array)$this->header->order_manual;
             }
             if (isset($this->header->date)) {
-                $this->date = strtotime($this->header->date);
+                $this->date = $this->header->date;
             }
             if (isset($this->header->markdown_extra)) {
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
@@ -280,10 +280,10 @@ class Page
                 $this->published = $this->header->published;
             }
             if (isset($this->header->publish_date)) {
-                $this->publish_date = strtotime($this->header->publish_date);
+                $this->publish_date = $this->header->publish_date;
             }
             if (isset($this->header->unpublish_date)) {
-                $this->unpublish_date = strtotime($this->header->unpublish_date);
+                $this->unpublish_date = $this->header->unpublish_date;
             }
             if (isset($this->header->expires)) {
                 $this->expires = intval($this->header->expires);
@@ -1663,7 +1663,7 @@ class Page
         }
 
         if (!isset($params['items'])) {
-            return array();
+            return new Collection();
         }
 
         $collection = $this->evaluate($params['items']);
