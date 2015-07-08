@@ -4,4 +4,11 @@ author:
   email: tom@tomrochette.com
 metadata:
     description: What's up with my life
-
+summary:
+    enabled: true
+    format: long
+    size: 0
+taxonomies:
+  - category
+  - tag
+  - type
