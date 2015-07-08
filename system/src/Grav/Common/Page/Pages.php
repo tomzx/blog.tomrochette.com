@@ -581,6 +581,10 @@ class Pages
                     }
                 }
             } elseif ($file->isDir()) {
+				if (Utils::startsWith($file->getFilename(), '.')) {
+					continue;
+				}
+
                 if (!$page->path()) {
                     $page->path($file->getPath());
                 }
