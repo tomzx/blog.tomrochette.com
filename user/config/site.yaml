@@ -5,9 +5,7 @@ author:
 metadata:
     description: What's up with my life
 summary:
-    enabled: true
-    format: long
-    size: 0
+    enabled: false
 taxonomies:
   - category
   - tag
