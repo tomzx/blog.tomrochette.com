@@ -1,4 +1,12 @@
 git:
+    archives:
+        url: https://github.com/getgrav/grav-plugin-archives
+        path: user/plugins/archives
+        branch: develop
+    breadcrumbs:
+        url: https://github.com/getgrav/grav-plugin-breadcrumbs
+        path: user/plugins/breadcrumbs
+        branch: develop
     error:
         url: https://github.com/getgrav/grav-plugin-error
         path: user/plugins/error
@@ -14,6 +22,10 @@ git:
     mathjax:
         url:  https://github.com/Sommerregen/grav-plugin-mathjax
         path: user/plugins/mathjax
+        branch: develop
+    pagination:
+        url: https://github.com/getgrav/grav-plugin-pagination
+        path: user/plugins/pagination
         branch: develop
     problems:
         url: https://github.com/getgrav/grav-plugin-problems
@@ -44,6 +56,14 @@ git:
         path: user/themes/antimatter
         branch: develop
 links:
+    archives:
+        src: grav-plugin-archives
+        path: user/plugins/archives
+        scm: github
+    breadcrumbs:
+        src: grav-plugin-breadcrumbs
+        path: user/plugins/breadcrumbs
+        scm: github
     error:
         src: grav-plugin-error
         path: user/plugins/error
@@ -59,6 +79,10 @@ links:
     mathjax:
         src: grav-plugin-mathjax
         path: user/plugins/mathjax
+        scm: github
+    pagination:
+        src: grav-plugin-pagination
+        path: user/plugins/pagination
         scm: github
     problems:
         src: grav-plugin-problems
