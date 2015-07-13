@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
@@ -55,6 +56,8 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
+
+
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_init', 'Initialize');
 
@@ -76,6 +79,9 @@ class Grav extends Container
         $container['cache'] = function ($c) {
             return new Cache($c);
         };
+        $container['session'] = function ($c) {
+            return new Session($c);
+        };
         $container['plugins'] = function ($c) {
             return new Plugins();
         };
@@ -88,12 +94,16 @@ class Grav extends Container
         $container['taxonomy'] = function ($c) {
             return new Taxonomy($c);
         };
+        $container['language'] = function ($c) {
+            return new Language($c);
+        };
+
         $container['pages'] = function ($c) {
             return new Page\Pages($c);
         };
-        $container['assets'] = function ($c) {
-            return new Assets();
-        };
+
+        $container['assets'] = new Assets();
+
         $container['page'] = function ($c) {
             /** @var Pages $pages */
             $pages = $c['pages'];
@@ -106,6 +116,12 @@ class Grav extends Container
 
             $page = $pages->dispatch($path);
 
+            // handle redirect if not 'default route' configuration
+            if ($page && $c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
+                $c->redirectLangSafe($page->route());
+            }
+
+            // if page is not found, try some fallback stuff
             if (!$page || !$page->routable()) {
 
                 // Try fallback URL stuff...
@@ -155,6 +171,7 @@ class Grav extends Container
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $this['session']->init();
         $this['uri']->init();
         $this['errors']->resetHandlers();
         $debugger->init();
@@ -203,7 +220,9 @@ class Grav extends Container
         $this->fireEvent('onPagesInitialized');
         $debugger->stopTimer('pages');
 
+        $debugger->startTimer('pageinit', 'Page Initialized');
         $this->fireEvent('onPageInitialized');
+        $debugger->stopTimer('pageinit');
 
         $debugger->addAssets();
 
@@ -246,6 +265,25 @@ class Grav extends Container
 
         header("Location: {$url}", true, $code);
         exit();
+    }
+
+    /**
+     * Redirect browser to another location taking language into account (preferred)
+     *
+     * @param string $route Internal route.
+     * @param int $code Redirection code (30x)
+     */
+    public function redirectLangSafe($route, $code = 303)
+    {
+        /** @var Language $language */
+        $language = $this['language'];
+        $config = $this['config'];
+
+        if ($language->enabled()) {
+            return $this->redirect($language->getLanguage() . $route, $code);
+        } else {
+            return $this->redirect($route);
+        }
     }
 
     /**
@@ -399,11 +437,11 @@ class Grav extends Container
                 Utils::download($medium->path(), false);
             }
 
-            // has an extension, try to download it...
-            if (isset($path_parts['extension'])) {
+            // unsupported media type, try to download it...
+            $extension = $uri->extension() ?: isset($path_parts['extension']) ? $path_parts['extension'] : null;
+            if ($extension) {
                 $download = true;
-                // little work-around to ensure .css and .js files are always sent inline not downloaded
-                if (in_array($path_parts['extension'], ['.css', '.js'])) {
+                if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types'))) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);

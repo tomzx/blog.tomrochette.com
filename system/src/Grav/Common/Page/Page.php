@@ -34,16 +34,9 @@ class Page
      * @var string Filename. Leave as null if page is folder.
      */
     protected $name;
-
-    /**
-     * @var string Folder name.
-     */
     protected $folder;
-
-    /**
-     * @var string Path to the folder. Add $this->folder to get full path.
-     */
     protected $path;
+    protected $extension;
 
     protected $parent;
     protected $template;
@@ -54,6 +47,7 @@ class Page
     protected $unpublish_date;
     protected $slug;
     protected $route;
+    protected $raw_route;
     protected $url;
     protected $routes;
     protected $routable;
@@ -122,8 +116,6 @@ class Page
         $this->header();
         $this->date();
         $this->metadata();
-        $this->slug();
-        $this->route();
         $this->url();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
@@ -625,6 +617,22 @@ class Page
     }
 
     /**
+     * Get page extension
+     *
+     * @param $var
+     *
+     * @return mixed
+     */
+    public function extension($var = null)
+    {
+        if ($var !== null) {
+            $this->extension = $var;
+        }
+
+        return $this->extension;
+    }
+
+    /**
      * Save page if there's a file assigned to it.
      * @param bool $reorder Internal use.
      */
@@ -827,7 +835,7 @@ class Page
             $this->template = $var;
         }
         if (empty($this->template)) {
-            $this->template = ($this->modular() ? 'modular/' : '') . str_replace(CONTENT_EXT, '', $this->name());
+            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension, '', $this->name());
         }
         return $this->template;
     }
@@ -1010,7 +1018,7 @@ class Page
             $page_header = $this->header;
 
             // Set the Generator tag
-            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'Grav ' . GRAV_VERSION);
+            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
 
             // Safety check to ensure we have a header
             if ($page_header) {
@@ -1119,11 +1127,17 @@ class Page
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
 
+        /** @var Language $language */
+        $language = self::getGrav()['language'];
+
+        // get pre-route
+        $pre_route = $language->enabled() && $language->getActive() ? '/'.$language->getActive() : '';
+
         // get canonical route if requested
         if ($canonical) {
-            $route = $this->routeCanonical();
+            $route = $pre_route . $this->routeCanonical();
         } else {
-            $route = $this->route();
+            $route = $pre_route . $this->route();
         }
 
         /** @var Uri $uri */
@@ -1156,18 +1170,36 @@ class Page
         }
 
         if (empty($this->route)) {
-
-            if (!empty($this->routes) && isset($this->routes['default'])) {
-                $this->route = $this->routes['default'];
-                return $this->route;
-            }
-
             // calculate route based on parent slugs
             $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
             $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
+
+            if (!empty($this->routes) && isset($this->routes['default'])) {
+                $this->routes['aliases'][] = $this->route;
+                $this->route = $this->routes['default'];
+                return $this->route;
+            }
         }
 
         return $this->route;
+    }
+
+    public function rawRoute($var = null)
+    {
+        if ($var !== null) {
+            $this->raw_route = $var;
+        }
+
+        if (empty($this->raw_route)) {
+            $baseRoute = $this->parent ? (string) $this->parent()->rawRoute() : null;
+
+            $regex = '/^[0-9]+\./u';
+            $slug = preg_replace($regex, '', $this->folder);
+
+            $this->raw_route = isset($baseRoute) ? $baseRoute . '/'. $slug : null;
+        }
+
+        return $this->raw_route;
     }
 
     /**
@@ -1179,7 +1211,7 @@ class Page
      */
     public function routeAliases($var = null)
     {
-        if ($var != null) {
+        if ($var !== null) {
             $this->routes['aliases'] = (array) $var;
         }
 
@@ -1200,7 +1232,7 @@ class Page
      */
     public function routeCanonical($var = null)
     {
-        if ($var != null) {
+        if ($var !== null) {
             $this->routes['canonical'] = (array)$var;
         }
 
@@ -1570,10 +1602,14 @@ class Page
      */
     public function active()
     {
-        /** @var Uri $uri */
-        $uri = self::getGrav()['uri'];
-        if ($this->url() == $uri->url()) {
-            return true;
+        $uri_path = self::getGrav()['uri']->path();
+        $routes = self::getGrav()['pages']->routes();
+
+        if (isset($routes[$uri_path])) {
+            if ($routes[$uri_path] == $this->path()) {
+                return true;
+            }
+
         }
         return false;
     }
@@ -1586,20 +1622,18 @@ class Page
      */
     public function activeChild()
     {
-        /** @var Uri $uri */
         $uri = self::getGrav()['uri'];
-        $config = self::getGrav()['config'];
+        $pages = self::getGrav()['pages'];
+        $uri_path = $uri->path();
+        $routes = self::getGrav()['pages']->routes();
 
-        // Special check when item is home
-        if ($this->home()) {
-            $paths = $uri->paths();
-            $home = ltrim($config->get('system.home.alias'), '/');
-            if (isset($paths[0]) && $paths[0] == $home) {
-                return true;
-            }
-        } else {
-            if (strpos($uri->url(), $this->url()) === 0) {
-                return true;
+        if (isset($routes[$uri_path])) {
+            $child_page = $pages->dispatch($uri->route())->parent();
+            while (!$child_page->root()) {
+                if ($this->path() == $child_page->path()) {
+                    return true;
+                }
+                $child_page = $child_page->parent();
             }
         }
 
@@ -1803,7 +1837,6 @@ class Page
 
         return $results;
     }
-
 
     /**
      * Returns whether or not this Page object has a .md file associated with it or if its just a directory.
