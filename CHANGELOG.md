@@ -1,3 +1,33 @@
+# v0.9.33
+## 07/21/2015
+
+1. [](#new)
+    * Added new `onImageMediumSaved()` event (useful for post-image processing)
+    * Added `Vary: Accept-Encoding` option
+2. [](#improved)
+    * Multilang-safe delimeter position
+    * Refactored Twig classes and added optional umask setting
+    * Removed `pageinit()` timing
+    * `Page->routable()` now takes `published()` state into account
+    * Improved how page extension is set
+    * Support `Language->translate()` method taking string and array
+3. [](#bugfix)
+    * Fixed `backup` command to include empty folders
+
+# v0.9.32
+## 07/14/2015
+
+1. [](#new)
+    * Detect users preferred language via `http_accept_language` setting
+    * Added new `translateArray()` language method
+2. [](#improved)
+    * Support `en` translations by default for plugins & themes
+    * Improved default generator tag
+    * Minor language tweaks and fixes
+3. [](#bugfix)
+    * Fix for session active language and homepage redirects
+    * Ignore root-level page rather than throwing error
+
 # v0.9.31
 ## 07/09/2015
 

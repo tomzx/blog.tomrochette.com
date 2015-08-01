@@ -1,10 +1,12 @@
 <?php
-namespace Grav\Common;
+namespace Grav\Common\Twig;
 
+use Grav\Common\Grav;
+use Grav\Common\Inflector;
+use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-
 
 /**
  * The Twig extension adds some filters and functions that are useful for Grav
@@ -192,16 +194,18 @@ class TwigExtension extends \Twig_Extension
         // TODO: check this and fix the docblock if needed.
         $action = $action.'ize';
 
+        $inflector = $this->grav['inflector'];
+
         if (in_array(
             $action,
             ['titleize','camelize','underscorize','hyphenize', 'humanize','ordinalize','monthize']
         )) {
-            return Inflector::$action($data);
+            return $inflector->$action($data);
         } elseif (in_array($action, ['pluralize','singularize'])) {
             if ($count) {
-                return Inflector::$action($data, $count);
+                return $inflector->$action($data, $count);
             } else {
-                return Inflector::$action($data);
+                return $inflector->$action($data);
             }
         } else {
             return $data;

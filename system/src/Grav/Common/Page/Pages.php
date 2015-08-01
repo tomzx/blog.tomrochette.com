@@ -404,8 +404,8 @@ class Pages
     {
         if (!self::$types) {
             self::$types = new Types();
-            self::$types->scanBlueprints('theme://blueprints/');
-            self::$types->scanTemplates('theme://templates/');
+            file_exists('theme://blueprints/') && self::$types->scanBlueprints('theme://blueprints/');
+            file_exists('theme://templates/') && self::$types->scanTemplates('theme://templates/');
 
             $event = new Event();
             $event->types = self::$types;
@@ -624,8 +624,7 @@ class Pages
 
         if ($parent && !empty($page_found)) {
             $file = new \SplFileInfo($page_found);
-            $page->init($file);
-            $page->extension($page_extension);
+            $page->init($file, $page_extension);
 
             $content_exists = true;
 

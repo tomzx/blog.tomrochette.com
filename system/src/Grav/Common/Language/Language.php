@@ -16,7 +16,7 @@ class Language
     protected $default;
     protected $active = null;
     protected $config;
-    protected $http_accept_langauge;
+    protected $http_accept_language;
 
     /**
      * Constructor
@@ -181,7 +181,7 @@ class Language
                     $this->config->get('system.languages.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
                 }
-                // if still null, try from http_accpept_language header
+                // if still null, try from http_accept_language header
                 if ($this->active === null && $this->config->get('system.languages.http_accept_language')) {
                     $preferred = $this->getBrowserLanguages();
                     foreach ($preferred as $lang) {
@@ -276,27 +276,42 @@ class Language
     /**
      * Translate a key and possibly arguments into a string using current lang and fallbacks
      *
-     * @param Array $args first argument is the lookup key value
-     *                    other arguments can be passed and replaced in the translation with sprintf syntax
-     * @param null  $languages
+     * @param       $args       first argument is the lookup key value
+     *                          other arguments can be passed and replaced in the translation with sprintf syntax
+     * @param Array $languages
+     * @param bool  $array_support
+     * @param bool  $html_out
      *
      * @return string
      */
-    public function translate(Array $args, Array $languages = null)
+    public function translate($args, Array $languages = null, $array_support = false, $html_out = false)
     {
-        $lookup = array_shift($args);
+        if (is_array($args)) {
+            $lookup = array_shift($args);
+        } else {
+            $lookup = $args;
+            $args = [];
+        }
 
-        if ($this->enabled() && $lookup) {
-            if (empty($languages)) {
-                if ($this->config->get('system.languages.translations.fallback', true)) {
-                    $languages = $this->getFallbackLanguages();
-                } else {
-                    $languages = (array)$this->getDefault();
+
+        if ($this->config->get('system.languages.translations', true)) {
+
+            if (isset($this->grav['admin'])) {
+                $languages = ['en'];
+            } elseif ($this->enabled() && $lookup) {
+                if (empty($languages)) {
+                    if ($this->config->get('system.languages.translations_fallback', true)) {
+                        $languages = $this->getFallbackLanguages();
+                    } else {
+                        $languages = (array)$this->getDefault();
+                    }
                 }
+            } else {
+                $languages = ['en'];
             }
 
             foreach ((array)$languages as $lang) {
-                $translation = $this->getTranslation($lang, $lookup);
+                $translation = $this->getTranslation($lang, $lookup, $array_support);
 
                 if ($translation) {
                     if (count($args) >= 1) {
@@ -308,18 +323,36 @@ class Language
             }
         }
 
-        return '<span class="untranslated">' . $lookup . '</span>';
+        if ($html_out) {
+            return '<span class="untranslated">' . $lookup . '</span>';
+        } else {
+            return $lookup;
+        }
     }
 
-    public function translateArray($key, $index, $languages = null)
+    /**
+     * Translate Array
+     *
+     * @param      $key
+     * @param      $index
+     * @param null $languages
+     * @param bool $html_out
+     *
+     * @return string
+     */
+    public function translateArray($key, $index, $languages = null, $html_out = false)
     {
-        if ($this->enabled() && $key) {
-            if (empty($languages)) {
-                if ($this->config->get('system.languages.translations.fallback', true)) {
-                    $languages = $this->getFallbackLanguages();
-                } else {
-                    $languages = (array)$this->getDefault();
+        if ($this->config->get('system.languages.translations', true)) {
+            if ($this->enabled() && $key) {
+                if (empty($languages)) {
+                    if ($this->config->get('system.languages.translations_fallback', true)) {
+                        $languages = $this->getFallbackLanguages();
+                    } else {
+                        $languages = (array)$this->getDefault();
+                    }
                 }
+            } else {
+                $languages = ['en'];
             }
 
             foreach ((array)$languages as $lang) {
@@ -330,30 +363,35 @@ class Language
             }
         }
 
-        return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
+        if ($html_out) {
+            return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
+        } else {
+            return $key . '[' . $index . ']';
+        }
     }
 
     /**
      * Lookup the translation text for a given lang and key
      *
-     * @param $lang lang code
-     * @param $key  key to lookup with
+     * @param      $lang lang code
+     * @param      $key  key to lookup with
+     * @param bool $array_support
      *
      * @return string
      */
-    public function getTranslation($lang, $key)
+    public function getTranslation($lang, $key, $array_support = false)
     {
         $translation = $this->config->getLanguages()->get($lang . '.' . $key, null);
-        if (is_array($translation)) {
+        if (!$array_support && is_array($translation)) {
             return (string)array_shift($translation);
         }
 
         return $translation;
     }
 
-    function getBrowserLanguages($accept_langs = [])
+    public function getBrowserLanguages($accept_langs = [])
     {
-        if (empty($this->http_accept_langauge)) {
+        if (empty($this->http_accept_language)) {
             if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
                 $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             } else {
@@ -372,9 +410,9 @@ class Language
             arsort($langs);
 
             // no need to undecorate, because we're only interested in the keys
-            $this->http_accept_langauge = array_keys($langs);
+            $this->http_accept_language = array_keys($langs);
         }
-        return $this->http_accept_langauge;
+        return $this->http_accept_language;
     }
 
 }

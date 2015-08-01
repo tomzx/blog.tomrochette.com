@@ -2,6 +2,16 @@ absolute_urls: false                   # Absolute or relative URLs for `base_url
 timezone: ''                           # Valid values: http://php.net/manual/en/timezones.php
 param_sep: ':'                         # Parameter separator, use ';' for Apache on windows
 
+languages:
+  supported: []                        # List of languages supported. eg: [en, fr, de]
+  translations: true                   # Enable translations by default
+  translations_fallback: true          # Fallback through supported translations if active lang doesn't exist
+  session_store_active: false          # Store active language in session
+  home_redirect:
+    include_lang: true                 # Include language in home redirect (/en)
+    include_route: false               # Include route in home redirect (/blog)
+
+
 home:
   alias: '/home'                       # Default path for home, ie /
 
@@ -34,6 +44,7 @@ pages:
   expires: 604800                      # Page expires time in seconds (604800 seconds = 7 days)
   last_modified: false                 # Set the last modified date header based on file modifcation timestamp
   etag: false                          # Set the etag header tag
+  vary_accept_encoding: false          # Add `Vary: Accept-Encoding` header
   redirect_default_route: false        # Automatically redirect to a page's default route
 
 cache:
@@ -44,7 +55,6 @@ cache:
   prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                     # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                          # GZip compress the page output
-
 
 twig:
   cache: true                          # Set to true to enable twig caching
@@ -77,6 +87,7 @@ debugger:
 
 images:
   default_image_quality: 85            # Default image quality to use when resampling images (85%)
+  cache_all: false                     # Cache all image by default
   debug: false                         # Show an overlay over images indicating the pixel depth of the image when working with retina for example
 
 media:
