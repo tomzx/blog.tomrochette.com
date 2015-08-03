@@ -203,7 +203,7 @@ class TwigExtension extends \Twig_Extension
         )) {
             return $inflector->$action($data);
         } elseif (in_array($action, ['pluralize','singularize'])) {
-            if ($count) {
+            if ($count !== null) {
                 return $inflector->$action($data, $count);
             } else {
                 return $inflector->$action($data);
