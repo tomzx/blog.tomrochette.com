@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Page;
 
+use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
@@ -15,7 +16,10 @@ use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Data\Blueprint;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+
+define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
 /**
  * The Page object, or "Page" object is the main powerhouse of Grav.  It contains all the information
@@ -56,6 +60,7 @@ class Page
     protected $items;
     protected $header;
     protected $frontmatter;
+    protected $language;
     protected $content;
     protected $summary;
     protected $raw_content;
@@ -127,6 +132,58 @@ class Page
         } else {
             $this->extension($extension);
         }
+
+        // extract page language from page extension
+        $language = trim(basename($this->extension(), 'md'), '.') ?: null;
+        $this->language($language);
+    }
+
+    /**
+     * Return an array with the routes of other translated languages
+     * @return array the page translated languages
+     */
+    public function translatedLanguages()
+    {
+        $filename = substr($this->name, 0, -(strlen($this->extension())));
+        $config = self::getGrav()['config'];
+        $languages = $config->get('system.languages.supported', []);
+        $translatedLanguages = [];
+
+        foreach ($languages as $language) {
+            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language .'.md';
+            if (file_exists($path)) {
+                $aPage = new Page();
+                $aPage->init(new \SplFileInfo($path), $language .'.md');
+
+                $route = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
+                if (!$route) $route = $aPage->slug();
+
+                $translatedLanguages[$language] = $route;
+            }
+        }
+
+        return $translatedLanguages;
+    }
+
+    /**
+     * Return an array listing untranslated languages available
+     * @return array the page untranslated languages
+     */
+    public function untranslatedLanguages()
+    {
+        $filename = substr($this->name, 0, -(strlen($this->extension())));
+        $config = self::getGrav()['config'];
+        $languages = $config->get('system.languages.supported', []);
+        $untranslatedLanguages = [];
+
+        foreach ($languages as $language) {
+            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language .'.md';
+            if (!file_exists($path)) {
+                $untranslatedLanguages[] = $language;
+            }
+        }
+
+        return $untranslatedLanguages;
     }
 
     /**
@@ -199,10 +256,16 @@ class Page
         if (!$this->header) {
             $file = $this->file();
             if ($file) {
-                $this->raw_content = $file->markdown();
-                $this->frontmatter = $file->frontmatter();
-                $this->header = (object) $file->header();
-
+                try {
+                    $this->raw_content = $file->markdown();
+                    $this->frontmatter = $file->frontmatter();
+                    $this->header = (object)$file->header();
+                } catch (ParseException $e) {
+                    $file->raw(self::getGrav()['language']->translate(['FRONTMATTER_ERROR_PAGE', $this->slug(), $file->filename(), $e->getMessage(), $file->raw()]));
+                    $this->raw_content = $file->markdown();
+                    $this->frontmatter = $file->frontmatter();
+                    $this->header = (object)$file->header();
+                }
                 $var = true;
             }
         }
@@ -217,6 +280,9 @@ class Page
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
             }
+            if (isset($this->header->language)) {
+                $this->language = trim($this->header->language);
+            }
             if (isset($this->header->template)) {
                 $this->template = trim($this->header->template);
             }
@@ -224,10 +290,10 @@ class Page
                 $this->menu = trim($this->header->menu);
             }
             if (isset($this->header->routable)) {
-                $this->routable = $this->header->routable;
+                $this->routable = (bool) $this->header->routable;
             }
             if (isset($this->header->visible)) {
-                $this->visible = $this->header->visible;
+                $this->visible = (bool) $this->header->visible;
             }
             if (isset($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
@@ -245,7 +311,7 @@ class Page
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
             }
             if (isset($this->header->taxonomy)) {
-                foreach ($this->header->taxonomy as $taxonomy => $taxitems) {
+                foreach ((array) $this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
                 }
             }
@@ -253,12 +319,12 @@ class Page
                 $this->max_count = intval($this->header->max_count);
             }
             if (isset($this->header->process)) {
-                foreach ($this->header->process as $process => $status) {
-                    $this->process[$process] = $status;
+                foreach ((array) $this->header->process as $process => $status) {
+                    $this->process[$process] = (bool) $status;
                 }
             }
             if (isset($this->header->published)) {
-                $this->published = $this->header->published;
+                $this->published = (bool) $this->header->published;
             }
             if (isset($this->header->publish_date)) {
                 $this->publish_date = $this->header->publish_date;
@@ -270,15 +336,31 @@ class Page
                 $this->expires = intval($this->header->expires);
             }
             if (isset($this->header->etag)) {
-                $this->etag = (bool)$this->header->etag;
+                $this->etag = (bool) $this->header->etag;
             }
             if (isset($this->header->last_modified)) {
-                $this->last_modified = (bool)$this->header->last_modified;
+                $this->last_modified = (bool) $this->header->last_modified;
             }
 
         }
 
         return $this->header;
+    }
+
+    /**
+     * Get page language
+     *
+     * @param $var
+     *
+     * @return mixed
+     */
+    public function language($var = null)
+    {
+        if ($var !== null) {
+            $this->language = $var;
+        }
+
+        return $this->language;
     }
 
     /**
@@ -528,18 +610,25 @@ class Page
             return $this->raw_content;
         }
         if ($name == 'route') {
-            return dirname($this->route());
+            return $this->parent()->rawRoute();
         }
         if ($name == 'order') {
             $order = $this->order();
             return $order ? (int) $this->order() : '';
         }
+        if ($name == 'ordering') {
+            return (bool) $this->order();
+        }
         if ($name == 'folder') {
             $regex = '/^[0-9]+\./u';
             return preg_replace($regex, '', $this->folder);
         }
-        if ($name == 'type') {
-            return $this->template();
+        if ($name == 'name') {
+            $name_val = str_replace('.md', '', $this->name());
+            if ($this->modular()) {
+                return 'modular/' . $name_val;
+            }
+            return $name_val;
         }
         if ($name == 'media') {
             return $this->media()->all();
@@ -606,22 +695,6 @@ class Page
     }
 
     /**
-     * Get page extension
-     *
-     * @param $var
-     *
-     * @return mixed
-     */
-    public function extension($var = null)
-    {
-        if ($var !== null) {
-            $this->extension = $var;
-        }
-
-        return $this->extension;
-    }
-
-    /**
      * Save page if there's a file assigned to it.
      * @param bool $reorder Internal use.
      */
@@ -658,9 +731,12 @@ class Page
         if ($parent->path()) {
             $clone->path($parent->path() . '/' . $clone->folder());
         }
+
         // TODO: make sure we always have the route.
         if ($parent->route()) {
             $clone->route($parent->route() . '/'. $clone->slug());
+        } else {
+            $clone->route(self::getGrav()['pages']->root()->route() . '/'. $clone->slug());
         }
 
         return $clone;
@@ -694,16 +770,16 @@ class Page
         $pages = self::getGrav()['pages'];
 
         $blueprint = $pages->blueprints($this->blueprintName());
-
         $fields = $blueprint->fields();
+        $edit_mode = self::getGrav()['admin'] ? self::getGrav()['config']->get('plugins.admin.edit_mode') : null;
 
         // override if you only want 'normal' mode
-        if (empty($fields) && self::getGrav()['admin'] && self::getGrav()['config']->get('plugins.admin.edit_mode', 'auto') == 'normal') {
+        if (empty($fields) && ($edit_mode == 'auto' || $edit_mode == 'normal')) {
             $blueprint = $pages->blueprints('default');
         }
 
         // override if you only want 'expert' mode
-        if (!empty($fields) && self::getGrav()['admin'] && self::getGrav()['config']->get('plugins.admin.edit_mode', 'auto') == 'expert') {
+        if (!empty($fields) && $edit_mode == 'expert') {
             $blueprint = $pages->blueprints('');
         }
 
@@ -725,7 +801,7 @@ class Page
     /**
      * Validate page header.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function validate()
     {
@@ -850,9 +926,26 @@ class Page
             $this->template = $var;
         }
         if (empty($this->template)) {
-            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension, '', $this->name());
+            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name());
         }
         return $this->template;
+    }
+
+    /**
+     * Gets and sets the extension field.
+     *
+     * @param null $var
+     * @return null|string
+     */
+    public function extension($var = null)
+    {
+        if ($var !== null) {
+            $this->extension = $var;
+        }
+        if (empty($this->extension)) {
+            $this->extension = '.' . pathinfo($this->name(), PATHINFO_EXTENSION);
+        }
+        return $this->extension;
     }
 
     /**
@@ -958,7 +1051,7 @@ class Page
     public function publishDate($var = null)
     {
         if ($var !== null) {
-            $this->publish_date = strtotime($var);
+            $this->publish_date = Utils::date2timestamp($var);
         }
 
         if ($this->publish_date === null) {
@@ -977,7 +1070,7 @@ class Page
     public function unpublishDate($var = null)
     {
         if ($var !== null) {
-            $this->unpublish_date = strtotime($var);
+            $this->unpublish_date = Utils::date2timestamp($var);
         }
 
         return $this->unpublish_date;
@@ -1030,43 +1123,34 @@ class Page
         // if not metadata yet, process it.
         if (null === $this->metadata) {
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
-            $this->metadata = array();
+
+            $this->metadata = [];
 
             // Set the Generator tag
             $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
 
+            // Get initial metadata for the page
+            $metadata  = self::getGrav()['config']->get('site.metadata');
 
             if (isset($this->header->metadata)) {
-                $page_header = $this->header->metadata;
-
-
-
-
-
                 // Merge any site.metadata settings in with page metadata
-                $defaults = (array) self::getGrav()['config']->get('site.metadata');
+                $metadata = array_merge($metadata, $this->header->metadata);
+            }
 
-                if (isset($page_header)) {
-                    $page_header = array_merge($defaults, $page_header);
+            // Build an array of meta objects..
+            foreach ((array)$metadata as $key => $value) {
+                // If this is a property type metadata: "og", "twitter", "facebook" etc
+                if (is_array($value)) {
+                    foreach ($value as $property => $prop_value) {
+                        $prop_key =  $key.":".$property;
+                        $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
+                    }
+                // If it this is a standard meta data type
                 } else {
-                    $page_header = $defaults;
-                }
-
-                // Build an array of meta objects..
-                foreach ((array)$page_header as $key => $value) {
-                    // If this is a property type metadata: "og", "twitter", "facebook" etc
-                    if (is_array($value)) {
-                        foreach ($value as $property => $prop_value) {
-                            $prop_key =  $key.":".$property;
-                            $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
-                        }
-                    // If it this is a standard meta data type
+                    if (in_array($key, $header_tag_http_equivs)) {
+                        $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                     } else {
-                        if (in_array($key, $header_tag_http_equivs)) {
-                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
-                        } else {
-                            $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
-                        }
+                        $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                     }
                 }
             }
@@ -1089,8 +1173,7 @@ class Page
         }
 
         if (empty($this->slug)) {
-            $regex = '/^[0-9]+\./u';
-            $this->slug = preg_replace($regex, '', $this->folder);
+            $this->slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
         }
 
         return $this->slug;
@@ -1104,13 +1187,12 @@ class Page
      */
     public function order($var = null)
     {
-        $regex = '/^[0-9]+\./u';
         if ($var !== null) {
-            $order = !empty($var) ? sprintf('%02d.', (int) $var) : '';
-            $slug = preg_replace($regex, '', $this->folder);
-            $this->folder($order.$slug);
+            $order = !empty($var) ? sprintf('%02d.', (int)$var) : '';
+            $this->folder($order . $this->slug());
         }
-        preg_match($regex, $this->folder, $order);
+        preg_match(PAGE_ORDER_PREFIX_REGEX, $this->folder, $order);
+
         return isset($order[0]) ? $order[0] : false;
     }
 
@@ -1203,6 +1285,15 @@ class Page
         }
 
         return $this->route;
+    }
+
+    /**
+     * Helper method to clear the route out so it regenerates next time you use it
+     */
+    public function unsetRouteSlug()
+    {
+        unset($this->route);
+        unset($this->slug);
     }
 
     public function rawRoute($var = null)
@@ -1396,7 +1487,7 @@ class Page
     public function date($var = null)
     {
         if ($var !== null) {
-            $this->date = strtotime($var);
+            $this->date = Utils::date2timestamp($var);
         }
 
         if (!$this->date) {
@@ -1570,7 +1661,10 @@ class Page
     public function isFirst()
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->isFirst($this->path());
+        if ($collection instanceof Collection) {
+            return $collection->isFirst($this->path());
+        }
+        return true;
     }
 
     /**
@@ -1581,7 +1675,10 @@ class Page
     public function isLast()
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->isLast($this->path());
+        if ($collection instanceof Collection) {
+            return $collection->isLast($this->path());
+        }
+        return true;
     }
 
     /**
@@ -1613,7 +1710,10 @@ class Page
     public function adjacentSibling($direction = 1)
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->adjacentSibling($this->path(), $direction);
+        if ($collection instanceof Collection) {
+            return $collection->adjacentSibling($this->path(), $direction);
+        }
+        return false;
     }
 
     /**
@@ -1623,7 +1723,7 @@ class Page
      */
     public function active()
     {
-        $uri_path = self::getGrav()['uri']->path();
+        $uri_path = rtrim(self::getGrav()['uri']->path(), '/') ?: '/';
         $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
@@ -1645,12 +1745,12 @@ class Page
     {
         $uri = self::getGrav()['uri'];
         $pages = self::getGrav()['pages'];
-        $uri_path = $uri->path();
+        $uri_path = rtrim($uri->path(), '/');
         $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
             $child_page = $pages->dispatch($uri->route())->parent();
-            while (!$child_page->root()) {
+            if ($child_page) while (!$child_page->root()) {
                 if ($this->path() == $child_page->path()) {
                     return true;
                 }
@@ -1692,7 +1792,6 @@ class Page
      * @param bool    $all
      *
      * @return \Grav\Common\Page\Page page you were looking for if it exists
-     * @deprecated
      */
     public function find($url, $all = false)
     {
@@ -1744,7 +1843,7 @@ class Page
                     }
                     foreach ($items as $item) {
                         if (empty($page->taxonomy[$taxonomy])
-                            || !in_array($item, $page->taxonomy[$taxonomy])) {
+                            || !in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy])) {
                             $collection->remove();
                         }
                     }
@@ -1756,7 +1855,8 @@ class Page
         if (isset($params['dateRange'])) {
             $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;
             $end = isset($params['dateRange']['end']) ? $params['dateRange']['end'] : false;
-            $collection->dateRange($start, $end);
+            $field = isset($params['dateRange']['field']) ? $params['dateRange']['field'] : false;
+            $collection->dateRange($start, $end, $field);
         }
 
         if (isset($params['order'])) {
@@ -1915,7 +2015,7 @@ class Page
      */
     protected function doRelocation($reorder)
     {
-        if (empty($this->_original)) {
+        if (empty($this->_original) ) {
             return;
         }
 

@@ -1,3 +1,112 @@
+# v0.9.40
+## 08/31/2015
+
+1. [](#new)
+    * Added some new Twig filers: `defined`, `rtrim`, `ltrim`
+    * Admin support for customizable page file name + template override
+1. [](#improved)
+    * Better message for incompatible/unsupported Twig template
+    * Improved User blueprints with better help
+    * Switched to composer **install** rather than **update** by default
+    * Admin autofocus on page title
+    * `.htaccess` hardening (`.htaccess` & `htaccess.txt`)
+    * Cache safety checks for missing folders
+1. [](#bugfix)
+    * Fixed issue with unescaped `o` character in date formats
+
+# v0.9.39
+## 08/25/2015
+
+1. [](#bugfix)
+    * `Page.active()` not triggering on **homepage**
+    * Fix for invalid session name in Opera browser
+
+# v0.9.38
+## 08/24/2015
+
+1. [](#new)
+    * Added `language` to **user** blueprint
+    * Added translations to blueprints
+    * New extending logic for blueprints
+    * Blueprints are now loaded with Streams to allow for better overrides
+    * Added new Symfony `dump()` method
+1. [](#improved)
+    * Catch YAML header parse exception so site doesn't die
+    * Better `Page.parent()` logic
+    * Improved GPM display layout
+    * Tweaked default page layout
+    * Unset route and slug for improved reliability of route changes
+    * Added requirements to README.md
+    * Updated various libraries
+    * Allow use of custom page date field for dateRange collections
+1. [](#bugfix)
+    * Slug fixes with GPM
+    * Unset plaintext password on save
+    * Fix for trailing `/` not matching active children
+
+# v0.9.37
+## 08/12/2015
+
+3. [](#bugfix)
+    * Fixed issue when saving `header.process` in page forms via the **admin plugin**
+    * Fixed error due to use of `set_time_limit` that might be disabled on some hosts
+
+# v0.9.36
+## 08/11/2015
+
+1. [](#new)
+    * Added a new `newuser` CLI command to create user accounts
+    * Added `default` blueprint for all templates
+    * Support `user` and `system` language translation merging
+1. [](#improved)
+    * Added isSymlink method in GPM to determine if Grav is symbolically linked or not
+    * Refactored page recursing
+    * Updated blueprints to use new toggles
+    * Updated blueprints to use current date for date format fields
+    * Updated composer.phar
+    * Use sessions for admin even when disabled for site
+    * Use `GRAV_ROOT` in session identifier
+
+# v0.9.35
+## 08/06/2015
+
+1. [](#new)
+    * Added `body_classes` field
+    * Added `visiblity` toggle and help tooltips on new page form
+    * Added new `Page.unsetRoute()` method to allow admin to regenerate the route
+2. [](#improved)
+    * User save no longer stores username each time
+    * Page list form field now shows all pages except root
+    * Removed required option from page title
+    * Added configuration settings for running Nginx in sub directory
+3. [](#bugfix)
+    * Fixed deep translation merging
+    * Fixed broken **metadata** merging with site defaults
+    * Fixed broken **summary** field
+    * Fixed broken robots field
+    * Fixed GPM issue when using cURL, throwing an `Undefined offset: 1` exception
+    * Removed duplicate hidden page `type` field
+
+# v0.9.34
+## 08/04/2015
+
+1. [](#new)
+    * Added new `cache_all` system setting + media `cache()` method
+    * Added base languages configuration
+    * Added property language to page to help plugins identify page language
+    * New `Utils::arrayFilterRecursive()` method
+2. [](#improved)
+    * Improved Session handling to support site and admin independently
+    * Allow Twig variables to be modified in other events
+    * Blueprint updates in preparation for Admin plugin
+    * Changed `Inflector` from static to object and added multi-language support
+    * Support for admin override of a page's blueprints
+3. [](#bugfix)
+    * Removed unused `use` in `VideoMedium` that was causing error
+    * Array fix in `User.authorise()` method
+    * Fix for typo in `translations_fallback`
+    * Fixed moving page to the root
+
 # v0.9.33
 ## 07/21/2015
 
