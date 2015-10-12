@@ -23,6 +23,7 @@ user/plugins/*
 !user/plugins/.*
 user/themes/*
 !user/themes/.*
+!user/themes/tomrochette.com
 
 # OS Generated
 .DS_Store*

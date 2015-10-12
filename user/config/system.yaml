@@ -12,7 +12,7 @@ languages:
 home:
   alias: /home
 pages:
-  theme: antimatter
+  theme: tomrochette.com
   order:
     by: default
     dir: asc
