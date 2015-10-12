@@ -1,8 +1,106 @@
+# v0.9.45
+## 10/08/2015
+
+1. [](#bugfix)
+    * Fixed a regression issue resulting in incorrect default language
+
+# v0.9.44
+## 10/07/2015
+
+1. [](#new)
+    * Added Redis back as a supported cache mechanism
+    * Allow Twig `nicetime` translations
+    * Added `-y` option for 'Yes to all' in `bin/gpm update`
+    * Added CSS `media` attribute to the Assets manager
+    * New German language support
+    * New Czech language support
+    * New French language support
+    * Added `modulus` twig filter
+1. [](#improved)
+    * URL decode in medium actions to allow complex syntax
+    * Take into account `HTTP_HOST` before `SERVER_NAME` (helpful with Nginx)
+    * More friendly cache naming to ease manual management of cache systems
+    * Added default Apache resource for `DirectoryIndex`
+1. [](#bugfix)
+    * Fix GPM failure when offline
+    * Fix `open_basedir` error in `bin/gpm install`
+    * Fix an HHVM error in Truncator
+    * Fix for XSS vulnerability with params
+    * Fix chaining for responsive size derivatives
+    * Fix for saving pages when removing the page title and all other header elements
+    * Fix when saving array fields
+    * Fix for ports being included in `HTTP_HOST`
+    * Fix for Truncator to handle PHP tags gracefully
+    * Fix for locate style lang codes in `getNativeName()`
+    * Urldecode image basenames in markdown
+
+# v0.9.43
+## 09/16/2015
+
+1. [](#new)
+    * Added new `AudioMedium` for HTML5 audio
+    * Added ability for Assets to be added and displayed in separate *groups*
+    * New support for responsive image derivative sizes
+1. [](#improved)
+    * GPM theme install now uses a `copy` method so new files are not lost (e.g. `/css/custom.css`)
+    * Code analysis improvements and cleanup
+    * Removed Twig panel from debugger (no longer supported in Twig 1.20)
+    * Updated composer packages
+    * Prepend active language to `convertUrl()` when used in markdown links
+    * Added some pre/post flight options for installer via blueprints
+    * Hyphenize the site name in the backup filename
+1. [](#bugfix)
+    * Fix broken routable logic
+    * Check for `phpinfo()` method in case it is restricted by hosting provider
+    * Fixes for windows when running GPM
+    * Fix for ampersand (`&`) causing error in `truncateHtml()` via `Page.summary()`
+
+# v0.9.42
+## 09/11/2015
+
+1. [](#bugfix)
+    * Fixed `User.authorise()` to be backwards compabile
+
+# v0.9.41
+## 09/11/2015
+
+1. [](#new)
+    * New and improved multibyte-safe TruncateHTML function and filter
+    * Added support for custom page date format
+    * Added a `string` Twig filter to render as json_encoded string
+    * Added `authorize` Twig filter
+    * Added support for theme inheritance in the admin
+    * Support for multiple content collections on a page
+    * Added configurable files/folders ignores for pages
+    * Added the ability to set the default PHP locale and override via multi-lang configuration
+    * Added ability to save as YAML via admin
+    * Added check for `mbstring` support
+    * Added new `redirect` header for pages
+1. [](#improved)
+    * Changed dependencies from `develop` to `master`
+    * Updated logging to log everything from `debug` level on (was `warning`)
+    * Added missing `accounts/` folder
+    * Default to performing a 301 redirect for URIs with trailing slashes
+    * Improved Twig error messages
+    * Allow validating of forms from anywhere such as plugins
+    * Added logic so modular pages are by default non-routable
+    * Hide password input in `bin/grav newuser` command
+1. [](#bugfix)
+    * Fixed `Pages.all()` not returning modular pages
+    * Fix for modular template types not getting found
+    * Fix for `markdown_extra:` overriding `markdown:extra:` setting
+    * Fix for multi-site routing
+    * Fix for multi-lang page name error
+    * Fixed a redirect loop in `URI` class
+    * Fixed a potential error when `unsupported_inline_types` is empty
+    * Correctly generate 2x retina image
+    * Typo fixes in page publish/unpublish blueprint
+
 # v0.9.40
 ## 08/31/2015
 
 1. [](#new)
-    * Added some new Twig filers: `defined`, `rtrim`, `ltrim`
+    * Added some new Twig filters: `defined`, `rtrim`, `ltrim`
     * Admin support for customizable page file name + template override
 1. [](#improved)
     * Better message for incompatible/unsupported Twig template

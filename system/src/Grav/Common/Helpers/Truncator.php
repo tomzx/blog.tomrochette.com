@@ -12,14 +12,13 @@ use DOMDocument;
  * file that was distributed with this source code.
  */
 
-class InvalidHtmlException extends \Exception {
-}
-
 class Truncator {
 
     public static $default_options = array(
         'ellipsis' => '…',
+        'break' => ' ',
         'length_in_chars' => false,
+        'word_safe' => false,
     );
 
     // These tags are allowed to have an ellipsis inside
@@ -44,11 +43,13 @@ class Truncator {
      * @param  string|array  $opts
      * @return string
      */
-    public static function truncate($html, $length, $opts=array()) {
+    public static function truncate($html, $length, $opts=array())
+    {
         if (is_string($opts)) $opts = array('ellipsis' => $opts);
         $opts = array_merge(static::$default_options, $opts);
         // wrap the html in case it consists of adjacent nodes like <p>foo</p><p>bar</p>
-        $html = "<div>".static::utf8_for_xml($html)."</div>";
+        $html = mb_convert_encoding("<div>".$html."</div>", 'HTML-ENTITIES', 'UTF-8');
+
         $root_node = null;
         // Parse using HTML5Lib if it's available.
         if (class_exists('HTML5Lib\\Parser')) {
@@ -63,9 +64,9 @@ class Truncator {
         if ($root_node === null) {
             // HTML5Lib not available so we'll have to use DOMDocument
             // We'll only be able to parse HTML5 if it's valid XML
-            $doc = new DOMDocument;
+            $doc = new DOMDocument('4.01', 'utf-8');
             $doc->formatOutput = false;
-            $doc->preserveWhitespace = true;
+            $doc->preserveWhiteSpace = true;
             // loadHTML will fail with HTML5 tags (article, nav, etc)
             // so we need to suppress errors and if it fails to parse we
             // retry with the XML parser instead
@@ -78,45 +79,54 @@ class Truncator {
             }
             else {
                 libxml_use_internal_errors($prev_use_errors);
-                throw new InvalidHtmlException;
+                throw new \RuntimeException;
             }
             libxml_use_internal_errors($prev_use_errors);
         }
-        list($text, $_, $opts) = static::_truncate_node($doc, $root_node, $length, $opts);
-        $text = substr(substr($text, 0, -6), 5);
+        list($text, $_, $opts) = static::truncateNode($doc, $root_node, $length, $opts);
+
+        $text = mb_substr(mb_substr($text, 0, -6), 5);
+
         return $text;
     }
 
-    protected static function _truncate_node($doc, $node, $length, $opts) {
+    protected static function truncateNode($doc, $node, $length, $opts)
+    {
         if ($length === 0 && !static::ellipsable($node)) {
             return array('', 1, $opts);
         }
-        list($inner, $remaining, $opts) = static::_inner_truncate($doc, $node, $length, $opts);
-        if (0 === strlen($inner)) {
-            return array(in_array(strtolower($node->nodeName), static::$self_closing_tags) ? $doc->saveXML($node) : "", $length - $remaining, $opts);
+        list($inner, $remaining, $opts) = static::innerTruncate($doc, $node, $length, $opts);
+        if (0 === mb_strlen($inner)) {
+            return array(in_array(mb_strtolower($node->nodeName), static::$self_closing_tags) ? $doc->saveXML($node) : "", $length - $remaining, $opts);
         }
         while($node->firstChild) {
             $node->removeChild($node->firstChild);
         }
         $newNode = $doc->createDocumentFragment();
-        $newNode->appendXml($inner);
+        // handle the ampersand
+        $newNode->appendXml(static::xmlEscape($inner));
         $node->appendChild($newNode);
         return array($doc->saveXML($node), $length - $remaining, $opts);
     }
 
-    protected static function _inner_truncate($doc, $node, $length, $opts) {
+    protected static function innerTruncate($doc, $node, $length, $opts)
+    {
         $inner = '';
         $remaining = $length;
         foreach($node->childNodes as $childNode) {
             if ($childNode->nodeType === XML_ELEMENT_NODE) {
-                list($txt, $nb, $opts) = static::_truncate_node($doc, $childNode, $remaining, $opts);
+                list($txt, $nb, $opts) = static::truncateNode($doc, $childNode, $remaining, $opts);
             }
             else if ($childNode->nodeType === XML_TEXT_NODE) {
-                list($txt, $nb, $opts) = static::_truncate_text($doc, $childNode, $remaining, $opts);
+                list($txt, $nb, $opts) = static::truncateText($doc, $childNode, $remaining, $opts);
             } else {
                 $txt = '';
                 $nb  = 0;
             }
+
+            // unhandle the ampersand
+            $txt = static::xmlUnescape($txt);
+
             $remaining -= $nb;
             $inner .= $txt;
             if ($remaining < 0) {
@@ -131,28 +141,28 @@ class Truncator {
         return array($inner, $remaining, $opts);
     }
 
-    protected static function _truncate_text($doc, $node, $length, $opts) {
-        $xhtml = $node->ownerDocument->saveXML($node);
-        preg_match_all('/\s*\S+/', $xhtml, $words);
-        $words = $words[0];
+    protected static function truncateText($doc, $node, $length, $opts)
+    {
+        $string = $node->textContent;
+
         if ($opts['length_in_chars']) {
-            $count = strlen($xhtml);
+            $count = mb_strlen($string);
             if ($count <= $length && $length > 0) {
-                return array($xhtml, $count, $opts);
+                return array($string, $count, $opts);
             }
-            if (count($words) > 1) {
-                $content = '';
-                foreach ($words as $word) {
-                    if (strlen($content) + strlen($word) > $length) {
-                        break;
+            if ($opts['word_safe']) {
+                if (false !== ($breakpoint = mb_strpos($string, $opts['break'], $length))) {
+                    if ($breakpoint < mb_strlen($string) - 1) {
+                        $string = mb_substr($string, 0, $breakpoint) . $opts['break'];
                     }
-                    $content .= $word;
                 }
-                return array($content, $count, $opts);
+                return array($string, $count, $opts);
             }
-            return array(substr($node->textContent, 0, $length), $count, $opts);
+            return array(mb_substr($node->textContent, 0, $length), $count, $opts);
         }
         else {
+            preg_match_all('/\s*\S+/', $string, $words);
+            $words = $words[0];
             $count = count($words);
             if ($count <= $length && $length > 0) {
                 return array($xhtml, $count, $opts);
@@ -161,13 +171,24 @@ class Truncator {
         }
     }
 
-    protected static function ellipsable($node) {
+    protected static function ellipsable($node)
+    {
         return ($node instanceof DOMDocument)
-        || in_array(strtolower($node->nodeName), static::$ellipsable_tags)
+        || in_array(mb_strtolower($node->nodeName), static::$ellipsable_tags)
             ;
     }
 
-    protected static function utf8_for_xml($string) {
-        return preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $string);
+    protected static function xmlEscape($string)
+    {
+        $string = str_replace('&', '&amp;', $string);
+        $string = str_replace('<?', '&lt;?', $string);
+        return $string;
+    }
+
+    protected static function xmlUnescape($string)
+    {
+        $string = str_replace('&amp;', '&', $string);
+        $string = str_replace('&lt;?', '<?', $string);
+        return $string;
     }
 }

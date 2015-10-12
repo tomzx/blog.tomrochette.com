@@ -111,6 +111,7 @@ trait ParsedownGravTrait
             $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
             return $excerpt;
         } else {
+            $excerpt['type'] = 'image';
             $excerpt = parent::inlineImage($excerpt);
         }
 
@@ -132,8 +133,8 @@ trait ParsedownGravTrait
                 $path_parts = pathinfo($url['path']);
 
                 // get the local path to page media if possible
-                if ($path_parts['dirname'] == $this->page->url()) {
-                    $url['path'] = $path_parts['basename'];
+                if ($path_parts['dirname'] == $this->page->url(false, false, false)) {
+                    $url['path'] = urldecode($path_parts['basename']);
                     // get the media objects for this page
                     $media = $this->page->media();
                 } else {
@@ -143,7 +144,7 @@ trait ParsedownGravTrait
                     $ext_page = $this->pages->dispatch($page_route, true);
                     if ($ext_page) {
                         $media = $ext_page->media();
-                        $url['path'] = $path_parts['basename'];
+                        $url['path'] = urldecode($path_parts['basename']);
                     }
                 }
 
@@ -165,7 +166,7 @@ trait ParsedownGravTrait
 
                     // loop through actions for the image and call them
                     foreach ($actions as $action) {
-                        $medium = call_user_func_array(array($medium, $action['method']), explode(',', $action['params']));
+                        $medium = call_user_func_array(array($medium, $action['method']), explode(',', urldecode($action['params'])));
                     }
 
                     if (isset($url['fragment'])) {
@@ -186,6 +187,12 @@ trait ParsedownGravTrait
 
     protected function inlineLink($excerpt)
     {
+        if (isset($excerpt['type'])) {
+            $type = $excerpt['type'];
+        } else {
+            $type = 'link';
+        }
+
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
         if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
@@ -204,7 +211,7 @@ trait ParsedownGravTrait
             // if there is no scheme, the file is local
             if (!isset($url['scheme']) && (count($url) > 0)) {
                 // convert the URl is required
-                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url));
+                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type);
             }
         }
 

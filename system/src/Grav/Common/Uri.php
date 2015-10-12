@@ -31,19 +31,26 @@ class Uri
      */
     public function __construct()
     {
-        $base = 'http://';
-        $name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+        $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        // Remove port from HTTP_HOST generated $name
+        $name = Utils::substrToString($name, ':');
+
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
         $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
         $root_path = str_replace(' ', '%20', rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/'));
 
+        // set the base
         if (isset($_SERVER['HTTPS'])) {
             $base = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
+        } else {
+            $base = 'http://';
         }
 
+        // add the sever name
         $base .= $name;
 
+        // add the port of needed
         if ($port != '80' && $port != '443') {
             $base .= ":".$port;
         }
@@ -66,7 +73,6 @@ class Uri
         $this->base = $base;
         $this->root = $base . $root_path;
         $this->url = $base . $uri;
-
     }
 
     /**
@@ -84,9 +90,14 @@ class Uri
         $this->params = [];
         $this->query = [];
 
-
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
+
+        // remove the setup.php based base if set:
+        $setup_base = $grav['pages']->base();
+        if ($setup_base) {
+            $uri = str_replace($setup_base, '', $uri);
+        }
 
         // If configured to, redirect trailing slash URI's with a 301 redirect
         if ($config->get('system.pages.redirect_trailing_slash', false) && $uri != '/' && Utils::endsWith($uri, '/')) {
@@ -115,7 +126,7 @@ class Uri
 
         // process query string
         if (isset($bits['query'])) {
-            parse_str($bits['query'], $this->query);
+            $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             $uri = $bits['path'];
         }
 
@@ -158,7 +169,8 @@ class Uri
                 if (strpos($bit, $delimiter) !== false) {
                     $param = explode($delimiter, $bit);
                     if (count($param) == 2) {
-                        $this->params[$param[0]] = str_replace(urlencode($delimiter), '/', filter_var($param[1], FILTER_SANITIZE_STRING));
+                        $plain_var = filter_var(urldecode($param[1]), FILTER_SANITIZE_STRING);
+                        $this->params[$param[0]] = $plain_var;
                     }
                 } else {
                     $path[] = $bit;
@@ -205,7 +217,7 @@ class Uri
     public function query($id = null, $raw = false)
     {
         if (isset($id)) {
-            return isset($this->query[$id]) ? filter_var($this->query[$id], FILTER_SANITIZE_STRING) : null;
+            return isset($this->query[$id]) ? $this->query[$id] : null;
         } else {
             if ($raw) {
                 return $this->query;
@@ -477,12 +489,19 @@ class Uri
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $markdown_url)
+    public static function convertUrl(Page $page, $markdown_url, $type = 'link')
     {
         $grav = Grav::instance();
 
+        // Link processing should prepend language
+        $language_append = '';
+        if ($type == 'link') {
+            $active_language = $grav['language']->getActive();
+            $language_append = $active_language ? '/'.$active_language : '';
+        }
+
         $pages_dir = $grav['locator']->findResource('page://');
-        $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/');
+        $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/') . $language_append;
 
         // if absolute and starts with a base_url move on
         if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.' && $page->url() == '/') {
@@ -543,7 +562,7 @@ class Uri
             $instances = $grav['pages']->instances();
             if (isset($instances[$page_path])) {
                 $target = $instances[$page_path];
-                $url_bits['path'] = $base_url . $target->route() . $filename;
+                $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
                 return Uri::buildUrl($url_bits);
             }
 

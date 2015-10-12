@@ -85,7 +85,7 @@ class Twig
 
             // handle language templates if available
             if ($language->enabled()) {
-                $lang_templates = $locator->findResource('theme://templates/'.$active_language);
+                $lang_templates = $locator->findResource('theme://templates/'.($active_language ? $active_language : $language->getDefault()));
                 if ($lang_templates) {
                     $this->twig_paths[] = $lang_templates;
                 }
@@ -105,11 +105,6 @@ class Twig
             }
 
             $this->twig = new TwigEnvironment($loader_chain, $params);
-            if ($debugger->enabled() && $config->get('system.debugger.twig')) {
-                $this->twig = new TraceableTwigEnvironment($this->twig);
-                $collector = new \DebugBar\Bridge\Twig\TwigCollector($this->twig);
-                $debugger->addCollector($collector);
-            }
 
             if ($config->get('system.twig.undefined_functions')) {
                 $this->twig->registerUndefinedFunctionCallback(function ($name) {
@@ -327,13 +322,7 @@ class Twig
         try {
             $output = $this->twig->render($template, $twig_vars);
         } catch (\Twig_Error_Loader $e) {
-            // If loader error, and not .html.twig, try it as fallback
-            if (Utils::contains($e->getMessage(), $template)) {
-                $inflector = new Inflector();
-                $error_msg = 'The template file for this page: "' . $template.'" is not provided by the theme: "'. $inflector->titleize($config->get('system.pages.theme')) .'"';
-            } else {
-                $error_msg = $e->getMessage();
-            }
+            $error_msg = $e->getMessage();
             // Try html version of this template if initial template was NOT html
             if ($ext != '.html'.TWIG_EXT) {
                 try {

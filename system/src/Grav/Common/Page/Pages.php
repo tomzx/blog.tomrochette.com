@@ -10,6 +10,7 @@ use Grav\Common\Language;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
+use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
@@ -63,6 +64,16 @@ class Pages
     protected $last_modified;
 
     /**
+     * @var array
+     */
+    protected $ignore_files;
+
+    /**
+     * @var array
+     */
+    protected $ignore_folders;
+
+    /**
      * @var Types
      */
     static protected $types;
@@ -101,6 +112,10 @@ class Pages
      */
     public function init()
     {
+        $config = $this->grav['config'];
+        $this->ignore_files = $config->get('system.pages.ignore_files');
+        $this->ignore_folders = $config->get('system.pages.ignore_folders');
+
         $this->buildPages();
     }
 
@@ -263,8 +278,17 @@ class Pages
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
 
+        // Are we in the admin? this is important!
+        $not_admin = !isset($this->grav['admin']);
+
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && (!$page || !$page->routable())) {
+        if (!$all && $not_admin && (!$page || ($page && !$page->routable()) || ($page && $page->redirect()))) {
+
+            // If the page is a simple redirect, just do it.
+            if ($page && $page->redirect()) {
+                $this->grav->redirectLangSafe($page->redirect());
+            }
+
             /** @var Config $config */
             $config = $this->grav['config'];
 
@@ -282,7 +306,7 @@ class Pages
                             $this->grav->redirectLangSafe($found);
                         }
                     } catch (ErrorException $e) {
-                        $this->grav['log']->error('site.redirects: '. $pattern . '-> ' . $e->getMessage());
+                        $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                     }
                 }
 
@@ -352,9 +376,11 @@ class Pages
     public function all(Page $current = null)
     {
         $all = new Collection();
+
+        /** @var Page $current */
         $current = $current ?: $this->root();
 
-        if ($current->routable()) {
+        if (!$current->root()) {
             $all[$current->path()] = [ 'slug' => $current->slug() ];
         }
 
@@ -439,6 +465,26 @@ class Pages
         $types = self::getTypes();
 
         return $types->modularSelect();
+    }
+
+    /**
+     * Get template types based on page type (standard or modular)
+     *
+     * @return array
+     */
+    public static function pageTypes()
+    {
+        /** @var Admin $admin */
+        $admin = Grav::instance()['admin'];
+
+        /** @var Page $page */
+        $page = $admin->getPage($admin->route);
+
+        if ($page && $page->modular()) {
+            return static::modularTypes();
+        }
+
+        return static::types();
     }
 
     /**
@@ -665,14 +711,10 @@ class Pages
 
             if ($file->isFile()) {
                 // Update the last modified if it's newer than already found
-                if ($file->getBasename() !== '.DS_Store' && ($modified = $file->getMTime()) > $last_modified) {
+                if (!in_array($file->getBasename(), $this->ignore_files) && ($modified = $file->getMTime()) > $last_modified) {
                     $last_modified = $modified;
                 }
-            } elseif ($file->isDir()) {
-				if (Utils::startsWith($file->getFilename(), '.')) {
-					continue;
-				}
-
+            } elseif ($file->isDir() && !in_array($file->getFilename(), $this->ignore_folders)) {
                 if (!$page->path()) {
                     $page->path($file->getPath());
                 }
@@ -851,7 +893,6 @@ class Pages
 
         foreach ($list as $key => $sort) {
             $info = $pages[$key];
-            // TODO: order by manual needs a hash from the passed variables if we make this more general.
             $this->sort[$path][$order_by][$key] = $info;
         }
     }

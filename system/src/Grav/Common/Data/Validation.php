@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common\Data;
 use Grav\Common\GravTrait;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Parser;
 
 /**
  * Data validation.
@@ -28,11 +30,14 @@ class Validation
             return;
         }
 
+        // Get language class
+        $language = self::getGrav()['language'];
+
         // Validate type with fallback type text.
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
         $name = ucfirst($field['label'] ? $field['label'] : $field['name']);
-        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : 'Invalid input in ' . $name;
+        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : 'Invalid input in "' . $language->translate($name) . '""';
 
         if (method_exists(__CLASS__, $method)) {
             $success = self::$method($value, $validate, $field);
@@ -70,6 +75,16 @@ class Validation
         // If value isn't required, we will return null if empty value is given.
         if (empty($validate['required']) && ($value === null || $value === '')) {
             return null;
+        }
+
+        // if this is a YAML field, simply parse it and return the value
+        if (isset($field['yaml']) && $field['yaml'] === true) {
+            try {
+                $yaml = new Parser();
+                return $yaml->parse($value);
+            } catch (ParseException $e) {
+                throw new \RuntimeException($e->getMessage());
+            }
         }
 
         // Validate type with fallback type text.
@@ -370,7 +385,6 @@ class Validation
      */
     public static function typeDatetime($value, array $params, array $field)
     {
-        // TODO: add min, max and range.
         if ($value instanceof \DateTime) {
             return true;
         } elseif (!is_string($value)) {
@@ -517,7 +531,11 @@ class Validation
 
         if ($multi) {
             foreach ($values as $key => $value) {
-                $values[$key] = explode(',', $value[0]);
+                if (is_array($value)) {
+                    $value = implode(',', $value);
+                }
+
+                $values[$key] =  array_map('trim', explode(',', $value));
             }
         }
 

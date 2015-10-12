@@ -81,7 +81,9 @@ class Language
      */
     public function getAvailable()
     {
-        return implode('|', $this->languages);
+        $languagesArray = $this->languages; //Make local copy
+        sort($languagesArray);
+        return implode('|', array_reverse($languagesArray));
     }
 
     /**
