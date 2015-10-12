@@ -45,6 +45,10 @@ class Truncator {
      */
     public static function truncate($html, $length, $opts=array())
     {
+        if ($length <= 0) {
+            return $html;
+        }
+
         if (is_string($opts)) $opts = array('ellipsis' => $opts);
         $opts = array_merge(static::$default_options, $opts);
         // wrap the html in case it consists of adjacent nodes like <p>foo</p><p>bar</p>
