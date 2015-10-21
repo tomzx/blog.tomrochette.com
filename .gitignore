@@ -21,6 +21,7 @@ user/data/*
 user/pages
 user/plugins/*
 !user/plugins/.*
+!user/plugins/defaulttemplate
 user/themes/*
 !user/themes/.*
 !user/themes/tomrochette.com

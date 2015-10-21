@@ -1,0 +1,12 @@
+name: Default template
+version: 0.1.0
+description: Default template
+icon: default-template
+author:
+  name: Tom Rochette
+  email: tom@tomrochette.com
+  url: http://tomrochette.com
+homepage: https://github.com/tomzx/blog.tomrochette.com
+keywords: default, template
+bugs: https://github.com/tomzx/blog.tomrochette.com/issues
+license: MIT

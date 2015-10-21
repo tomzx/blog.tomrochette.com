@@ -1,0 +1,15 @@
+{
+   "project":"grav-plugin-default-template",
+   "platforms":{
+      "grav":{
+         "nodes":{
+            "plugin":[
+               {
+                  "source":"/",
+                  "destination":"/user/plugins/default-template"
+               }
+            ]
+         }
+      }
+   }
+}
