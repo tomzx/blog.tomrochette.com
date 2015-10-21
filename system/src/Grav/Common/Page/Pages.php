@@ -682,7 +682,7 @@ class Pages
         if ($pages_found) {
             foreach ($page_extensions as $extension) {
                 foreach ($pages_found as $found) {
-                    if (preg_match('/^.*\/[0-9A-Za-z\-\_]+('.$extension.')$/', $found)) {
+					if (preg_match('/^.*\/.+('.preg_quote($extension).')$/', $found)) {
                         $page_found = $found;
                         $page_extension = $extension;
                         break 2;
