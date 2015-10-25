@@ -1,4 +1,5 @@
 absolute_urls: false
+timezone: 'America/Montreal'
 param_sep: ':'
 languages:
   translations: true
