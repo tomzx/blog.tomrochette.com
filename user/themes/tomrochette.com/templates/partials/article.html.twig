@@ -6,44 +6,26 @@
 	{% set header_image_file = page.header.header_image_file %}
 
 	<div class="list-blog-header">
-		{#<span class="list-blog-date">#}
-			{#<span>{{ page.date|date("d") }}</span>#}
-			{#<em>{{ page.date|date("M") }}</em>#}
-			{#<em>{{ page.date|date("Y") }}</em>#}
-		{#</span>#}
-		{#{% if page.header.link %}#}
-			{#<h4>#}
-				{#{% if page.header.continue_link is not sameas(false) %}#}
-				{#<a href="{{ page.url }}"><i class="fa fa-angle-double-right"></i></a>#}
-				{#{% endif %}#}
-				{#<a href="{{ page.header.link }}">{{ page.title }}</a>#}
-			{#</h4>#}
-		{#{% else %}#}
-			{#<h4><a href="{{ page.url }}">{{ page.title }}</a></h4>#}
-		{#{% endif %}#}
+		<h1>{{ page.title }}</h1>
+		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History</a> /
+		{% if page.header.created %}
+			Created: {{ page.header.created|date('F j, Y') }} /
+		{% endif %}
+		Updated: {{ page.date|date('F j, Y') }} /
+		Status: {{ page.header.taxonomy.status ?: 'unknown'  }}
+		<br/>
 
 		{% if page.taxonomy.tag %}
-		<span class="tags">
+			<span class="tags">
 			{% for tag in page.taxonomy.tag %}
-			<a href="{{ blog.url }}/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a>
+				<a href="{{ blog.url }}/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a>
 			{% endfor %}
 		</span>
 		{% endif %}
-		{% if header_image %}
-			{% if header_image_file %}
-				{% set header_image_media = page.media.images[header_image_file] %}
-			{% else %}
-				{% set header_image_media = page.media.images|first %}
-			{% endif %}
-			{{ header_image_media.cropZoom(header_image_width, header_image_height).html }}
-		{% endif %}
-
 	</div>
 
 	<div class="list-blog-padding">
-
 		{{ ('<p>[TOC]</p>'~page.content)|toc }}
-
 	</div>
 
 	<div id="disqus_thread"></div>
