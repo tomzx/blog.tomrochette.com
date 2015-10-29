@@ -7,6 +7,16 @@ use Grav\Common\Plugin;
 class DefaultTemplatePlugin extends Plugin
 {
 	/**
+	 * @return array
+	 */
+	public static function getSubscribedEvents()
+	{
+		return [
+			'onPluginsInitialized' => ['onPluginsInitialized', 0],
+		];
+	}
+
+	/**
 	 * Activate feed plugin only if feed was requested for the current page.
 	 *
 	 * Also disables debugger.
@@ -27,11 +37,6 @@ class DefaultTemplatePlugin extends Plugin
 	 */
 	public function onTwigSiteVariables()
 	{
-		// Do not do any processing if we're disabled
-		if ( ! $this->active) {
-			return;
-		}
-
 		/** @var \Grav\Common\Page\Page $page */
 		$page = $this->grav['page'];
 		$hasTemplate = isset($page->header()->template);
