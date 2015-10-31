@@ -1,0 +1,12 @@
+{% set taxlist = taxonomylist.get() %}
+
+{% if taxlist %}
+<span class="categories">
+    <ul>
+    {% for taxon,value in taxlist[taxonomy]|ksort %}
+        {% set active = uri.param(taxonomy) == tax ? 'active' : '' %}
+        <li><a class="{{ active }}" href="{{ base_url }}/{{ taxonomy }}{{ config.system.param_sep }}{{ taxon|e('url') }}">{{ taxon }}</a> ({{ value }})</li>
+    {% endfor %}
+    </ul>
+</span>
+{% endif %}
