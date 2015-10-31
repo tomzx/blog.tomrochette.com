@@ -27,10 +27,6 @@ git:
         url: https://github.com/getgrav/grav-plugin-form
         path: user/plugins/form
         branch: develop
-    highlight:
-        url: https://github.com/getgrav/grav-plugin-highlight
-        path: user/plugins/highlight
-        branch: develop
     login:
         url: https://github.com/getgrav/grav-plugin-login
         path: user/plugins/login
@@ -99,10 +95,6 @@ links:
     form:
         src: grav-plugin-form
         path: user/plugins/form
-        scm: github
-    highlight:
-        src: grav-plugin-highlight
-        path: user/plugins/highlight
         scm: github
     login:
         src: grav-plugin-login
