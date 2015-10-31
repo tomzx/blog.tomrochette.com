@@ -1,7 +1,7 @@
 {% embed 'partials/base.html.twig' %}
 
 	{% block content %}
-		<div class="blog-content-item grid pure-g-r">
+		<div>
 			{% include 'partials/article.html.twig' with {'blog':page.parent} %}
 		</div>
 	{% endblock %}

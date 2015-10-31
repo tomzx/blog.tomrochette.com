@@ -1,24 +1,4 @@
-/*
-There are many issues in the base CSS (lots of hX + hY rules) that will either have to be fixed or the main theme might have to be replaced by bootstrap.
-*/
-
 h1 {
-	text-align: left;
-}
-
-h2 {
-	text-align: left;
-}
-
-h1 + h2 {
-	text-align: left;
-}
-
-h3 {
-	text-align: left;
-}
-
-h2 + h3 {
 	text-align: left;
 }
 
