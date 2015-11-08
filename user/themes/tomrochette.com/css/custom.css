@@ -9,3 +9,12 @@ h1 {
 body {
 	font-family: 'Open Sans',sans-serif;
 }
+
+pre.language-mermaid {
+	background: none !important;
+	border: none !important;
+}
+
+pre.language-mermaid g.label {
+	color: #000;
+}
