@@ -1,7 +1,7 @@
 /* Flowchart variables */
 /* Sequence Diagram variables */
 /* Gantt chart variables */
-.mermaid .label {
+.mermaid .label, .language-mermaid .label {
 	color: #333;
 }
 .node rect,
