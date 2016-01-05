@@ -18,3 +18,7 @@ pre.language-mermaid {
 pre.language-mermaid g.label {
 	color: #000;
 }
+
+#body #breadcrumbs span {
+	padding: 0 1rem;
+}
