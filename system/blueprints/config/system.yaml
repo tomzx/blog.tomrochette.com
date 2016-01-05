@@ -20,6 +20,18 @@ form:
                     show_root: false
                     help: PLUGIN_ADMIN.HOME_PAGE_HELP
 
+                home.hide_in_urls:
+                      type: toggle
+                      label: PLUGIN_ADMIN.HIDE_HOME_IN_URLS
+                      help: PLUGIN_ADMIN.HIDE_HOME_IN_URLS_HELP
+                      highlight: 0
+                      options:
+                          1: PLUGIN_ADMIN.YES
+                          0: PLUGIN_ADMIN.NO
+                      validate:
+                          type: bool
+
+
                 pages.theme:
                     type: themeselect
                     classes: fancy
@@ -44,7 +56,7 @@ form:
                     size: medium
                     classes: fancy
                     help: PLUGIN_ADMIN.TIMEZONE_HELP
-                    @data-options: '\Grav\Common\Utils::timezones'
+                    '@data-options': '\Grav\Common\Utils::timezones'
                     default: ''
                     options:
                         '': 'Default (Server Timezone)'
@@ -57,7 +69,7 @@ form:
                     label: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT
                     help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
                     placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
-                    @data-options: '\Grav\Common\Utils::dateFormats'
+                    '@data-options': '\Grav\Common\Utils::dateFormats'
                     options:
                         "": Auto Guess or Enter Custom
                     validate:
@@ -73,7 +85,7 @@ form:
                     options:
                         "F jS \\a\\t g:ia": Date1
                         "l jS \\of F g:i A": Date2
-                        "D, m M Y G:i:s": Date3
+                        "D, d M Y G:i:s": Date3
                         "d-m-y G:i": Date4
                         "jS M Y": Date5
 
@@ -86,7 +98,7 @@ form:
                     options:
                         "F jS \\a\\t g:ia": Date1
                         "l jS \\of F g:i A": Date2
-                        "D, m M Y G:i:s": Date3
+                        "D, d M Y G:i:s": Date3
                         "d-m-y G:i": Date4
                         "jS M Y": Date5
 
@@ -127,8 +139,8 @@ form:
                     help: PLUGIN_ADMIN.DATE_BASED_PUBLISHING_HELP
                     highlight: 1
                     options:
-                        1: Yes
-                        0: No
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
 
@@ -142,6 +154,12 @@ form:
                          twig: Twig Events
                      use: keys
 
+                pages.append_url_extension:
+                    type: text
+                    placeholder: "e.g. .html"
+                    label: PLUGIN_ADMIN.APPEND_URL_EXT
+                    help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
+
                 pages.redirect_default_route:
                     type: toggle
                     label: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE
@@ -153,10 +171,32 @@ form:
                     validate:
                         type: bool
 
+                pages.redirect_default_code:
+                    type: select
+                    size: medium
+                    classes: fancy
+                    label: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE
+                    help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
+                    options:
+                        301: 301 - Permanent
+                        303: 303 - Other
+                        307: 307 - Temporary
+
                 pages.redirect_trailing_slash:
                     type: toggle
                     label: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH
                     help: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                pages.ignore_hidden:
+                    type: toggle
+                    label: PLUGIN_ADMIN.IGNORE_HIDDEN
+                    help: PLUGIN_ADMIN.IGNORE_HIDDEN_HELP
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
@@ -182,6 +222,30 @@ form:
                     validate:
                         type: commalist
 
+                pages.url_taxonomy_filters:
+                    type: toggle
+                    label: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS
+                    help: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                pages.twig_first:
+                    type: toggle
+                    label: PLUGIN_ADMIN.TWIG_FIRST
+                    highlight: asc
+                    default: desc
+                    help: PLUGIN_ADMIN.TWIG_FIRST_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
         languages:
             type: section
             title: PLUGIN_ADMIN.LANGUAGES
@@ -192,11 +256,24 @@ form:
                 languages.supported:
                     type: selectize
                     size: large
+                    placeholder: "e.g. en, fr"
                     label: PLUGIN_ADMIN.SUPPORTED
                     help: PLUGIN_ADMIN.SUPPORTED_HELP
                     classes: fancy
                     validate:
                         type: commalist
+
+                languages.include_default_lang:
+                    type: toggle
+                    label: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG
+                    help: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
 
                 languages.translations:
                     type: toggle
@@ -224,28 +301,6 @@ form:
                     type: toggle
                     label: PLUGIN_ADMIN.ACTIVE_LANGUAGE_IN_SESSION
                     help: PLUGIN_ADMIN.ACTIVE_LANGUAGE_IN_SESSION_HELP
-                    highlight: 0
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
-
-                languages.home_redirect.include_lang:
-                    type: toggle
-                    label: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_LANGUAGE
-                    help: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_LANGUAGE_HELP
-                    highlight: 1
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
-
-                languages.home_redirect.include_route:
-                    type: toggle
-                    label: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_ROUTE
-                    help: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_ROUTE_HELP
                     highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES
@@ -486,6 +541,17 @@ form:
                     validate:
                         type: bool
 
+                twig.umask_fix:
+                    type: toggle
+                    label: PLUGIN_ADMIN.TWIG_UMASK_FIX
+                    help: PLUGIN_ADMIN.TWIG_UMASK_FIX_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
         assets:
             type: section
             title: PLUGIN_ADMIN.ASSETS
@@ -585,7 +651,7 @@ form:
                     type: toggle
                     label: PLUGIN_ADMIN.DISPLAY_ERRORS
                     help: PLUGIN_ADMIN.DISPLAY_ERRORS_HELP
-                    highlight: 1
+                    highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
@@ -658,6 +724,17 @@ form:
                     validate:
                         type: bool
 
+                images.cache_perms:
+                    type: select
+                    size: small
+                    label: PLUGIN_ADMIN.CACHE_PERMS
+                    help: PLUGIN_ADMIN.CACHE_PERMS_HELP
+                    highlight: '0755'
+                    options:
+                        '0755': '0755'
+                        '0775': '0775'
+
+
                 images.debug:
                     type: toggle
                     label: PLUGIN_ADMIN.IMAGES_DEBUG
@@ -688,6 +765,26 @@ form:
                     validate:
                         type: bool
 
+
+
+                media.allowed_fallback_types:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.FALLBACK_TYPES
+                    help: PLUGIN_ADMIN.FALLBACK_TYPES_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
+
+                media.unsupported_inline_types:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.INLINE_TYPES
+                    help: PLUGIN_ADMIN.INLINE_TYPES_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
+
         session:
             type: section
             title: PLUGIN_ADMIN.SESSION
@@ -695,13 +792,14 @@ form:
 
             fields:
                 session.enabled:
-                    type: toggle
+                    type: hidden
                     label: PLUGIN_ADMIN.ENABLED
                     help: PLUGIN_ADMIN.SESSION_ENABLED_HELP
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
+                    default: true
                     validate:
                         type: bool
 
@@ -720,6 +818,29 @@ form:
                     label: PLUGIN_ADMIN.NAME
                     help: PLUGIN_ADMIN.SESSION_NAME_HELP
 
+                session.secure:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_SECURE
+                    help: PLUGIN_ADMIN.SESSION_SECURE_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: false
+                    validate:
+                        type: bool
+
+                session.httponly:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_HTTPONLY
+                    help: PLUGIN_ADMIN.SESSION_HTTPONLY_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
 
         advanced:
             type: section
@@ -727,6 +848,17 @@ form:
             underline: true
 
             fields:
+                wrapped_site:
+                    type: toggle
+                    label: PLUGIN_ADMIN.WRAPPED_SITE
+                    highlight: 0
+                    help: PLUGIN_ADMIN.WRAPPED_SITE_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 absolute_urls:
                     type: toggle
                     label: PLUGIN_ADMIN.ABSOLUTE_URLS
@@ -740,6 +872,7 @@ form:
 
                 param_sep:
                     type: select
+                    size: medium
                     label: PLUGIN_ADMIN.PARAMETER_SEPARATOR
                     classes: fancy
                     help: PLUGIN_ADMIN.PARAMETER_SEPARATOR_HELP

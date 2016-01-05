@@ -29,7 +29,7 @@ form:
 
             content:
                 type: markdown
-                label: PLUGIN_ADMIN.CONTENT
+                showPreview: true
                 validate:
                   type: textarea
 
@@ -88,7 +88,6 @@ form:
                   placeholder_key: PLUGIN_ADMIN.METADATA_KEY
                   placeholder_value: PLUGIN_ADMIN.METADATA_VALUE
 
-
             taxonomies:
               type: section
               title: PLUGIN_ADMIN.TAXONOMIES
@@ -140,8 +139,8 @@ form:
                       type: select
                       label: PLUGIN_ADMIN.PARENT
                       classes: fancy
-                      @data-options: '\Grav\Common\Page\Pages::parents'
-                      @data-default: '\Grav\Plugin\admin::route'
+                      '@data-options': '\Grav\Common\Page\Pages::parents'
+                      '@data-default': '\Grav\Plugin\admin::route'
                       options:
                         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
 
@@ -151,7 +150,7 @@ form:
                       label: PLUGIN_ADMIN.PAGE_FILE
                       help: PLUGIN_ADMIN.PAGE_FILE_HELP
                       default: default
-                      @data-options: '\Grav\Common\Page\Pages::pageTypes'
+                      '@data-options': '\Grav\Common\Page\Pages::pageTypes'
 
                     header.body_classes:
                       type: text
@@ -204,7 +203,7 @@ form:
                   type: checkboxes
                   label: PLUGIN_ADMIN.PROCESS
                   toggleable: true
-                  @config-default: system.pages.process
+                  '@config-default': system.pages.process
                   default:
                     markdown: true
                     twig: false
@@ -219,7 +218,7 @@ form:
                   label: PLUGIN_ADMIN.DEFAULT_CHILD_TYPE
                   default: default
                   placeholder: PLUGIN_ADMIN.USE_GLOBAL
-                  @data-options: '\Grav\Common\Page\Pages::types'
+                  '@data-options': '\Grav\Common\Page\Pages::types'
 
                 header.routable:
                   type: toggle
@@ -262,7 +261,13 @@ form:
                   classes: fancy
                   label: PLUGIN_ADMIN.DISPLAY_TEMPLATE
                   default: default
-                  @data-options: '\Grav\Common\Page\Pages::types'
+                  '@data-options': '\Grav\Common\Page\Pages::types'
+
+                header.append_url_extension:
+                  type: text
+                  label: PLUGIN_ADMIN.APPEND_URL_EXT
+                  toggleable: true
+                  help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
 
                 header.order_by:
                   type: hidden

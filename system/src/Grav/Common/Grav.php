@@ -57,8 +57,6 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
-
-
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_init', 'Initialize');
 
@@ -108,18 +106,32 @@ class Grav extends Container
         $container['page'] = function ($c) {
             /** @var Pages $pages */
             $pages = $c['pages'];
+            /** @var Language $language */
+            $language = $c['language'];
 
             /** @var Uri $uri */
             $uri = $c['uri'];
 
-            $path = rtrim($uri->path(), '/');
+            $path = $uri->path(); // Don't trim to support trailing slash default routes
             $path = $path ?: '/';
 
             $page = $pages->dispatch($path);
 
-            // handle redirect if not 'default route' configuration
-            if ($page && $c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                $c->redirectLangSafe($page->route());
+            // Redirection tests
+            if ($page) {
+                // Language-specific redirection scenarios
+                if ($language->enabled()) {
+                    if ($language->isLanguageInUrl() && !$language->isIncludeDefaultLanguage()) {
+                        $c->redirect($page->route());
+                    }
+                    if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
+                        $c->redirectLangSafe($page->route());
+                    }
+                }
+                // Default route test and redirect
+                if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
+                    $c->redirectLangSafe($page->route());
+                }
             }
 
             // if page is not found, try some fallback stuff
@@ -174,9 +186,10 @@ class Grav extends Container
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $this['errors']->resetHandlers();
         $this['uri']->init();
         $this['session']->init();
-        $this['errors']->resetHandlers();
+
         $debugger->init();
         $this['config']->debug();
         $debugger->stopTimer('_config');
@@ -184,7 +197,10 @@ class Grav extends Container
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
         if ($this['config']->get('system.cache.gzip')) {
-            ob_start('ob_gzhandler');
+            // Enable zip/deflate with a fallback in case of if browser does not support compressing.
+            if(!ob_start("ob_gzhandler")) {
+                ob_start();
+            }
         }
 
         // Initialize the timezone
@@ -210,7 +226,6 @@ class Grav extends Container
 
         $debugger->startTimer('themes', 'Themes');
         $this['themes']->init();
-        $this->fireEvent('onThemeInitialized');
         $debugger->stopTimer('themes');
 
         $task = $this['task'];
@@ -255,10 +270,22 @@ class Grav extends Container
      * @param string $route Internal route.
      * @param int $code Redirection code (30x)
      */
-    public function redirect($route, $code = 303)
+    public function redirect($route, $code = null)
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
+
+        //Check for code in route
+        $regex = '/.*(\[(30[1-7])\])$/';
+        preg_match($regex, $route, $matches);
+        if ($matches) {
+            $route = str_replace($matches[1], '', $matches[0]);
+            $code = $matches[2];
+        }
+
+        if ($code == null) {
+            $code = $this['config']->get('system.pages.redirect_default_code', 301);
+        }
 
         if (isset($this['session'])) {
             $this['session']->close();
@@ -267,7 +294,10 @@ class Grav extends Container
         if ($uri->isExternal($route)) {
             $url = $route;
         } else {
-            $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/');
+            if ($this['config']->get('system.pages.redirect_trailing_slash', true))
+                $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'); // Remove trailing slash
+            else
+                $url = rtrim($uri->rootUrl(), '/') .'/'. ltrim($route, '/'); // Support trailing slash default routes
         }
 
         header("Location: {$url}", true, $code);
@@ -280,15 +310,15 @@ class Grav extends Container
      * @param string $route Internal route.
      * @param int $code Redirection code (30x)
      */
-    public function redirectLangSafe($route, $code = 303)
+    public function redirectLangSafe($route, $code = null)
     {
         /** @var Language $language */
         $language = $this['language'];
 
-        if ($language->enabled()) {
+        if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
             return $this->redirect($language->getLanguage() . $route, $code);
         } else {
-            return $this->redirect($route);
+            return $this->redirect($route, $code);
         }
     }
 
@@ -332,7 +362,7 @@ class Grav extends Container
 
         if ($expires > 0) {
             $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
-            header('Cache-Control: max-age=' . $expires_date);
+            header('Cache-Control: max-age=' . $expires);
             header('Expires: '. $expires_date);
         }
 
@@ -383,38 +413,49 @@ class Grav extends Container
      */
     public function shutdown()
     {
-        if ($this['config']->get('system.debugger.shutdown.close_connection')) {
-            //stop user abort
-            if (function_exists('ignore_user_abort')) {
-                @ignore_user_abort(true);
-            }
-
-            // close the session
-            if (isset($this['session'])) {
-                $this['session']->close();
-            }
-
-            // flush buffer if gzip buffer was started
-            if ($this['config']->get('system.cache.gzip')) {
-                ob_end_flush(); // gzhandler buffer
-            }
-
-            // get lengh and close the connection
-            header('Content-Length: ' . ob_get_length());
-            header("Connection: close");
-
-            // flush the regular buffer
-            ob_end_flush();
-            @ob_flush();
-            flush();
-
-            // fix for fastcgi close connection issue
-            if (function_exists('fastcgi_finish_request')) {
-                @fastcgi_finish_request();
-            }
-
+        // Prevent user abort allowing onShutdown event to run without interruptions.
+        if (function_exists('ignore_user_abort')) {
+            @ignore_user_abort(true);
         }
 
+        // Close the session allowing new requests to be handled.
+        if (isset($this['session'])) {
+            $this['session']->close();
+        }
+
+        if ($this['config']->get('system.debugger.shutdown.close_connection', true)) {
+            // Flush the response and close the connection to allow time consuming tasks to be performed without leaving
+            // the connection to the client open. This will make page loads to feel much faster.
+
+            // FastCGI allows us to flush all response data to the client and finish the request.
+            $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
+
+            if (!$success) {
+                // Unfortunately without FastCGI there is no way to close the connection. We need to ask browser to
+                // close the connection for us.
+
+                if ($this['config']->get('system.cache.gzip')) {
+                    // Flush gzhandler buffer if gzip setting was enabled.
+                    ob_end_flush();
+
+                } else {
+                    // Without gzip we have no other choice than to prevent server from compressing the output.
+                    // This action turns off mod_deflate which would prevent us from closing the connection.
+                    header('Content-Encoding: none');
+                }
+
+                // Get length and close the connection.
+                header('Content-Length: ' . ob_get_length());
+                header("Connection: close");
+
+                // Finally flush the regular buffer.
+                ob_end_flush();
+                @ob_flush();
+                flush();
+            }
+        }
+
+        // Run any time consuming tasks.
         $this->fireEvent('onShutdown');
     }
 
@@ -428,12 +469,26 @@ class Grav extends Container
         /** @var Uri $uri */
         $uri = $this['uri'];
 
+        /** @var Config $config */
+        $config = $this['config'];
+
+        $uri_extension = $uri->extension();
+        $fallback_types = $config->get('system.media.allowed_fallback_types', null);
+        $supported_types = $config->get('media');
+
+        // Check whitelist first, then ensure extension is a valid media type
+        if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {
+            return;
+        } elseif (!array_key_exists($uri_extension, $supported_types)) {
+            return;
+        }
+
         $path_parts = pathinfo($path);
         $page = $this['pages']->dispatch($path_parts['dirname'], true);
         if ($page) {
             $media = $page->media()->all();
 
-            $parsed_url = parse_url(urldecode($uri->basename()));
+            $parsed_url = parse_url(rawurldecode($uri->basename()));
 
             $media_file = $parsed_url['path'];
 
@@ -449,7 +504,6 @@ class Grav extends Container
             }
 
             // unsupported media type, try to download it...
-            $uri_extension = $uri->extension();
             if ($uri_extension) {
                 $extension = $uri_extension;
             } else {
@@ -462,7 +516,7 @@ class Grav extends Container
 
             if ($extension) {
                 $download = true;
-                if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types', []))) {
+                if (in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []))) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);

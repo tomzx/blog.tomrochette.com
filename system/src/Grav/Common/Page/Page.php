@@ -5,6 +5,7 @@ use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
+use Grav\Common\Language\Language;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Twig;
@@ -41,6 +42,7 @@ class Page
     protected $folder;
     protected $path;
     protected $extension;
+    protected $url_extension;
 
     protected $id;
     protected $parent;
@@ -83,6 +85,8 @@ class Page
     protected $markdown_extra;
     protected $etag;
     protected $last_modified;
+    protected $home_route;
+    protected $hide_home_route;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -116,6 +120,10 @@ class Page
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
+        $config = self::getGrav()['config'];
+
+        $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
+        $this->home_route = $config->get('system.home.alias');
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
@@ -128,6 +136,9 @@ class Page
         $this->modularTwig($this->slug[0] == '_');
         $this->setPublishState();
         $this->published();
+        $this->urlExtension();
+
+
 
         // some extension logic
         if (empty($extension)) {
@@ -135,6 +146,7 @@ class Page
         } else {
             $this->extension($extension);
         }
+
 
         // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
@@ -259,6 +271,8 @@ class Page
         if (!$this->header) {
             $file = $this->file();
             if ($file) {
+                // Set some options
+                $file->settings(['native' => true, 'compat' => true]);
                 try {
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
@@ -347,7 +361,6 @@ class Page
             if (isset($this->header->last_modified)) {
                 $this->last_modified = (bool) $this->header->last_modified;
             }
-
         }
 
         return $this->header;
@@ -377,7 +390,7 @@ class Page
      */
     public function modifyHeader($key, $value)
     {
-        $this->header->$key = $value;
+        $this->header->{$key} = $value;
     }
 
     /**
@@ -388,8 +401,7 @@ class Page
      */
     public function summary($size = null)
     {
-        /** @var Config $config */
-        $config = self::getGrav()['config']->get('site.summary');
+        $config = (array) self::getGrav()['config']->get('site.summary');
         if (isset($this->header->summary)) {
             $config = array_merge($config, $this->header->summary);
         }
@@ -469,6 +481,9 @@ class Page
             // Get media
             $this->media();
 
+            /** @var Config $config */
+            $config = self::getGrav()['config'];
+
             // Load cached content
             /** @var Cache $cache */
             $cache = self::getGrav()['cache'];
@@ -477,51 +492,46 @@ class Page
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
-            $cache_twig = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
-            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : false;
-            $twig_already_processed = false;
+            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled', true);
+            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first', true);
+
 
             // if no cached-content run everything
-            if ($this->content === false) {
+            if ($this->content === false || $cache_enable == false) {
                 $this->content = $this->raw_content;
                 self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                 if ($twig_first) {
                     if ($process_twig) {
                         $this->processTwig();
-                        $twig_already_processed = true;
                     }
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
-                    if ($cache_twig) {
-                        $this->cachePageContent();
-                    }
+
+                    // Content Processed but not cached yet
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
                 } else {
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
-                    if (!$cache_twig) {
-                        $this->cachePageContent();
-                    }
+
+                    // Content Processed but not cached yet
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
                     if ($process_twig) {
                         $this->processTwig();
-                        $twig_already_processed = true;
-                    }
-                    if ($cache_twig) {
-                        $this->cachePageContent();
                     }
                 }
-            // content cached, but twig cache off
-            }
 
-            // only markdown content cached, process twig if required and not already processed
-            if ($process_twig && !$cache_twig && !$twig_already_processed) {
-                $this->processTwig();
+                if ($cache_enable) {
+                    $this->cachePageContent();
+                }
             }
 
             // Handle summary divider
-            $delimiter = self::getGrav()['config']->get('site.summary.delimiter', '===');
+            $delimiter = $config->get('site.summary.delimiter', '===');
             $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
@@ -578,8 +588,6 @@ class Page
     {
         $cache = self::getGrav()['cache'];
         $cache_id = md5('page'.$this->id());
-
-        self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
         $cache->save($cache_id, $this->content);
     }
 
@@ -724,27 +732,30 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
-     * @return Page
+     * @return $this
      */
     public function move(Page $parent)
     {
-        $clone = clone $this;
-        $clone->_action = 'move';
-        $clone->_original = $this;
-        $clone->parent($parent);
-        $clone->id(time().md5($clone->filePath()));
+        if (!$this->_original) {
+            $clone = clone $this;
+            $this->_original = $clone;
+        }
+
+        $this->_action = 'move';
+        $this->parent($parent);
+        $this->id(time().md5($this->filePath()));
 
         if ($parent->path()) {
-            $clone->path($parent->path() . '/' . $clone->folder());
+            $this->path($parent->path() . '/' . $this->folder());
         }
 
         if ($parent->route()) {
-            $clone->route($parent->route() . '/'. $clone->slug());
+            $this->route($parent->route() . '/'. $this->slug());
         } else {
-            $clone->route(self::getGrav()['pages']->root()->route() . '/'. $clone->slug());
+            $this->route(self::getGrav()['pages']->root()->route() . '/'. $this->slug());
         }
 
-        return $clone;
+        return $this;
     }
 
     /**
@@ -754,14 +765,14 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
-     * @return Page
+     * @return $this
      */
     public function copy($parent)
     {
-        $clone = $this->move($parent);
-        $clone->_action = 'copy';
+        $this->move($parent);
+        $this->_action = 'copy';
 
-        return $clone;
+        return $this;
     }
 
     /**
@@ -822,7 +833,7 @@ class Page
         $blueprints = $this->blueprints();
         $values = $blueprints->filter($this->toArray());
         if ($values && isset($values['header'])) {
-        	$this->header($values['header']);
+            $this->header($values['header']);
         }
     }
 
@@ -955,6 +966,17 @@ class Page
         return $this->extension;
     }
 
+    public function urlExtension()
+    {
+        // if not set in the page get the value from system config
+        if (empty($this->url_extension)) {
+            $this->url_extension = trim(isset($this->header->append_url_extension) ? $this->header->append_url_extension : self::getGrav()['config']->get('system.pages.append_url_extension', false));
+        }
+
+        return $this->url_extension;
+
+    }
+
     /**
      * Gets and sets the expires field. If not set will return the default
      *
@@ -1061,10 +1083,6 @@ class Page
             $this->publish_date = Utils::date2timestamp($var);
         }
 
-        if ($this->publish_date === null) {
-            $this->publish_date = $this->date();
-        }
-
         return $this->publish_date;
     }
 
@@ -1135,7 +1153,7 @@ class Page
             $this->metadata = [];
 
             // Set the Generator tag
-            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
+            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS');
 
             // Get initial metadata for the page
             $metadata  = self::getGrav()['config']->get('site.metadata');
@@ -1242,8 +1260,8 @@ class Page
         $language = self::getGrav()['language'];
 
         // get pre-route
-        if ($include_lang) {
-            $pre_route = $language->enabled() && $language->getActive() ? '/' . $language->getActive() : '';
+        if ($include_lang && $language->enabled()) {
+           $pre_route = $language->getLanguageURLPrefix();
         } else {
             $pre_route = '';
         }
@@ -1260,7 +1278,7 @@ class Page
 
         $rootUrl = $uri->rootUrl($include_host) . $pages->base();
 
-        $url = $rootUrl.'/'.trim($route, '/');
+        $url = $rootUrl.'/'.trim($route, '/') . $this->urlExtension();
 
         // trim trailing / if not root
         if ($url !== '/') {
@@ -1285,8 +1303,18 @@ class Page
         }
 
         if (empty($this->route)) {
+            $baseRoute = null;
+
             // calculate route based on parent slugs
-            $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
+            $parent = $this->parent();
+            if (isset($parent)) {
+                if ($this->hide_home_route && $parent->route() == $this->home_route) {
+                    $baseRoute = '';
+                } else {
+                    $baseRoute = (string) $parent->route();
+                }
+            }
+
             $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
 
             if (!empty($this->routes) && isset($this->routes['default'])) {
@@ -1469,7 +1497,17 @@ class Page
      */
     public function filePathClean()
     {
-        return str_replace(ROOT_DIR, '', $this->filePath());
+        $path = str_replace(ROOT_DIR, '', $this->filePath());
+        return $path;
+    }
+
+    /**
+     * Returns the clean path to the page file
+     */
+    public function relativePagePath()
+    {
+        $path = str_replace('/'.$this->name, '', $this->filePathClean());
+        return $path;
     }
 
     /**
@@ -1671,6 +1709,31 @@ class Page
     }
 
     /**
+     * Gets the top parent object for this page
+     *
+     * @return Page|null the top parent page object if it exists.
+     */
+    public function topParent()
+    {
+        $topParent = $this->parent();
+
+        if (!$topParent) {
+            return null;
+        }
+
+        while (true) {
+            $theParent = $topParent->parent();
+            if ($theParent != null && $theParent->parent() !== null) {
+                $topParent = $theParent;
+            } else {
+                break;
+            }
+        }
+
+        return $topParent;
+    }
+
+    /**
      * Returns children of this page.
      *
      * @return \Grav\Common\Page\Collection
@@ -1780,11 +1843,13 @@ class Page
 
         if (isset($routes[$uri_path])) {
             $child_page = $pages->dispatch($uri->route())->parent();
-            if ($child_page) while (!$child_page->root()) {
-                if ($this->path() == $child_page->path()) {
-                    return true;
+            if ($child_page) {
+                while (!$child_page->root()) {
+                    if ($this->path() == $child_page->path()) {
+                        return true;
+                    }
+                    $child_page = $child_page->parent();
                 }
-                $child_page = $child_page->parent();
             }
         }
 
@@ -1818,7 +1883,7 @@ class Page
     /**
      * Helper method to return a page.
      *
-     * @param  string $url the url of the page
+     * @param string  $url the url of the page
      * @param bool    $all
      *
      * @return \Grav\Common\Page\Page page you were looking for if it exists
@@ -1861,20 +1926,24 @@ class Page
         /** @var Config $config */
         $config = self::getGrav()['config'];
 
-        foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
-            if ($uri->param($taxonomy)) {
-                $items = explode(',', $uri->param($taxonomy));
-                $collection->setParams(['taxonomies' => [$taxonomy => $items]]);
+        $process_taxonomy = isset($params['url_taxonomy_filters']) ? $params['url_taxonomy_filters'] : $config->get('system.pages.url_taxonomy_filters');
 
-                foreach ($collection as $page) {
-                    // Don't filter modular pages
-                    if ($page->modular()) {
-                        continue;
-                    }
-                    foreach ($items as $item) {
-                        if (empty($page->taxonomy[$taxonomy])
-                            || !in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy])) {
-                            $collection->remove();
+        if ($process_taxonomy) {
+            foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
+                if ($uri->param($taxonomy)) {
+                    $items = explode(',', $uri->param($taxonomy));
+                    $collection->setParams(['taxonomies' => [$taxonomy => $items]]);
+
+                    foreach ($collection as $page) {
+                        // Don't filter modular pages
+                        if ($page->modular()) {
+                            continue;
+                        }
+                        foreach ($items as $item) {
+                            if (empty($page->taxonomy[$taxonomy])
+                                || !in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy])) {
+                                $collection->remove();
+                            }
                         }
                     }
                 }
@@ -1922,21 +1991,26 @@ class Page
      * @return mixed
      * @internal
      */
-    protected function evaluate($value)
+    public function evaluate($value)
     {
         // Parse command.
         if (is_string($value)) {
             // Format: @command.param
             $cmd = $value;
             $params = array();
-        } elseif (is_array($value) && count($value) == 1) {
+        } elseif (is_array($value) && count($value) == 1 && !is_int(key($value))) {
             // Format: @command.param: { attr1: value1, attr2: value2 }
             $cmd = (string) key($value);
             $params = (array) current($value);
         } else {
             $result = [];
             foreach($value as $key => $val) {
-                $result = $result + $this->evaluate([$key=>$val])->toArray();
+                if (is_int($key)) {
+                    $result = $result + $this->evaluate($val)->toArray();
+                } else {
+                    $result = $result + $this->evaluate([$key=>$val])->toArray();
+                }
+
             }
             return new Collection($result);
         }
@@ -1946,32 +2020,91 @@ class Page
             return $value;
         }
 
+        /** @var Pages $pages */
+        $pages = self::getGrav()['pages'];
+
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
 
-        $results = null;
+        $results = new Collection();
         switch ($current) {
             case '@self':
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
-                            $results = $this->children()->modular()->published();
+                            // @self.modular: false (alternative to @self.children)
+                            if (!empty($params) && $params[0] === false) {
+                                $results = $this->children()->nonModular();
+                                break;
+                            }
+                            $results = $this->children()->modular();
                             break;
                         case 'children':
-                            $results = $this->children()->nonModular()->published();
+                            $results = $this->children()->nonModular();
+                            break;
+                        case 'all':
+                            $results = $this->children();
+                            break;
+                        case 'parent':
+                            $collection = new Collection();
+                            $results = $collection->addPage($this->parent());
+                            break;
+                        case 'siblings':
+                            $results = $this->parent()->children()->remove($this->path());
+                            break;
+                        case 'descendants':
+                            $results = $pages->all($this)->remove($this->path())->nonModular();
                             break;
                     }
                 }
+
+                $results = $results->published();
                 break;
 
             case '@page':
+                $page = null;
+
                 if (!empty($params)) {
                     $page = $this->find($params[0]);
-                    if ($page) {
-                        $results = $page->children()->nonModular()->published();
+                }
+
+                // safety check in case page is not found
+                if (!isset($page)) {
+                    return $results;
+                }
+
+                // Handle a @page.descendants
+                if (!empty($parts)) {
+                    switch ($parts[0]) {
+                        case 'self':
+                            $results = new Collection();
+                            $results = $results->addPage($page);
+                            break;
+
+                        case 'descendants':
+                            $results = $pages->all($page)->remove($page->path());
+                            break;
+
+                        case 'children':
+                            $results = $page->children();
+                            break;
                     }
+                } else {
+                    $results = $page->children();
+                }
+
+                $results = $results->nonModular()->published();
+
+                break;
+
+            case '@root':
+                if (!empty($parts) && $parts[0] == 'descendants') {
+                    $results = $pages->all($pages->root())->nonModular()->published();
+                } else {
+                    $results = $pages->root()->children()->nonModular()->published();
                 }
                 break;
+
 
             case '@taxonomy':
                 // Gets a collection of pages by using one of the following formats:
@@ -2048,7 +2181,7 @@ class Page
      */
     protected function doRelocation($reorder)
     {
-        if (empty($this->_original) ) {
+        if (!$this->_original) {
             return;
         }
 
@@ -2089,7 +2222,7 @@ class Page
                     // Handle all the other pages.
                     $page = $pages->get($path);
 
-                    if ($page && $page->exists() && $page->order() != $order+1) {
+                    if ($page && $page->exists() && !$page->_action && $page->order() != $order+1) {
                         $page = $page->move($parent);
                         $page->order($order+1);
                         $page->save(false);
@@ -2097,11 +2230,12 @@ class Page
                 }
             }
         }
-        if ($this->_action == 'move' && $this->_original->exists()) {
-            Folder::move($this->_original->path(), $this->path());
-        }
-        if ($this->_action == 'copy' && $this->_original->exists()) {
-            Folder::copy($this->_original->path(), $this->path());
+        if (is_dir($this->_original->path())) {
+            if ($this->_action == 'move') {
+                Folder::move($this->_original->path(), $this->path());
+            } elseif ($this->_action == 'copy') {
+                Folder::copy($this->_original->path(), $this->path());
+            }
         }
 
         if ($this->name() != $this->_original->name()) {
@@ -2111,7 +2245,6 @@ class Page
             }
         }
 
-        $this->_action = null;
         $this->_original = null;
     }
 
@@ -2129,7 +2262,7 @@ class Page
                 }
             }
             // publish if required, if not clear cache right before page is published
-            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
+            if ($this->publishDate() && $this->publishDate() && $this->publishDate() > time()) {
                 $this->published(false);
                 self::getGrav()['cache']->setLifeTime($this->publishDate());
             }

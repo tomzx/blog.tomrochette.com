@@ -5,6 +5,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\GravTrait;
+use Grav\Common\Utils;
 
 /**
  * User object
@@ -31,6 +32,9 @@ class User extends Data
     {
         $locator = self::getGrav()['locator'];
 
+        // force lowercase of username
+        $username = strtolower($username);
+
         $blueprints = new Blueprints('blueprints://');
         $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
@@ -39,10 +43,29 @@ class User extends Data
         if (!isset($content['username'])) {
             $content['username'] = $username;
         }
+        if (!isset($content['state'])) {
+            $content['state'] = 'enabled';
+        }
         $user = new User($content, $blueprint);
         $user->file($file);
 
         return $user;
+    }
+
+    /**
+     * Remove user account.
+     *
+     * @param string $username
+     * @return bool True if the action was performed
+     */
+    public static function remove($username)
+    {
+        $file_path = self::getGrav()['locator']->findResource('account://' . $username . YAML_EXT);
+        if (file_exists($file_path) && unlink($file_path)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -63,7 +86,10 @@ class User extends Data
                 // Plain-text passwords do not match, we know we should fail but execute
                 // verify to protect us from timing attacks and return false regardless of
                 // the result
-                Authentication::verify($password, self::getGrav()['config']->get('system.security.default_hash'));
+                Authentication::verify(
+                    $password,
+                    self::getGrav()['config']->get('system.security.default_hash', '$2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK')
+                );
                 return false;
             } else {
                 // Plain-text does match, we can update the hash and proceed
@@ -122,7 +148,32 @@ class User extends Data
             return false;
         }
 
-        return $this->get("access.{$action}") === true;
+        if (isset($this->state) && $this->state !== 'enabled') {
+            return false;
+        }
+
+        $return = false;
+
+        //Check group access level
+        $groups = $this->get('groups');
+        if ($groups) foreach($groups as $group) {
+            $permission = self::getGrav()['config']->get("groups.{$group}.access.{$action}");
+            if (Utils::isPositive($permission)) {
+                $return = true;
+            }
+        }
+
+        //Check user access level
+        if (!$this->get('access')) {
+            return false;
+        }
+
+        if (Utils::resolve($this->get('access'), $action) !== null) {
+            $permission = $this->get("access.{$action}");
+            $return = Utils::isPositive($permission);
+        }
+
+        return $return;
     }
 
     /**

@@ -21,6 +21,8 @@ use Grav\Common\Filesystem\Folder;
  */
 class Cache extends Getters
 {
+    use GravTrait;
+
     /**
      * @var string Cache key.
      */
@@ -36,6 +38,8 @@ class Cache extends Getters
      */
     protected $driver;
 
+    protected $driver_name;
+
     /**
      * @var bool
      */
@@ -44,30 +48,30 @@ class Cache extends Getters
     protected $cache_dir;
 
     protected static $standard_remove = [
-        'cache/twig/',
-        'cache/doctrine/',
-        'cache/compiled/',
-        'cache/validated-',
-        'images/',
-        'assets/',
+        'cache://twig/',
+        'cache://doctrine/',
+        'cache://compiled/',
+        'cache://validated-',
+        'cache://images',
+        'asset://',
     ];
 
     protected static $all_remove = [
-        'cache/',
-        'images/',
-        'assets/'
+        'cache://',
+        'cache://images',
+        'asset://'
     ];
 
     protected static $assets_remove = [
-        'assets/'
+        'asset://'
     ];
 
     protected static $images_remove = [
-        'images/'
+        'cache://images'
     ];
 
     protected static $cache_remove = [
-        'cache/'
+        'cache://'
     ];
 
     /**
@@ -108,6 +112,10 @@ class Cache extends Getters
 
         // Set the cache namespace to our unique key
         $this->driver->setNamespace($this->key);
+
+        // Dump Cache state
+        $grav['debugger']->addMessage('Cache: [' . ($this->enabled ? 'true' : 'false') . '] Driver: [' . $this->driver_name . ']');
+
     }
 
     /**
@@ -123,7 +131,9 @@ class Cache extends Getters
         $driver_name = 'file';
 
         if (!$setting || $setting == 'auto') {
-            if (extension_loaded('apc')) {
+            if (extension_loaded('apcu')) {
+                $driver_name = 'apcu';
+            } elseif (extension_loaded('apc')) {
                 $driver_name = 'apc';
             } elseif (extension_loaded('wincache')) {
                 $driver_name = 'wincache';
@@ -134,9 +144,15 @@ class Cache extends Getters
             $driver_name = $setting;
         }
 
+        $this->driver_name = $driver_name;
+
         switch ($driver_name) {
             case 'apc':
                 $driver = new \Doctrine\Common\Cache\ApcCache();
+                break;
+
+            case 'apcu':
+                $driver = new \Doctrine\Common\Cache\ApcuCache();
                 break;
 
             case 'wincache':
@@ -221,7 +237,7 @@ class Cache extends Getters
      */
     public static function clearCache($remove = 'standard')
     {
-
+        $locator = self::getGrav()['locator'];
         $output = [];
         $user_config = USER_DIR . 'config/system.yaml';
 
@@ -243,10 +259,16 @@ class Cache extends Getters
         }
 
 
-        foreach ($remove_paths as $path) {
+        foreach ($remove_paths as $stream) {
+
+            // Convert stream to a real path
+            $path = $locator->findResource($stream, true, true);
+            // Make sure path exists before proceeding, otherwise we would wipe ROOT_DIR
+            if (!$path)
+                throw new \RuntimeException("Stream '{$stream}' not found", 500);
 
             $anything = false;
-            $files = glob(ROOT_DIR . $path . '*');
+            $files = glob($path . '/*');
 
             if (is_array($files)) {
                 foreach ($files as $file) {
@@ -263,7 +285,7 @@ class Cache extends Getters
             }
 
             if ($anything) {
-                $output[] = '<red>Cleared:  </red>' . $path . '*';
+                $output[] = '<red>Cleared:  </red>' . $path . '/*';
             }
         }
 

@@ -40,7 +40,7 @@ class DefaultTemplatePlugin extends Plugin
 		/** @var \Grav\Common\Page\Page $page */
 		$page = $this->grav['page'];
 		$hasTemplate = isset($page->header()->template);
-		if ( $hasTemplate) {
+		if ($hasTemplate) {
 			return;
 		}
 

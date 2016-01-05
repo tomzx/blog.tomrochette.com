@@ -5,22 +5,17 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
-use Grav\Console\ConsoleTrait;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class SelfupgradeCommand
  * @package Grav\Console\Gpm
  */
-class SelfupgradeCommand extends Command
+class SelfupgradeCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var
      */
@@ -75,14 +70,10 @@ class SelfupgradeCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
         $this->upgrader = new Upgrader($this->input->getOption('force'));
 
         $update = $this->upgrader->getAssets()['grav-update'];
@@ -90,6 +81,18 @@ class SelfupgradeCommand extends Command
         $local = $this->upgrader->getLocalVersion();
         $remote = $this->upgrader->getRemoteVersion();
         $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
+
+        if (!$this->upgrader->meetsRequirements()) {
+            $this->output->writeln("");
+            $this->output->writeln("<red>ATTENTION:</red>");
+            $this->output->writeln("   Grav has increased the minimum PHP requirement.");
+            $this->output->writeln("   You are currently running PHP <red>" . PHP_VERSION . "</red>, but PHP <green>" . GRAV_PHP_MIN . "</green> is required.");
+            $this->output->writeln("   Additional information: <white>http://getgrav.org/blog/changing-php-requirements-to-5.5</white>");
+            $this->output->writeln("");
+            $this->output->writeln("Selfupgrade aborted.");
+            $this->output->writeln("");
+            exit;
+        }
 
         if (!$this->upgrader->isUpgradable()) {
             $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);

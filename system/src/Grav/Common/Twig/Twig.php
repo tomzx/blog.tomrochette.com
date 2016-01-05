@@ -4,9 +4,8 @@ namespace Grav\Common\Twig;
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Page;
-use Grav\Common\Inflector;
-use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * The Twig object handles all the Twig template rendering for Grav. It's a singleton object
@@ -81,7 +80,10 @@ class Twig
 
             $active_language = $language->getActive();
 
-            $language_append = $active_language ? '/'.$active_language : '';
+            $language_append = '';
+            if ($language->getDefault() != $active_language || $config->get('system.languages.include_default_lang') === true) {
+                $language_append = $active_language ? '/' . $active_language : '';
+            }
 
             // handle language templates if available
             if ($language->enabled()) {
@@ -142,7 +144,6 @@ class Twig
 
             // Set some standard variables for twig
             $this->twig_vars = array(
-                'grav' => $this->grav,
                 'config' => $config,
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
@@ -202,7 +203,7 @@ class Twig
         $content = $content !== null ? $content : $item->content();
 
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onTwigPageVariables');
+        $this->grav->fireEvent('onTwigPageVariables',  new Event(['page' => $item]));
         $twig_vars = $this->twig_vars;
 
         $twig_vars['page'] = $item;
@@ -307,6 +308,7 @@ class Twig
         $twig_vars['pages'] = $pages->root();
         $twig_vars['page'] = $page;
         $twig_vars['header'] = $page->header();
+        $twig_vars['media'] = $page->media();
         $twig_vars['content'] = $content;
         $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
 

@@ -1,12 +1,9 @@
 <?php
 namespace Grav\Common\Markdown;
 
-use Grav\Common\Config\Config;
-use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
-use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Uri;
-use Grav\Common\Utils;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
@@ -19,8 +16,10 @@ trait ParsedownGravTrait
     protected $base_url;
     protected $pages_dir;
     protected $special_chars;
-
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
+
+    public $completable_blocks = [];
+    public $continuable_blocks = [];
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -30,8 +29,10 @@ trait ParsedownGravTrait
      */
     protected function init($page, $defaults)
     {
+        $grav = self::getGrav();
+
         $this->page = $page;
-        $this->pages = self::getGrav()['pages'];
+        $this->pages = $grav['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
         $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
@@ -45,7 +46,66 @@ trait ParsedownGravTrait
         $this->setUrlsLinked($defaults['auto_url_links']);
         $this->setMarkupEscaped($defaults['escape_markup']);
         $this->setSpecialChars($defaults['special_chars']);
+
+        $grav->fireEvent('onMarkdownInitialized', new Event(['markdown' => $this]));
+
     }
+
+    /**
+     * Be able to define a new Block type or override an existing one
+     *
+     * @param $type
+     * @param $tag
+     */
+    public function addBlockType($type, $tag, $continuable = false, $completable = false)
+    {
+        $this->BlockTypes[$type] []= $tag;
+
+        if ($continuable) {
+            $this->continuable_blocks[] = $tag;
+        }
+
+        if ($completable) {
+            $this->completable_blocks[] = $tag;
+        }
+    }
+
+    /**
+     * Be able to define a new Inline type or override an existing one
+     *
+     * @param $type
+     * @param $tag
+     */
+    public function addInlineType($type, $tag)
+    {
+        $this->InlineTypes[$type] []= $tag;
+        $this->inlineMarkerList .= $type;
+    }
+
+    /**
+     * Overrides the default behavior to allow for plugin-provided blocks to be continuable
+     *
+     * @param $Type
+     * @return bool
+     */
+    protected function isBlockContinuable($Type)
+    {
+        $continuable = in_array($Type, $this->continuable_blocks) || method_exists($this, 'block'.$Type.'Continue');
+        return $continuable;
+    }
+
+    /**
+     *  Overrides the default behavior to allow for plugin-provided blocks to be completable
+     *
+     * @param $Type
+     * @return bool
+     */
+    protected function isBlockCompletable($Type)
+    {
+        $completable = in_array($Type, $this->completable_blocks) || method_exists($this, 'block'.$Type.'Complete');
+        return $completable;
+    }
+
 
     /**
      * Make the element function publicly accessible, Medium uses this to render from Twig
@@ -77,7 +137,7 @@ trait ParsedownGravTrait
      */
     protected function blockTwigTag($Line)
     {
-        if (preg_match('/[{%|{{|{#].*[#}|}}|%}]/', $Line['body'], $matches)) {
+        if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', $Line['body'], $matches)) {
             $Block = array(
                 'markup' => $Line['body'],
             );
@@ -208,13 +268,64 @@ trait ParsedownGravTrait
         if (isset($excerpt['element']['attributes']['href'])) {
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
-            // if there is no scheme, the file is local
+            // if there is a query, then parse it and build action calls
+            if (isset($url['query'])) {
+                $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
+                    $parts = explode('=', $item, 2);
+                    $value = isset($parts[1]) ? $parts[1] : true;
+                    $carry[$parts[0]] = $value;
+
+                    return $carry;
+                }, []);
+
+                // valid attributes supported
+                $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
+
+                // Unless told to not process, go through actions
+                if (array_key_exists('noprocess', $actions)) {
+                    unset($actions['noprocess']);
+                } else {
+                    // loop through actions for the image and call them
+                    foreach ($actions as $attrib => $value) {
+                        $key = $attrib;
+
+                        if (in_array($attrib, $valid_attributes)) {
+                            // support both class and classes
+                            if ($attrib == 'classes') {
+                                $attrib = 'class';
+                            }
+                            $excerpt['element']['attributes'][$attrib] = str_replace(',', ' ', $value);
+                            unset($actions[$key]);
+                        }
+                    }
+                }
+
+
+                $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+            }
+
+            // if no query elements left, unset query
+            if (empty($url['query'])) {
+                unset ($url['query']);
+            }
+
+            // if there is no scheme, the file is local and we'll need to convert that URL
             if (!isset($url['scheme']) && (count($url) > 0)) {
-                // convert the URl is required
-                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type);
+                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type, true);
+            } else {
+                $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
             }
         }
 
         return $excerpt;
+    }
+
+    // For extending this class via plugins
+    public function __call($method, $args)
+    {
+        if (isset($this->$method) === true) {
+            $func = $this->$method;
+            return call_user_func_array($func, $args);
+        }
     }
 }
