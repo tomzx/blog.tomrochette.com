@@ -19,8 +19,19 @@ pre.language-mermaid g.label {
 	color: #000;
 }
 
+#header #navbar {
+	font-size: 0.9em;
+}
+
 #body #breadcrumbs span {
 	padding: 0 1rem;
+}
+
+/* Do not match <code class="language-*"></code> tags */
+code:not([class]) {
+	background: #FFE5E5;
+	font-size: inherit;
+	padding: 5px;
 }
 
 @media (max-width: 800px) { body { font-size: 100%; } }
