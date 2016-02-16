@@ -6,7 +6,7 @@ h1 {
 	text-align: center;
 }
 
-body {
+html, body, button, input, select, textarea, .pure-g, .pure-g [class*="pure-u"] {
 	font-family: 'Open Sans',sans-serif;
 }
 
@@ -22,3 +22,7 @@ pre.language-mermaid g.label {
 #body #breadcrumbs span {
 	padding: 0 1rem;
 }
+
+@media (max-width: 800px) { body { font-size: 100%; } }
+@media (min-width: 801px) and (max-width: 1200px) { body { font-size: 125%; } }
+@media (min-width: 1201px) { body { font-size: 150%; } }
