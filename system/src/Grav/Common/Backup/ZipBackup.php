@@ -1,46 +1,53 @@
 <?php
+/**
+ * @package    Grav.Common.Backup
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Backup;
 
-use Grav\Common\GravTrait;
-use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
 use Grav\Common\Inflector;
 
-/**
- * The ZipBackup class lets you create simple zip-backups of a grav site
- *
- * @author RocketTheme
- * @license MIT
- */
 class ZipBackup
 {
-    use GravTrait;
-
     protected static $ignorePaths = [
         'backup',
         'cache',
         'images',
-        'logs'
+        'logs',
+        'tmp'
     ];
 
     protected static $ignoreFolders = [
         '.git',
         '.svn',
         '.hg',
-        '.idea'
+        '.idea',
+        'node_modules'
     ];
 
+    /**
+     * Backup
+     *
+     * @param null          $destination
+     * @param callable|null $messager
+     *
+     * @return null|string
+     */
     public static function backup($destination = null, callable $messager = null)
     {
         if (!$destination) {
-            $destination = self::getGrav()['locator']->findResource('backup://', true);
+            $destination = Grav::instance()['locator']->findResource('backup://', true);
 
-            if (!$destination)
+            if (!$destination) {
                 throw new \RuntimeException('The backup folder is missing.');
-
-            Folder::mkdir($destination);
+            }
         }
 
-        $name = self::getGrav()['config']->get('site.title', basename(GRAV_ROOT));
+        $name = substr(strip_tags(Grav::instance()['config']->get('site.title', basename(GRAV_ROOT))), 0, 20);
 
         $inflector = new Inflector();
 

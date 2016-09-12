@@ -55,7 +55,8 @@ pages:
   ignore_folders:
     - .git
     - .idea
-  markdown_extra: false
+  markdown:
+    extra: false
 cache:
   enabled: true
   check:
