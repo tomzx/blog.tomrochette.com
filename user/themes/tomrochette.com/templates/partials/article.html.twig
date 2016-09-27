@@ -8,6 +8,7 @@
 	<div class="list-blog-header">
 		<h1>{{ page.title }}</h1>
 		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History</a> /
+		<a href="{{ page.url }}?pdf" title="Download as PDF">PDF <i class="fa fa-file-pdf-o"></i></a> /
 		{% if page.header.created %}
 			Created: {{ page.header.created|date('F j, Y') }} /
 		{% endif %}

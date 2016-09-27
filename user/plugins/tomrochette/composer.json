@@ -1,0 +1,35 @@
+{
+	"name": "tomzx/blog.tomrochette.com",
+	"description": "PHP Composer Template",
+	"type": "library",
+	"keywords": [
+		""
+	],
+	"homepage": "https://github.com/tomzx/blog.tomrochette.com",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Tom Rochette",
+			"email": "tom@tomrochette.com",
+			"homepage": "http://www.tomrochette.com"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/tomzx/blog.tomrochette.com/issues"
+	},
+	"require": {
+		"php": ">=5.6.0",
+
+		"symfony/process": "~3.1"
+	},
+	"autoload": {
+		"psr-4": {
+			"tomzx\\TomRochette\\": "src/tomzx/TomRochette"
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "0.1-dev"
+		}
+	}
+}

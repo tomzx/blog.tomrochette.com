@@ -1,0 +1,12 @@
+name: TomRochette
+version: 1.0.0
+description: "Customization for tomrochette.com"
+icon: list-ol
+author:
+  name: Tom Rochette
+  email: tom@tomrochette.com
+  url: https://www.tomrochette.com
+homepage: https://github.com/tomzx/blog.tomrochette.com
+keywords: tom, rochette, tom rochette
+bugs: https://github.com/tomzx/blog.tomrochette.com/issues
+license: MIT

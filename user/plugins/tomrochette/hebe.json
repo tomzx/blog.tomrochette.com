@@ -1,0 +1,15 @@
+{
+	"project": "tomrochette",
+	"platforms": {
+		"grav": {
+			"nodes": {
+				"plugin": [
+					{
+						"source": "/",
+						"destination": "/user/plugins/tomrochette"
+					}
+				]
+			}
+		}
+	}
+}
