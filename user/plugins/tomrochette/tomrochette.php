@@ -4,6 +4,7 @@ namespace Grav\Plugin;
 
 use Grav\Common\Page\Page;
 use Grav\Common\Plugin;
+use Symfony\Component\Process\Process;
 use tomzx\TomRochette\PandocExport;
 
 class TomRochettePlugin extends Plugin
@@ -23,6 +24,11 @@ class TomRochettePlugin extends Plugin
 			$this->generatePdf($page);
 		}
 
+		if ( ! $this->isCached($page)) {
+			echo 'FAIL';
+			die;
+		}
+
 		$filename = $page->slug();
 		//Saves ie https problems
 		header("Cache-Control: public");
@@ -31,6 +37,7 @@ class TomRochettePlugin extends Plugin
 		header('Expires: 0');
 		header('Content-Disposition: attachment; filename="' . $filename . '.pdf"');
 		echo $this->getCached($page);
+		exit;
 	}
 
 	/**
@@ -68,13 +75,25 @@ class TomRochettePlugin extends Plugin
 	 */
 	private function generatePdf(Page $page)
 	{
+		$hash = $this->getHash($page);
 		$args = [
-			'--variable=author:Tom Rochette',
+			'--variable=author:Tom Rochette <tom.rochette@coreteks.org>',
 			'--metadata=author:Tom Rochette',
 			'--variable=colorlinks',
 			'--number-sections',
+			'--variable=date:' . date('F j, Y', $page->date()) . ', ' . $hash,
 		];
 		$pandocExporter = new PandocExport();
 		return $pandocExporter->exportFile($page->filePath(), $this->getCachedFile($page), 'markdown', 'latex', $args);
+	}
+
+	private function getHash(Page $page)
+	{
+		$path = $page->filePath();
+
+		$process = new Process('git log -1 --pretty=format:%h ' . $path, $page->path());
+		$process->run();
+
+		return $process->getOutput();
 	}
 }
