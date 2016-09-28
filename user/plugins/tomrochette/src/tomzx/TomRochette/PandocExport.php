@@ -39,12 +39,21 @@ class PandocExport
 		], $args);
 
 		$processBuilder = new ProcessBuilder();
-		$commandLine = $processBuilder->setPrefix($executable)
-			->setArguments($args)
-			->getProcess()
-			->getCommandLine();
 
-		$process = new Process($commandLine, dirname($source));
+		$process = null;
+		if (strtolower(substr(PHP_OS, 0, 3)) === 'win') {
+			$commandLine = $processBuilder->setPrefix($executable)
+				->setArguments($args)
+				->getProcess()
+				->getCommandLine();
+
+			$process = new Process($commandLine, dirname($source));
+		} else {
+			$process = $processBuilder->setPrefix($executable)
+				->setArguments($args)
+				->inheritEnvironmentVariables()
+				->getProcess();
+		}
 
 		$process->run();
 
