@@ -51,6 +51,7 @@ class PandocExport
 		} else {
 			$process = $processBuilder->setPrefix($executable)
 				->setArguments($args)
+				->setWorkingDirectory(dirname($source))
 				->inheritEnvironmentVariables()
 				->getProcess();
 		}
