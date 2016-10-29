@@ -29,13 +29,12 @@ class TomRochettePlugin extends Plugin
 			die;
 		}
 
-		$filename = $page->slug();
 		//Saves ie https problems
 		header("Cache-Control: public");
 		header("Content-Type: application/pdf");
 		header('Pragma: private');
 		header('Expires: 0');
-		header('Content-Disposition: attachment; filename="' . $filename . '.pdf"');
+		header('Content-Disposition: inline; filename="blog.tomrochette.com - ' . $page->title() . '.pdf"');
 		echo $this->getCached($page);
 		exit;
 	}
