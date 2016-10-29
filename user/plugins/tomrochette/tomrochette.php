@@ -83,7 +83,7 @@ class TomRochettePlugin extends Plugin
 			'--variable=date:' . date('F j, Y', $page->date()) . ', ' . $hash,
 		];
 		$pandocExporter = new PandocExport();
-		return $pandocExporter->exportFile($page->filePath(), $this->getCachedFile($page), 'markdown', 'latex', $args);
+		return $pandocExporter->exportFile($page->filePath(), $this->getCachedFile($page), 'markdown+lists_without_preceding_blankline', 'latex', $args);
 	}
 
 	private function getHash(Page $page)
