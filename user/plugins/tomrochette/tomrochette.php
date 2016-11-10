@@ -83,7 +83,7 @@ class TomRochettePlugin extends Plugin
 			'--variable=colorlinks',
 			'--number-sections',
 			'--variable=date:' . date('F j, Y', $page->date()),
-			'--variable=commit-url:https://github.com/tomzx/blog.tomrochette.com-content/commit/',
+			'--variable=commit-url:https://github.com/tomzx/blog.tomrochette.com-content/blob/'.$hash.$page->url().'/'.$page->name(),
 			'--variable=commit:'.$hash,
 			'--template='.__DIR__.'/assets/latex/default.tex',
 		];
