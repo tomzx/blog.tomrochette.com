@@ -45,7 +45,9 @@ class TomRochettePlugin extends Plugin
 	 */
 	private function getCachedFile(Page $page)
 	{
-		return $page->path() . '/' . $page->slug() . '-' . $page->modified() . '.pdf';
+		// We can't use $page->modified() as it returns the cache mtime and not the page mtime
+		$modifiedTime = filemtime($page->filePath());
+		return $page->path() . '/' . $page->slug() . '-' . $modifiedTime . '.pdf';
 	}
 
 	/**
