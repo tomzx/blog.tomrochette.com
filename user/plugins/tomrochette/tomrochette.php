@@ -80,7 +80,10 @@ class TomRochettePlugin extends Plugin
 			'--metadata=author:Tom Rochette',
 			'--variable=colorlinks',
 			'--number-sections',
-			'--variable=date:' . date('F j, Y', $page->date()) . ', ' . $hash,
+			'--variable=date:' . date('F j, Y', $page->date()),
+			'--variable=commit-url:https://github.com/tomzx/blog.tomrochette.com-content/commit/',
+			'--variable=commit:'.$hash,
+			'--template='.__DIR__.'/assets/latex/default.tex',
 		];
 		$pandocExporter = new PandocExport();
 		return $pandocExporter->exportFile($page->filePath(), $this->getCachedFile($page), 'markdown+lists_without_preceding_blankline', 'latex', $args);
