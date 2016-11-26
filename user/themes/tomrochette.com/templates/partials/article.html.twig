@@ -7,8 +7,11 @@
 
 	<div class="list-blog-header">
 		<h1>{{ page.title }}</h1>
-		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History</a> /
-		<a href="{{ page.url }}?pdf" title="Download as PDF">PDF <i class="fa fa-file-pdf-o"></i></a> /
+		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History <i class="fa fa-history"></i></a> /
+		<a href="https://github.com/tomzx/blog.tomrochette.com-content/edit/master{{ page.url }}/{{ page.name }}">Edit <i class="fa fa-edit"></i></a> /
+		<a href="{{ page.url }}?format=pdf" title="Download as PDF">PDF <i class="fa fa-file-pdf-o"></i></a> /
+		<a href="{{ page.url }}?format=epub" title="Download as EPUB">EPUB <i class="fa fa-file-o"></i></a>
+		<br/>
 		{% if page.header.created %}
 			Created: {{ page.header.created|date('F j, Y') }} /
 		{% endif %}
