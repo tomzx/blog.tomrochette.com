@@ -48,7 +48,7 @@ class TomRochettePlugin extends Plugin
         }
         header('Pragma: private');
         header('Expires: 0');
-        header('Content-Disposition: inline; filename="blog.tomrochette.com - ' . $page->title() . '.'.$format.'"');
+        header('Content-Disposition: inline; filename="blog.tomrochette.com - ' . $page->title() . '.' . $format . '"');
         echo $this->getCached($page, $format);
         exit;
     }
@@ -62,7 +62,7 @@ class TomRochettePlugin extends Plugin
     {
         // We can't use $page->modified() as it returns the cache mtime and not the page mtime
         $modifiedTime = filemtime($page->filePath());
-        $relativeTargetDirectory = str_replace(PAGES_DIR,'',$page->path());
+        $relativeTargetDirectory = str_replace(PAGES_DIR, '', $page->path());
         $targetDirectory = CACHE_DIR . 'downloadable/' . $relativeTargetDirectory;
         return $targetDirectory . '/' . $page->slug() . '-' . $modifiedTime . '.' . $format;
     }
@@ -107,8 +107,10 @@ class TomRochettePlugin extends Plugin
             '--template=' . __DIR__ . '/assets/latex/default.tex',
             '--variable=geometry:margin=1in',
         ];
+        $target = $this->getCachedFile($page, 'pdf');
+        $this->createPathIfNotExist(dirname($target));
         $pandocExporter = new PandocExport();
-        return $pandocExporter->exportFile($page->filePath(), $this->getCachedFile($page, 'pdf'), 'markdown+lists_without_preceding_blankline', 'latex', $args);
+        return $pandocExporter->exportFile($page->filePath(), $target, 'markdown+lists_without_preceding_blankline', 'latex', $args);
     }
 
     /**
@@ -129,8 +131,10 @@ class TomRochettePlugin extends Plugin
             '--template=' . __DIR__ . '/assets/epub/default.html',
             '--epub-stylesheet=' . __DIR__ . '/assets/epub/default.css',
         ];
+        $target = $this->getCachedFile($page, 'epub');
+        $this->createPathIfNotExist(dirname($target));
         $pandocExporter = new PandocExport();
-        return $pandocExporter->exportFile($page->filePath(), $this->getCachedFile($page, 'epub'), 'markdown+lists_without_preceding_blankline', 'epub3', $args);
+        return $pandocExporter->exportFile($page->filePath(), $target, 'markdown+lists_without_preceding_blankline', 'epub3', $args);
     }
 
     /**
@@ -145,5 +149,12 @@ class TomRochettePlugin extends Plugin
         $process->run();
 
         return $process->getOutput();
+    }
+
+    private function createPathIfNotExist($path)
+    {
+        if ( ! file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
     }
 }
