@@ -62,7 +62,9 @@ class TomRochettePlugin extends Plugin
     {
         // We can't use $page->modified() as it returns the cache mtime and not the page mtime
         $modifiedTime = filemtime($page->filePath());
-        return $page->path() . '/' . $page->slug() . '-' . $modifiedTime . '.' . $format;
+        $relativeTargetDirectory = str_replace(PAGES_DIR,'',$page->path());
+        $targetDirectory = CACHE_DIR . 'downloadable/' . $relativeTargetDirectory;
+        return $targetDirectory . '/' . $page->slug() . '-' . $modifiedTime . '.' . $format;
     }
 
     /**
