@@ -1,4 +1,19 @@
-<div class="list-item">
+<div class="list-item" itemscope itemtype="https://schema.org/Article">
+	<meta itemprop="mainEntityOfPage" content="{{ page.url(true) }}"/>
+	<meta itemprop="author" content="{{ config.site.author.name }}" />
+	<div itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+		<meta itemprop="name" content="{{ config.site.author.name }}" />
+		<div itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+			<meta itemprop="url" content="{{ url('theme://images/flask.png', true) }}" />
+			<meta itemprop="height" content="512" />
+			<meta itemprop="width" content="512" />
+		</div>
+	</div>
+	<div itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+		<meta itemprop="url" content="{{ url('theme://images/flask.png', true) }}" />
+		<meta itemprop="height" content="512" />
+		<meta itemprop="width" content="512" />
+	</div>
 
 	{% set header_image = page.header.header_image|defined(true) %}
 	{% set header_image_width  = page.header.header_image_width|defined(900) %}
@@ -6,21 +21,21 @@
 	{% set header_image_file = page.header.header_image_file %}
 
 	<div class="list-blog-header">
-		<h1>{{ page.title }}</h1>
+		<h1 itemprop="headline">{{ page.title }}</h1>
 		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History <i class="fa fa-history"></i></a> /
 		<a href="https://github.com/tomzx/blog.tomrochette.com-content/edit/master{{ page.url }}/{{ page.name }}">Edit <i class="fa fa-edit"></i></a> /
 		<a href="{{ page.url }}?format=pdf" title="Download as PDF">PDF <i class="fa fa-file-pdf-o"></i></a> /
 		<a href="{{ page.url }}?format=epub" title="Download as EPUB">EPUB <i class="fa fa-file-o"></i></a>
 		<br/>
 		{% if page.header.created %}
-			Created: {{ page.header.created|date('F j, Y') }} /
+			Created: <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('F j, Y') }}</span> /
 		{% endif %}
-		Updated: {{ page.date|date('F j, Y') }} /
+		Updated: <span itemprop="dateModified">{{ page.date|date('F j, Y') }}</span> /
 		Status: {{ page.header.taxonomy.status ?: 'unknown'  }}
 		<br/>
 
 		{% if page.taxonomy.tag %}
-			<span class="tags">
+			<span class="tags" itemprop="keywords">
 			{% for tag in page.taxonomy.tag %}
 				<a href="{{ blog.url }}/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a>
 			{% endfor %}
@@ -28,7 +43,7 @@
 		{% endif %}
 	</div>
 
-	<div class="list-blog-padding">
+	<div class="list-blog-padding" itemprop="articleBody text">
 		{{ ('<p>[TOC]</p>'~page.content)|toc }}
 	</div>
 

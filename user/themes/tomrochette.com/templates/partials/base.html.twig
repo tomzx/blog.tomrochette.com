@@ -44,6 +44,9 @@
 {% endblock head%}
 </head>
 <body id="top" class="{{ page.header.body_classes }}">
+	<div itemscope itemtype="https://schema.org/WebSite">
+		<meta itemprop="url" content="{{ base_url_absolute }}">
+	</div>
 	<div id="sb-site">
 		{% block header %}
 		<header id="header">
@@ -83,8 +86,6 @@
 				<span class="github"><i class="fa fa-github"></i> <a href="https://github.com/tomzx">@tomzx</a></span>
 				<span class="twitter"><i class="fa fa-twitter"></i> <a href="https://twitter.com/Tom_Rochette">@Tom_Rochette</a></span>
 				<span class="linkedin"><i class="fa fa-linkedin"></i> <a href="https://ca.linkedin.com/in/tomrochette">Tom Rochette</a></span>
-				<br/>
-				<a href="http://getgrav.org">Grav</a> was <i class="fa fa-code"></i> with <i class="fa fa-heart"></i> by <a href="http://www.rockettheme.com">RocketTheme</a>.
 			</p>
 		</footer>
 		{% endblock %}
