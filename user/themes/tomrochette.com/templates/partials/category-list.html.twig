@@ -1,4 +1,4 @@
-{% set taxlist = taxonomylist.get(page.collection.params.taxonomies) %}
+{% set taxlist = taxonomylist.get({type: 'post'}) %}
 
 {% if taxlist %}
 <span class="categories">
