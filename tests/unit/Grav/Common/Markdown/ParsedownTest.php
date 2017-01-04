@@ -73,6 +73,16 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
     public function testImages()
     {
+        $this->config->set('system.languages.supported', ['fr','en']);
+        unset($this->grav['language']);
+        $this->grav['language'] = new Language($this->grav);
+        $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
+
+        $this->assertSame('<p><img src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
+            $this->parsedown->text('![](cache-image.jpg?cropResize=200,200&foo)'));
+
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
         $this->assertSame('<p><img src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
@@ -85,16 +95,11 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('![](missing-image.jpg)'));
         $this->assertSame('<p><img src="/home-missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](/home-missing-image.jpg)'));
+        $this->assertSame('<p><img src="/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
+        $this->assertSame('<p><img src="https://getgrav-grav.netdna-ssl.com/user/pages/media/grav-logo.svg" alt="" /></p>',
+            $this->parsedown->text('![](https://getgrav-grav.netdna-ssl.com/user/pages/media/grav-logo.svg)'));
 
-        $this->config->set('system.languages.supported', ['fr','en']);
-        unset($this->grav['language']);
-        $this->grav['language'] = new Language($this->grav);
-        $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
-
-        $this->assertSame('<p><img src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
-            $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
-            $this->parsedown->text('![](cache-image.jpg?cropResize=200,200&foo)'));
    }
 
     public function testImagesSubDir()
