@@ -17,16 +17,14 @@
 	<a class="button" href="{{ base_url }}/random"><i class="fa fa-retweet"></i> I'm Feeling Lucky!</a>
 </div>
 {% endif %}
-{% if config.plugins.taxonomylist.enabled %}
 <div class="sidebar-content">
     <h4>Categories</h4>
-    {% include 'partials/category-list.html.twig' with {'base_url':new_base_url, 'taxonomy':'category'} %}
+    {% include 'partials/category-list.html.twig' with {'base_url':new_base_url, 'category':'category'} %}
 </div>
 <div class="sidebar-content">
     <h4>Popular Tags</h4>
     {% include 'partials/taxonomylist.html.twig' with {'base_url':new_base_url, 'taxonomy':'tag'} %}
 </div>
-{% endif %}
 {% if config.plugins.archives.enabled %}
 <div class="sidebar-content">
     <h4>Archives</h4>

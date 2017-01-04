@@ -6,11 +6,14 @@ use Grav\Common\Page\Page;
 use Grav\Common\Plugin;
 use Symfony\Component\Process\Process;
 use tomzx\TomRochette\PandocExport;
+use tomzx\TomRochette\TaxonomyList;
 
 class TomRochettePlugin extends Plugin
 {
     public function onPageInitialized()
     {
+        require_once __DIR__ . '/vendor/autoload.php';
+
         if ( ! isset($_GET['format'])) {
             return;
         }
@@ -20,8 +23,6 @@ class TomRochettePlugin extends Plugin
         if ( ! in_array($format, $formats)) {
             return;
         }
-
-        require_once __DIR__ . '/vendor/autoload.php';
 
         /** @var \Grav\Common\Page\Page $page */
         $page = $this->grav['page'];
@@ -51,6 +52,16 @@ class TomRochettePlugin extends Plugin
         header('Content-Disposition: inline; filename="blog.tomrochette.com - ' . $page->title() . '.' . $format . '"');
         echo $this->getCached($page, $format);
         exit;
+    }
+
+    /**
+     * Set needed variables to display the taxonomy list.
+     */
+    public function onTwigSiteVariables()
+    {
+        $twig = $this->grav['twig'];
+        $twig->twig_vars['taxonomy'] = $this->grav['taxonomy'];
+        $twig->twig_vars['taxonomylist'] = new TaxonomyList();
     }
 
     /**

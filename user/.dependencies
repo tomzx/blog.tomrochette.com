@@ -55,10 +55,6 @@ git:
         url: https://github.com/Sommerregen/grav-plugin-smileys
         path: user/plugins/smileys
         branch: develop
-    taxonomylist:
-        url: https://github.com/getgrav/grav-plugin-taxonomylist
-        path: user/plugins/taxonomylist
-        branch: develop
     toc:
         url: https://github.com/Sommerregen/grav-plugin-toc
         path: user/plugins/toc
@@ -123,10 +119,6 @@ links:
     smileys:
         src: grav-plugin-smileys
         path: user/plugins/smileys
-        scm: github
-    taxonomylist:
-        src: grav-plugin-taxonomylist
-        path: user/plugins/taxonomylist
         scm: github
     toc:
         src: grav-plugin-toc

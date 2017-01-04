@@ -1,11 +1,14 @@
-{% set taxlist = taxonomylist.get() %}
+{% set taxlist = taxonomylist.get(page.collection.params.taxonomies) %}
 
 {% if taxlist %}
 <span class="categories">
     <ul>
-    {% for taxon,value in taxlist[taxonomy]|ksort %}
-        {% set active = uri.param(taxonomy) == tax ? 'active' : '' %}
-        <li><a class="{{ active }}" href="{{ base_url }}/{{ taxonomy }}{{ config.system.param_sep }}{{ taxon|e('url') }}">{{ taxon }}</a> ({{ value }})</li>
+    {% for taxon,value in taxlist[category]|ksort %}
+        {% set active = uri.param(category) == tax ? 'active' : '' %}
+        <li>
+            <a class="{{ active }}" href="{{ base_url }}/{{ category }}{{ config.system.param_sep }}{{ taxon|e('url') }}">{{ taxon }}
+            </a> ({{ value }})
+        </li>
     {% endfor %}
     </ul>
 </span>
