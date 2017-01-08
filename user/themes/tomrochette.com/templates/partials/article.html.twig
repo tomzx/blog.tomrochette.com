@@ -31,7 +31,8 @@
 			Created: <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('F j, Y') }}</span> /
 		{% endif %}
 		Updated: <span itemprop="dateModified">{{ page.date|date('F j, Y') }}</span> /
-		Status: {{ page.header.taxonomy.status ?: 'unknown'  }}
+		Status: {{ page.header.taxonomy.status ?: 'unknown'  }} /
+		<span title="At an average of 200 words per minute">{{ ceil(word_count/200) }} min read (~{{ word_count }} words)</span>
 		<br/>
 
 		{% if page.taxonomy.tag %}

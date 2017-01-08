@@ -62,6 +62,9 @@ class TomRochettePlugin extends Plugin
         $twig = $this->grav['twig'];
         $twig->twig_vars['taxonomy'] = $this->grav['taxonomy'];
         $twig->twig_vars['taxonomylist'] = new TaxonomyList();
+
+        $pageText = strip_tags($this->grav['page']->content());
+        $twig->twig_vars['word_count'] = str_word_count($pageText);
     }
 
     /**
