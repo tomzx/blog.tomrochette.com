@@ -19,6 +19,10 @@ pre.language-mermaid g.label {
 	color: #000;
 }
 
+#header {
+	top: 0; // Force top so that the head renders properly in google cache
+}
+
 #header #navbar {
 	font-size: 0.9em;
 }
@@ -34,6 +38,23 @@ code:not([class]) {
 	padding: 5px;
 }
 
-@media (max-width: 800px) { body { font-size: 100%; } }
-@media (min-width: 801px) and (max-width: 1200px) { body { font-size: 125%; } }
-@media (min-width: 1201px) { body { font-size: 150%; } }
+@media (max-width: 800px) {
+	body {
+		position: static;
+		font-size: 100%;
+	}
+}
+
+@media (min-width: 801px) and (max-width: 1200px) {
+	body {
+		position: static;
+		font-size: 125%;
+	}
+}
+
+@media (min-width: 1201px) {
+	body {
+		position: static;
+		font-size: 150%;
+	}
+}
