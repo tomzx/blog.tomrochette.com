@@ -58,3 +58,11 @@ code:not([class]) {
 		font-size: 150%;
 	}
 }
+
+tbc:before {
+	content: "To be continued...";
+}
+
+tbc {
+	background: yellow;
+}
