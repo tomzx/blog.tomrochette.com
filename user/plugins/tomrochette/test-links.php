@@ -23,7 +23,7 @@ $references = [];
 $articles = [];
 
 // Currently ignores assets, might be nice to test them at some point
-$articleRegex = '/\[[^\]]+\]\((?!.*\/\/)(?<path>[^)]+)\)/';
+$articleRegex = '/\[[^\]]+\]\((?!.{0,5}\:\/\/)(?<path>[^)]+)\)/';
 foreach ($files as $file) {
     echo 'Scanning ' . $file . PHP_EOL;
     $fileDirectory = dirname($file);
