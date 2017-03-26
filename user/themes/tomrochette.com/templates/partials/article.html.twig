@@ -1,4 +1,6 @@
-<div class="list-item" itemscope itemtype="https://schema.org/Article">
+{% include 'partials/toc.html.twig' %}
+
+<div itemscope itemtype="https://schema.org/Article">
 	<meta itemprop="mainEntityOfPage" content="{{ page.url(true) }}"/>
 	<meta itemprop="author" content="{{ config.site.author.name }}" />
 	<div itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
@@ -43,8 +45,6 @@
 		</span>
 		{% endif %}
 	</div>
-
-	{% include 'partials/toc.html.twig' %}
 
 	<div class="list-blog-padding" itemprop="articleBody text">
 		{{ page.content }}
