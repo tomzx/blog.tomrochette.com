@@ -25,6 +25,7 @@ user/pages
 user/plugins/*
 !user/plugins/.*
 !user/plugins/defaulttemplate
+!user/plugins/toc
 !user/plugins/tomrochette
 user/themes/*
 !user/themes/.*
