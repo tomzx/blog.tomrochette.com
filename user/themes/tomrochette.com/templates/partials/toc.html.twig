@@ -1,0 +1,47 @@
+{# Render table of contents block #}
+{% if toc %}
+<nav class="table-of-contents toc" role="navigation">
+	{% if toc %}
+		<span class="toctitle">Table of contents</span>
+	{% endif %}
+
+	{# Get base indentation based on config settings #}
+	{% set base_indent = 0 %}
+	{% for entry in toc if (1 <= entry.level) and (entry.level <= 6) %}
+		{% if entry.indent < base_indent %}
+			{% set base_indent = entry.indent %}
+		{% endif %}
+	{% endfor %}
+
+	<ul class="tocbody">
+	{# Generate links #}
+	{% set level = base_indent %}
+	{% for entry in toc if (1 <= entry.level) and (entry.level <= 6) %}
+
+		{# Create list markup for headings #}
+		{% if entry.indent > level %}
+			{% for i in 1..(entry.indent - level) %}
+				<li><ul>
+			{% endfor %}
+		{% elseif entry.indent < level %}
+			{% for i in 1..(level - entry.indent) %}
+				</ul></li>
+			{% endfor %}
+		{% endif %}
+
+		{# Set current level to heading level #}
+		{% set level = entry.indent %}
+
+		<li><a href="#{{ entry.id }}" class="toclink">{{ entry.text|strip_tags }}</a></li>
+	{% endfor %}
+
+	{# Add missing closing tags #}
+	{% if (level - base_indent) > 0 %}
+		{% for i in 1..(level - base_indent) %}
+			</ul></li>
+		{% endfor %}
+	{% endif %}
+
+	</ul>
+</nav>
+{% endif %}

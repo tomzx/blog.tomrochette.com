@@ -2,6 +2,10 @@ h1 {
 	text-align: left;
 }
 
+/*h1, h2, h3, h4, h5, h6 {*/
+/*margin: 0.75rem 0 1.0rem 0;*/
+/*}*/
+
 .blog-header h1, .blog-header h2 {
 	text-align: center;
 }
@@ -20,7 +24,7 @@ pre.language-mermaid g.label {
 }
 
 #header {
-	top: 0; // Force top so that the head renders properly in google cache
+	top: 0; /* Force top so that the head renders properly in google cache */
 }
 
 #header #navbar {
@@ -57,6 +61,38 @@ code:not([class]) {
 		position: static;
 		font-size: 150%;
 	}
+}
+
+.table-of-contents.toc  {
+	display: block;
+}
+@media only all and (max-width: 59.938em) {
+	.table-of-contents.toc {
+		display: none;
+	}
+}
+
+/* Fix display of chevron */
+.table-of-contents .toclink:before {
+	vertical-align: top;
+}
+
+.table-of-contents.toc {
+	padding: 0;
+}
+
+.table-of-contents .toctitle {
+	padding: 0.5em 2em 0.5em 2em;
+	background: #000;
+	color: #FFF;
+}
+
+.table-of-contents .tocbody {
+	padding: 0em 2em 1em 2em;
+}
+
+.sb-slidebar .toctitle {
+	background: #000;
 }
 
 tbc:before {

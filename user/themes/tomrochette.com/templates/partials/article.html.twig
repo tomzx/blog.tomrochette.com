@@ -44,8 +44,10 @@
 		{% endif %}
 	</div>
 
+	{% include 'partials/toc.html.twig' %}
+
 	<div class="list-blog-padding" itemprop="articleBody text">
-		{{ ('<p>[TOC]</p>'~page.content)|toc }}
+		{{ page.content }}
 	</div>
 
 	<div id="disqus_thread"></div>

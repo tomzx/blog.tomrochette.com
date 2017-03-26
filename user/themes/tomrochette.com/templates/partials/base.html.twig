@@ -42,6 +42,7 @@
         {{ assets.js() }}
 
     {% endblock head%}
+    {% set toc = page.content|tocify %}
 </head>
 <body id="top" class="{{ page.header.body_classes }}">
 <div itemscope itemtype="https://schema.org/WebSite">
@@ -93,11 +94,10 @@
 <div class="sb-slidebar sb-left sb-width-thin">
     <div id="panel">
         {% include 'partials/navigation.html.twig' %}
-        {% set toc = page.content|tocify %}
         <ul class="navigation toc">
-            <li><a href="#">Table of content</a></li>
+            <li class="toctitle"><a href="#">Table of content</a></li>
             {% for entry in toc %}
-                <li><a href="#{{ entry.id }}" title="{{ entry.text }}">{{ entry.text }}</a></li>
+                <li><a href="#{{ entry.id }}">{{ entry.text|strip_tags }}</a></li>
             {% endfor %}
         </ul>
     </div>
