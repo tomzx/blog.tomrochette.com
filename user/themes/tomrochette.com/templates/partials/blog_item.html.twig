@@ -7,9 +7,9 @@
 
 	<div class="list-blog-header">
 		<span class="list-blog-date">
-			<span>{{ page.date|date("d") }}</span>
-			<em>{{ page.date|date("M") }}</em>
-			<em>{{ page.date|date("Y") }}</em>
+			<span>{{ page.header.created|date("d") }}</span>
+			<em>{{ page.header.created|date("M") }}</em>
+			<em>{{ page.header.created|date("Y") }}</em>
 		</span>
 		{% if page.header.link %}
 			<h4>
