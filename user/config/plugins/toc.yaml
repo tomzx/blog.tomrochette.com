@@ -18,10 +18,9 @@ baselevel: 1                 # Base level for headings
 headinglevel: 6              # Maximum heading level to show in TOC
 
 slug:                        # Slug generation
-  truncate: true             # Truncate headings for slug generation
+  truncate: false            # Truncate headings for slug generation
   length: 32                 # Slug string length
   break: "-"                 # The break delimiter to divide the slug into pieces of words.
   pad: "-..."                # Added to the end of the truncated slug
 
-
-process: true
+process: true                # Process table of contents

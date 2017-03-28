@@ -254,11 +254,11 @@ class Toc
     // Generate Toc
     $replacements = $this->generateToc($content);
     $regex = '~(<p>)?\s*\[(?P<type>(?:MINI)?TOC)\]\s*(?(1)</p>)~i';
-    
-    if (empty($replacements)) {
-      // Hide (mini-)toc marker
-      return preg_replace($regex, '', $content);
-    }
+
+    // if (empty($replacements)) {
+    //   // Hide (mini-)toc marker
+    //   return preg_replace($regex, '', $content);
+    // }
 
     // Tocify content
     $content = $this->tocify($content, $options);
@@ -268,7 +268,7 @@ class Toc
     $content = preg_replace_callback($regex,
       function($match) use ($replacements, $twig, $options) {
         static $i = 0;
-    
+
         $vars['toc'] = $replacements[$i++] + $options->toArray();
         $template = 'plugins/toc/toc' . TEMPLATE_EXT;
         return $twig->processTemplate($template, $vars);
