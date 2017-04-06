@@ -46,6 +46,12 @@ class DefaultTemplatePlugin extends Plugin
 
 		$default_template = $this->config->get('plugins.defaulttemplate.default_template');
 		$twig = $this->grav['twig'];
+
+		// If twig already has a template (assigned through another plugin for example), then do not override it
+		if ($twig->template) {
+			return;
+		}
+
 		$twig->template = $default_template.'.html.twig';
 	}
 }
