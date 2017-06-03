@@ -4,15 +4,12 @@
 
 $pagesDirectory = realpath(__DIR__ . '/../../pages');
 $agiDirectory = realpath($pagesDirectory.'/agi');
+$machineLearningDirectory = realpath($pagesDirectory.'/machine-learning');
 
 $startPages = [
     $agiDirectory => true,
+    $machineLearningDirectory => true,
 ];
-
-$pattern = '/\.md$/';
-$directoryIterator = new RecursiveDirectoryIterator($agiDirectory);
-$iterator = new RecursiveIteratorIterator($directoryIterator);
-$files = new RegexIterator($iterator, $pattern, RegexIterator::MATCH);
 
 $redBackground = "\033[41m";
 $greenBackground = "\033[42m";
@@ -22,23 +19,37 @@ $countBroken = 0;
 $references = [];
 $articles = [];
 
-// Currently ignores assets, might be nice to test them at some point
-$articleRegex = '/\[[^\]]+\]\((?!.{0,5}\:\/\/)(?<path>[^)]+)\)/';
-foreach ($files as $file) {
-    echo 'Scanning ' . $file . PHP_EOL;
-    $fileDirectory = dirname($file);
-    $articles[$fileDirectory] = true;
-    $content = file_get_contents($file);
-    preg_match_all($articleRegex, $content, $matches);
-    foreach ($matches['path'] as $path) {
-        $directory = realpath($fileDirectory.'/'.$path);
-        $file = file_exists($directory); // If an asset, check the file exists
-        $files = glob($directory.'/{item,article}.md', GLOB_BRACE);
-        $fileExists = $file || count($files) > 0;
-        $countBroken = $fileExists ? $countBroken : ++$countBroken;
-        $color = $fileExists ? $greenBackground : $redBackground;
-        echo "\t" . $color . $path . ' ' . ($fileExists ? 'OK' : 'BROKEN') . $endColor . PHP_EOL;
-        $references[$directory][$fileDirectory] = true;
+$pattern = '/\.md$/';
+
+foreach ($startPages as $startPage => $dontCare) {
+    $directoryIterator = new RecursiveDirectoryIterator($startPage);
+    $iterator = new RecursiveIteratorIterator($directoryIterator);
+    $files = new RegexIterator($iterator, $pattern, RegexIterator::MATCH);
+
+    // TODO: It appears that the article regex matches #anchor
+
+    // Currently ignores assets, might be nice to test them at some point
+    $articleRegex = '/\[[^\]]+\]\((?!.{0,5}\:\/\/|#)(?<path>[^)]+)\)/';
+    foreach ($files as $file) {
+        echo 'Scanning ' . $file . PHP_EOL;
+        $fileDirectory = dirname($file);
+        $articles[$fileDirectory] = true;
+        $content = file_get_contents($file);
+        preg_match_all($articleRegex, $content, $matches);
+        foreach ($matches['path'] as $path) {
+            $directory = realpath($fileDirectory.'/'.$path);
+            if ( ! $directory) {
+                $fileExists = false;
+            } else {
+                $references[$directory][$fileDirectory] = true;
+                $file = file_exists($directory); // If an asset, check the file exists
+                $files = glob($directory.'/{item,article}.md', GLOB_BRACE);
+                $fileExists = $file || count($files) > 0;
+            }
+            $countBroken = $fileExists ? $countBroken : ++$countBroken;
+            $color = $fileExists ? $greenBackground : $redBackground;
+            echo "\t" . $color . $path . ' ' . ($fileExists ? 'OK' : 'BROKEN') . $endColor . PHP_EOL;
+        }
     }
 }
 
