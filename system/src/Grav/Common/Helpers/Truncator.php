@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Helpers
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -10,6 +10,8 @@ namespace Grav\Common\Helpers;
 
 use DOMText;
 use DOMDocument;
+use DOMElement;
+use DOMNode;
 use DOMWordsIterator;
 use DOMLettersIterator;
 
@@ -118,7 +120,7 @@ class Truncator {
 
     /**
      * Builds a DOMDocument object from a string containing HTML.
-     * @param string HTML to load
+     * @param string $html HTML to load
      * @returns DOMDocument Returns a DOMDocument object.
      */
     public static function htmlToDomDocument($html)

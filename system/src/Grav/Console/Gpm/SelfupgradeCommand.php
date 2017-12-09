@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Console
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -143,7 +143,7 @@ class SelfupgradeCommand extends ConsoleCommand
                 $this->output->writeln("");
                 foreach ($changelog as $version => $log) {
                     $title = $version . ' [' . $log['date'] . ']';
-                    $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
+                    $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', function ($match) {
                         return "\n" . ucfirst($match[1]) . ":";
                     }, $log['content']);
 

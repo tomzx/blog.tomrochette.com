@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.User
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -29,7 +29,6 @@ class User extends Data
     {
         $grav = Grav::instance();
         $locator = $grav['locator'];
-        $config = $grav['config'];
 
         // force lowercase of username
         $username = strtolower($username);
@@ -38,7 +37,7 @@ class User extends Data
         $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
         $file = CompiledYamlFile::instance($file_path);
-        $content = $file->content();
+        $content = (array)$file->content();
         if (!isset($content['username'])) {
             $content['username'] = $username;
         }
@@ -48,23 +47,20 @@ class User extends Data
         $user = new User($content, $blueprint);
         $user->file($file);
 
-        // add user to config
-        $config->set("user", $user);
-
         return $user;
     }
 
     /**
      * Find a user by username, email, etc
      *
-     * @param $query        the query to search for
+     * @param string $query the query to search for
      * @param array $fields the fields to search
      * @return User
      */
     public static function find($query, $fields = ['username', 'email'])
     {
         $account_dir = Grav::instance()['locator']->findResource('account://');
-        $files = array_diff(scandir($account_dir), ['.', '..']);
+        $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
 
         // Try with username first, you never know!
         if (in_array('username', $fields)) {
@@ -100,7 +96,7 @@ class User extends Data
     public static function remove($username)
     {
         $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
-        if (file_exists($file_path) && unlink($file_path)) {
+        if ($file_path && unlink($file_path)) {
             return true;
         }
 
@@ -197,6 +193,10 @@ class User extends Data
             return false;
         }
 
+        if (!$this->authenticated) {
+            return false;
+        }
+
         if (isset($this->state) && $this->state !== 'enabled') {
             return false;
         }
@@ -238,5 +238,21 @@ class User extends Data
     public function authorise($action)
     {
         return $this->authorize($action);
+    }
+
+    /**
+     * Return the User's avatar URL
+     *
+     * @return string
+     */
+    public function avatarUrl()
+    {
+        if ($this->avatar) {
+            $avatar = $this->avatar;
+            $avatar = array_shift($avatar);
+            return Grav::instance()['base_url'] . '/' . $avatar['path'];
+        } else {
+            return 'https://www.gravatar.com/avatar/' . md5($this->email);
+        }
     }
 }

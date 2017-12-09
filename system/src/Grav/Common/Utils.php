@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -80,7 +80,7 @@ abstract class Utils
     }
 
     /**
-     * Returns the substring of a string up to a specified needle.  if not found, return the whole haytack
+     * Returns the substring of a string up to a specified needle.  if not found, return the whole haystack
      *
      * @param $haystack
      * @param $needle
@@ -97,6 +97,46 @@ abstract class Utils
     }
 
     /**
+     * Utility method to replace only the first occurrence in a string
+     *
+     * @param $search
+     * @param $replace
+     * @param $subject
+     * @return mixed
+     */
+    public static function replaceFirstOccurrence($search, $replace, $subject)
+    {
+        if (!$search) {
+            return $subject;
+        }
+        $pos = strpos($subject, $search);
+        if ($pos !== false) {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+        return $subject;
+    }
+
+    /**
+     * Utility method to replace only the last occurrence in a string
+     *
+     * @param $search
+     * @param $replace
+     * @param $subject
+     * @return mixed
+     */
+    public static function replaceLastOccurrence($search, $replace, $subject)
+    {
+        $pos = strrpos($subject, $search);
+
+        if($pos !== false)
+        {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+
+        return $subject;
+    }
+
+    /**
      * Merge two objects into one.
      *
      * @param  object $obj1
@@ -107,6 +147,26 @@ abstract class Utils
     public static function mergeObjects($obj1, $obj2)
     {
         return (object)array_merge((array)$obj1, (array)$obj2);
+    }
+
+    /**
+     * Recursive Merge with uniqueness
+     *
+     * @param $array1
+     * @param $array2
+     * @return mixed
+     */
+    public static function arrayMergeRecursiveUnique($array1, $array2)
+    {
+        if (empty($array1)) return $array2; //optimize the base case
+
+        foreach ($array2 as $key => $value) {
+            if (is_array($value) && is_array(@$array1[$key])) {
+                $value = static::arrayMergeRecursiveUnique($array1[$key], $value);
+            }
+            $array1[$key] = $value;
+        }
+        return $array1;
     }
 
     /**
@@ -812,5 +872,161 @@ abstract class Utils
 
 
         return $array;
+    }
+
+    /**
+     * Utility method to determine if the current OS is Windows
+     *
+     * @return bool
+     */
+    public static function isWindows() {
+        return strncasecmp(PHP_OS, 'WIN', 3) == 0;
+    }
+
+    /**
+     * Utility to determine if the server running PHP is Apache
+     *
+     * @return bool
+     */
+    public static function isApache() {
+        return strpos($_SERVER["SERVER_SOFTWARE"], 'Apache') !== false;
+    }
+
+    /**
+     * Sort a multidimensional array  by another array of ordered keys
+     *
+     * @param array $array
+     * @param array $orderArray
+     * @return array
+     */
+    public static function sortArrayByArray(array $array, array $orderArray) {
+        $ordered = array();
+        foreach ($orderArray as $key) {
+            if (array_key_exists($key, $array)) {
+                $ordered[$key] = $array[$key];
+                unset($array[$key]);
+            }
+        }
+        return $ordered + $array;
+    }
+
+    /**
+     * Get's path based on a token
+     *
+     * @param $path
+     * @param null $page
+     * @return string
+     */
+    public static function getPagePathFromToken($path, $page = null)
+    {
+        $path_parts = pathinfo($path);
+        $grav       = Grav::instance();
+
+        $basename = '';
+        if (isset($path_parts['extension'])) {
+            $basename = '/' . $path_parts['basename'];
+            $path     = rtrim($path_parts['dirname'], ':');
+        }
+
+        $regex = '/(@self|self@)|((?:@page|page@):(?:.*))|((?:@theme|theme@):(?:.*))/';
+        preg_match($regex, $path, $matches);
+
+        if ($matches) {
+            if ($matches[1]) {
+                if (is_null($page)) {
+                    throw new \RuntimeException('Page not available for this self@ reference');
+                }
+            } elseif ($matches[2]) {
+                // page@
+                $parts = explode(':', $path);
+                $route = $parts[1];
+                $page  = $grav['page']->find($route);
+            } elseif ($matches[3]) {
+                // theme@
+                $parts = explode(':', $path);
+                $route = $parts[1];
+                $theme = str_replace(ROOT_DIR, '', $grav['locator']->findResource("theme://"));
+
+                return $theme . $route . $basename;
+            }
+        } else {
+            return $path . $basename;
+        }
+
+        if (!$page) {
+            throw new \RuntimeException('Page route not found: ' . $path);
+        }
+
+        $path = str_replace($matches[0], rtrim($page->relativePagePath(), '/'), $path);
+
+        return $path . $basename;
+    }
+
+    public static function getUploadLimit()
+    {
+        static $max_size = -1;
+
+        if ($max_size < 0) {
+            $post_max_size = static::parseSize(ini_get('post_max_size'));
+            if ($post_max_size > 0) {
+                $max_size = $post_max_size;
+            }
+
+            $upload_max = static::parseSize(ini_get('upload_max_filesize'));
+            if ($upload_max > 0 && $upload_max < $max_size) {
+                $max_size = $upload_max;
+            }
+        }
+
+        return $max_size;
+    }
+
+    /**
+     * Parse a readable file size and return a value in bytes
+     *
+     * @param $size
+     * @return int
+     */
+    public static function parseSize($size)
+    {
+        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
+        $size = preg_replace('/[^0-9\.]/', '', $size);
+        if ($unit) {
+            return intval($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+        } else {
+            return intval($size);
+        }
+    }
+
+    /**
+     * Multibyte-safe Parse URL function
+     *
+     * @param $url
+     * @return mixed
+     */
+    public static function multibyteParseUrl($url)
+    {
+        $enc_url = preg_replace_callback(
+            '%[^:/@?&=#]+%usD',
+            function ($matches)
+            {
+                return urlencode($matches[0]);
+            },
+            $url
+        );
+
+        $parts = parse_url($enc_url);
+
+        if($parts === false)
+        {
+            throw new \InvalidArgumentException('Malformed URL: ' . $url);
+        }
+
+        foreach($parts as $name => $value)
+        {
+            $parts[$name] = urldecode($value);
+        }
+
+        return $parts;
     }
 }

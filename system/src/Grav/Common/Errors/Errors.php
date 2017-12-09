@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Errors
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,7 +20,8 @@ class Errors
         $jsonRequest = $_SERVER && isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
 
         // Setup Whoops-based error handler
-        $whoops = new \Whoops\Run;
+        $system = new SystemFacade;
+        $whoops = new \Whoops\Run($system);
 
         $verbosity = 1;
 

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -112,6 +112,16 @@ class Response
         $config = Grav::instance()['config'];
         $overrides = [];
 
+        // Override CA Bundle
+        $caPathOrFile = \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
+        if (is_dir($caPathOrFile) || (is_link($caPathOrFile) && is_dir(readlink($caPathOrFile)))) {
+            $overrides['curl'][CURLOPT_CAPATH] = $caPathOrFile;
+            $overrides['fopen']['ssl']['capath'] = $caPathOrFile;
+        } else {
+            $overrides['curl'][CURLOPT_CAINFO] = $caPathOrFile;
+            $overrides['fopen']['ssl']['cafile'] = $caPathOrFile;
+        }
+
         // SSL Verify Peer and Proxy Setting
         $settings = [
             'method'      => $config->get('system.gpm.method', self::$method),
@@ -190,11 +200,19 @@ class Response
     }
 
     /**
-     * Progress normalized for cURL and Fopen
-     * Accepts a vsariable length of arguments passed in by stream method
+     * Is this a remote file or not
      *
-     * @return array Normalized array with useful data.
-     *               Format: ['code' => int|false, 'filesize' => bytes, 'transferred' => bytes, 'percent' => int]
+     * @param $file
+     * @return bool
+     */
+    public static function isRemote($file)
+    {
+        return (bool) filter_var($file, FILTER_VALIDATE_URL);
+    }
+
+    /**
+     * Progress normalized for cURL and Fopen
+     * Accepts a variable length of arguments passed in by stream method
      */
     public static function progress()
     {
@@ -243,6 +261,8 @@ class Response
         if (self::isCurlAvailable()) {
             return self::getCurl(func_get_args());
         }
+
+        return null;
     }
 
     /**
@@ -291,7 +311,7 @@ class Response
                 case '401':
                     throw new \RuntimeException("Invalid LICENSE");
                 default:
-                    throw new \RuntimeException("Error while trying to download '$uri'\n");
+                    throw new \RuntimeException("Error while trying to download (code: $code): $uri \n");
             }
         }
 
@@ -327,7 +347,7 @@ class Response
                 case '401':
                     throw new \RuntimeException("Invalid LICENSE");
                 default:
-                    throw new \RuntimeException("Error while trying to download '$uri'\nMessage: $error_message");
+                    throw new \RuntimeException("Error while trying to download (code: $code): $uri \nMessage: $error_message");
             }
         }
 
@@ -361,7 +381,7 @@ class Response
             return curl_exec($ch);
         }
 
-        $max_redirects = isset($options['curl'][CURLOPT_MAXREDIRS]) ? $options['curl'][CURLOPT_MAXREDIRS] : 3;
+        $max_redirects = isset($options['curl'][CURLOPT_MAXREDIRS]) ? $options['curl'][CURLOPT_MAXREDIRS] : 5;
         $options['curl'][CURLOPT_FOLLOWLOCATION] = false;
 
         // open_basedir set but no redirects to follow, we can disable followlocation and proceed normally
@@ -386,7 +406,7 @@ class Response
                 $code = 0;
             } else {
                 $code = curl_getinfo($rch, CURLINFO_HTTP_CODE);
-                if ($code == 301 || $code == 302) {
+                if ($code == 301 || $code == 302 || $code == 303) {
                     preg_match('/Location:(.*?)\n/', $header, $matches);
                     $uri = trim(array_pop($matches));
                 } else {
