@@ -27,14 +27,15 @@
 		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History <i class="fa fa-history"></i></a> /
 		<a href="https://github.com/tomzx/blog.tomrochette.com-content/edit/master{{ page.url }}/{{ page.name }}">Edit <i class="fa fa-edit"></i></a> /
 		<a href="{{ page.url }}?format=pdf" title="Download as PDF">PDF <i class="fa fa-file-pdf-o"></i></a> /
-		<a href="{{ page.url }}?format=epub" title="Download as EPUB">EPUB <i class="fa fa-file-o"></i></a>
+		<a href="{{ page.url }}?format=epub" title="Download as EPUB">EPUB <i class="fa fa-file-o"></i></a> /
+		<a href="{{ page.url }}?format=bib" title="Download BIB bibliography">BIB <i class="fa fa-book"></i></a>
 		<br/>
 		{% if page.header.created %}
-			Created: <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('F j, Y') }}</span> /
+			<span title="The date of creation of the article">Created: <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('F j, Y') }}</span></span> /
 		{% endif %}
-		Updated: <span itemprop="dateModified">{{ page.date|date('F j, Y') }}</span> /
-		Status: {{ page.header.taxonomy.status ?: 'unknown'  }} /
-		<span title="At an average of 200 words per minute">{{ ceil(word_count/200) }} min read (~{{ word_count }} words)</span>
+		<span title="The date the article was last edited">Updated: <span itemprop="dateModified">{{ page.date|date('F j, Y') }}</span></span> /
+		<span title="The state of completion of the article">Status: {{ page.header.taxonomy.status ?: 'unknown'  }}</span> /
+		<span title="At an average of 200 words per minute">{{ ceil(str_word_count(page.content)/200) }} min read (~{{ str_word_count(page.content) }} words)</span>
 		<br/>
 
 		{% if page.taxonomy.tag %}
