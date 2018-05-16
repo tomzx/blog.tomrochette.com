@@ -30,16 +30,6 @@
     {% endblock %}
     {{ assets.css() }}
 
-    {% block javascripts %}
-        {% do assets.addJs('jquery', 101) %}
-        {% do assets.addJs('theme://js/modernizr.custom.71422.js', 100) %}
-        {% do assets.addJs('theme://js/antimatter.js') %}
-        {% do assets.addJs('theme://js/slidebars.min.js') %}
-        {% do assets.addJs('theme://js/prism.js') %}
-        {% do assets.addJs('theme://js/mermaid.min.js') %}
-    {% endblock %}
-    {{ assets.js() }}
-
 {% endblock head %}
 {% set toc = page.content|tocify %}
 </head>
@@ -103,6 +93,17 @@
     </div>
 </div>
 {% endblock %}
+
+{% block javascripts %}
+	{% do assets.addJs('jquery', 101) %}
+	{% do assets.addJs('theme://js/modernizr.custom.71422.js', 100) %}
+	{% do assets.addJs('theme://js/antimatter.js') %}
+	{% do assets.addJs('theme://js/slidebars.min.js') %}
+	{% do assets.addJs('theme://js/prism.js') %}
+	{% do assets.addJs('theme://js/mermaid.min.js') %}
+{% endblock %}
+{{ assets.js() }}
+
 {% block bottom %}
     {{ assets.js('bottom') }}
     <script>
