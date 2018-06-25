@@ -6,9 +6,11 @@
     <meta charset="utf-8" />
     <title>{% if header.title %}{{ header.title|e('html') }} | {% endif %}{{ site.title|e('html') }}</title>
     {% include 'partials/metadata.html.twig' %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ url('theme://images/favicon.png', true) }}" />
     <link rel="canonical" href="{{ page.url(true, true) }}" />
+	<meta name="author" content="Tom Rochette" />
+	{# <meta name="description" content="An open book into a software engineer's mind." /> #}
 
     {% block stylesheets %}
         {% do assets.addCss('theme://css/pure-0.5.0/grids-min.css', 103) %}
@@ -59,9 +61,9 @@
     {% block showcase %}{% endblock %}
 
     {% block body %}
-        <section id="body" class="{{ class }}">
+        <article id="body" class="{{ class }}">
             {% block content %}{% endblock %}
-        </section>
+        </article>
     {% endblock %}
 
     {% block footer %}
