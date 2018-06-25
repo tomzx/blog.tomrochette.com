@@ -1,8 +1,9 @@
 {% include 'partials/toc.html.twig' %}
 
-<div itemscope itemtype="https://schema.org/Article">
+<article itemscope itemtype="https://schema.org/Article">
 	<meta itemprop="mainEntityOfPage" content="{{ page.url(true) }}"/>
 	<meta itemprop="author" content="{{ config.site.author.name }}" />
+	<meta itemprop="headline" content="{{ page.title }}" />
 	<div itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
 		<meta itemprop="name" content="{{ config.site.author.name }}" />
 		<div itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
@@ -22,8 +23,11 @@
 	{% set header_image_height = page.header.header_image_height|defined(300) %}
 	{% set header_image_file = page.header.header_image_file %}
 
+	<header>
+		<h1>{{ page.title }}</h1>
+	</header>
+
 	<div class="list-blog-header">
-		<h1 itemprop="headline">{{ page.title }}</h1>
 		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History <i class="fa fa-history"></i></a> /
 		<a href="https://github.com/tomzx/blog.tomrochette.com-content/edit/master{{ page.url }}/{{ page.name }}">Edit <i class="fa fa-edit"></i></a> /
 		<a href="{{ page.url }}?format=pdf" title="Download as PDF">PDF <i class="fa fa-file-pdf-o"></i></a> /
@@ -50,18 +54,18 @@
 	<div class="list-blog-padding" itemprop="articleBody text">
 		{{ page.content }}
 	</div>
+</article>
 
-	<div id="disqus_thread"></div>
-	<script type="text/javascript">
-		/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-		var disqus_shortname = 'tomrochettecom'; // required: replace example with your forum shortname
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+	var disqus_shortname = 'tomrochettecom'; // required: replace example with your forum shortname
 
-		/* * * DON'T EDIT BELOW THIS LINE * * */
-		(function() {
-			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-			dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-		})();
-	</script>
-	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</div>
+	/* * * DON'T EDIT BELOW THIS LINE * * */
+	(function() {
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
