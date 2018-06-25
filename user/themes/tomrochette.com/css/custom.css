@@ -2,11 +2,11 @@ h1 {
 	text-align: left;
 }
 
-/*h1, h2, h3, h4, h5, h6 {*/
-/*margin: 0.75rem 0 1.0rem 0;*/
-/*}*/
+#header {
+	box-shadow: none;
+}
 
-.blog-header h1, .blog-header h2 {
+.blog-header h1, .blog-header h2, .blog-header h3 {
 	text-align: center;
 }
 
