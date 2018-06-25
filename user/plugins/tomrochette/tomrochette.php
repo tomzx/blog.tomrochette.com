@@ -4,28 +4,59 @@ namespace Grav\Plugin;
 
 use Grav\Common\Page\Page;
 use Grav\Common\Plugin;
+use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Process\Process;
 use tomzx\TomRochette\PandocExport;
 use tomzx\TomRochette\TaxonomyList;
+use tomzx\TomRochette\WordCountTwigExtension;
 
 class TomRochettePlugin extends Plugin
 {
-    public function onPageInitialized()
+    public function onPluginsInitialized()
     {
         require_once __DIR__ . '/vendor/autoload.php';
+    }
 
+    public function onPageContentProcessed(Event $event)
+    {
+        /** @var \Grav\Common\Page\Page $page */
+        $page = $event['page'];
+
+        $content = $page->content();
+
+        // Process headings
+        $content = str_replace(['h6', 'h5', 'h4', 'h3', 'h2', 'h1'], ['h7', 'h6', 'h5', 'h4', 'h3', 'h2'], $content);
+
+        $page->setRawContent($content);
+    }
+
+    public function onPageInitialized()
+    {
         if ( ! isset($_GET['format'])) {
-            return;
-        }
-
-        $format = strtolower($_GET['format']);
-        $formats = ['pdf', 'epub'];
-        if ( ! in_array($format, $formats)) {
             return;
         }
 
         /** @var \Grav\Common\Page\Page $page */
         $page = $this->grav['page'];
+
+        $format = strtolower($_GET['format']);
+
+        if ($format === 'bib') {
+            if ($this->pageHasBibliography($page)) {
+                $bibFile = str_replace('.md', '.bib', $page->filePath());
+                header("Content-Type: application/x-bibtex");
+                header('Pragma: private');
+                header('Expires: 0');
+                header('Content-Disposition: inline; filename="blog.tomrochette.com - ' . $page->title() . '.bib"');
+                echo file_get_contents($bibFile);
+                exit;
+            }
+        }
+
+        $formats = ['pdf', 'epub'];
+        if ( ! in_array($format, $formats)) {
+            return;
+        }
 
         if ( ! $this->isCached($page, $format)) {
             if ($format === 'pdf') {
@@ -36,6 +67,7 @@ class TomRochettePlugin extends Plugin
         }
 
         if ( ! $this->isCached($page, $format)) {
+            http_response_code(500);
             echo 'FAIL';
             die;
         }
@@ -63,8 +95,8 @@ class TomRochettePlugin extends Plugin
         $twig->twig_vars['taxonomy'] = $this->grav['taxonomy'];
         $twig->twig_vars['taxonomylist'] = new TaxonomyList();
 
-        $pageText = strip_tags($this->grav['page']->content());
-        $twig->twig_vars['word_count'] = str_word_count($pageText);
+        // $pageText = strip_tags($this->grav['page']->content());
+        // $twig->twig_vars['word_count'] = str_word_count($pageText);
     }
 
     /**
@@ -113,6 +145,7 @@ class TomRochettePlugin extends Plugin
         $args = [
             '--variable=author:Tom Rochette <tom.rochette@coreteks.org>',
             '--metadata=author:Tom Rochette',
+            '--variable=institute:Coreteks Inc.',
             '--variable=colorlinks',
             '--number-sections',
             '--variable=date:' . date('F j, Y', $page->date()),
@@ -121,6 +154,13 @@ class TomRochettePlugin extends Plugin
             '--template=' . __DIR__ . '/assets/latex/default.tex',
             '--variable=geometry:margin=1in',
         ];
+        $bibFile = str_replace('.md', '.bib', $page->filePath());
+        if (file_exists($bibFile)) {
+            $args[] = '--bibliography=' . $bibFile;
+            $args[] = '--metadata=link-citations:true';
+            $args[] = '--metadata=nocite:@*';
+            $args[] = '--csl=' . __DIR__ . '/assets/csl/transactions-on-computer-systems.csl';
+        }
         $target = $this->getCachedFile($page, 'pdf');
         $this->createPathIfNotExist(dirname($target));
         $pandocExporter = new PandocExport();
@@ -137,6 +177,7 @@ class TomRochettePlugin extends Plugin
         $args = [
             '--variable=author:Tom Rochette &lt;<a href="mailto:tom.rochette@coreteks.org">tom.rochette@coreteks.org</a>&gt;',
             '--metadata=author:Tom Rochette',
+            '--variable=institute:Coreteks Inc.',
             '--variable=colorlinks',
             '--number-sections',
             '--variable=date:' . date('F j, Y', $page->date()),
@@ -170,5 +211,11 @@ class TomRochettePlugin extends Plugin
         if ( ! file_exists($path)) {
             mkdir($path, 0777, true);
         }
+    }
+
+    private function pageHasBibliography(Page $page)
+    {
+        $bibFile = str_replace('.md', '.bib', $page->filePath());
+        return file_exists($bibFile);
     }
 }
