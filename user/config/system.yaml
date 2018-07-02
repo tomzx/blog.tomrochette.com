@@ -1,4 +1,5 @@
 absolute_urls: false
+reverse_proxy_setup: true
 timezone: 'America/Montreal'
 param_sep: ':'
 languages:
