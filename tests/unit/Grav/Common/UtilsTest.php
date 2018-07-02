@@ -90,13 +90,13 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testDateFormats()
     {
         $dateFormats = Utils::dateFormats();
-        $this->assertTrue(is_array($dateFormats));
+        $this->assertInternalType('array', $dateFormats);
         $this->assertContainsOnly('string', $dateFormats);
 
         $default_format = $this->grav['config']->get('system.pages.dateformat.default');
 
         if ($default_format !== null) {
-            $this->assertTrue(isset($dateFormats[$default_format]));
+            $this->assertArrayHasKey($default_format, $dateFormats);
         }
     }
 
@@ -127,7 +127,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('<p>This...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
         $this->assertEquals('<p>This is a...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 10));
         $this->assertEquals('<p>This is a string to truncate</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 100));
-        $this->assertEquals('<input type="file" id="file" multiple>', Utils::truncateHtml('<input type="file" id="file" multiple />', 6));
+        $this->assertEquals('<input type="file" id="file" multiple />', Utils::truncateHtml('<input type="file" id="file" multiple />', 6));
         $this->assertEquals('<ol><li>item 1 <i>so...</i></li></ol>', Utils::truncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 10));
 		$this->assertEquals("<p>This is a string.</p>\n<p>It splits two lines.</p>", Utils::truncateHtml("<p>This is a string.</p>\n<p>It splits two lines.</p>", 100));
     }
@@ -138,7 +138,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('<p>This is...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 2));
         $this->assertEquals('<p>This is a string to...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 5));
         $this->assertEquals('<p>This is a string to truncate</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 20));
-        $this->assertEquals('<input type="file" id="file" multiple>', Utils::safeTruncateHtml('<input type="file" id="file" multiple />', 6));
+        $this->assertEquals('<input type="file" id="file" multiple />', Utils::safeTruncateHtml('<input type="file" id="file" multiple />', 6));
         $this->assertEquals('<ol><li>item 1 <i>something</i></li><li>item 2...</li></ol>', Utils::safeTruncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 5));
     }
 
@@ -208,7 +208,7 @@ class UtilsTest extends \Codeception\TestCase\Test
     {
         $timezones = Utils::timezones();
 
-        $this->assertTrue(is_array($timezones));
+        $this->assertInternalType('array', $timezones);
         $this->assertContainsOnly('string', $timezones);
     }
 
@@ -224,8 +224,8 @@ class UtilsTest extends \Codeception\TestCase\Test
         });
 
         $this->assertContainsOnly('string', $array);
-        $this->assertFalse(isset($array['test']));
-        $this->assertTrue(isset($array['test2']));
+        $this->assertArrayNotHasKey('test', $array);
+        $this->assertArrayHasKey('test2', $array);
         $this->assertEquals('test2', $array['test2']);
     }
 
@@ -320,8 +320,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testGetNonce()
     {
-        $this->assertTrue(is_string(Utils::getNonce('test-action')));
-        $this->assertTrue(is_string(Utils::getNonce('test-action', true)));
+        $this->assertInternalType('string', Utils::getNonce('test-action'));
+        $this->assertInternalType('string', Utils::getNonce('test-action', true));
         $this->assertSame(Utils::getNonce('test-action'), Utils::getNonce('test-action'));
         $this->assertNotSame(Utils::getNonce('test-action'), Utils::getNonce('test-action2'));
     }
