@@ -6,6 +6,26 @@ h1 {
 	box-shadow: none;
 }
 
+@media (max-width: 320px) {
+	#header #logo h3 {
+		font-size: 1.25rem;
+	}
+
+	#body {
+		padding-top: 80px;
+	}
+}
+
+@media (min-width: 321px) and (max-width: 425px) {
+	#header #logo h3 {
+		font-size: 1.75rem;
+	}
+
+	#body {
+		padding-top: 80px;
+	}
+}
+
 .blog-header h1, .blog-header h2, .blog-header h3 {
 	text-align: center;
 }
