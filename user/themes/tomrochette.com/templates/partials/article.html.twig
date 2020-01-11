@@ -28,11 +28,11 @@
 	</header>
 
 	<div class="list-blog-header">
-		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}">History <i class="fa fa-history"></i></a> /
-		<a href="https://github.com/tomzx/blog.tomrochette.com-content/edit/master{{ page.url }}/{{ page.name }}">Edit <i class="fa fa-edit"></i></a> /
-		<a href="{{ page.url }}?format=pdf" title="Download as PDF">PDF <i class="fa fa-file-pdf-o"></i></a> /
-		<a href="{{ page.url }}?format=epub" title="Download as EPUB">EPUB <i class="fa fa-file-o"></i></a> /
-		<a href="{{ page.url }}?format=bib" title="Download BIB bibliography">BIB <i class="fa fa-book"></i></a>
+		<a href="https://github.com/tomzx/blog.tomrochette.com-content/commits/master{{ page.url }}" title="View page history on GitHub"><i class="fa fa-history"></i> History</a> /
+		<a href="https://github.com/tomzx/blog.tomrochette.com-content/edit/master{{ page.url }}/{{ page.name }}" title="Edit page on GitHub"><i class="fa fa-edit"></i> Edit</a> /
+		<a href="{{ page.url }}?format=pdf" title="Download as PDF"><i class="fa fa-file-pdf-o"></i> PDF</a> /
+		<a href="{{ page.url }}?format=epub" title="Download as EPUB"><i class="fa fa-file-o"></i> EPUB</a> /
+		<a href="{{ page.url }}?format=bib" title="Download BIB bibliography"><i class="fa fa-book"></i> BIB</a>
 		<br/>
 		{% if page.header.created %}
 			<span title="The date of creation of the article">Created: <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('F j, Y') }}</span></span> /
@@ -44,6 +44,7 @@
 
 		{% if page.taxonomy.tag %}
 			<span class="tags" itemprop="keywords">
+			<i class="fa fa-tag" style="vertical-align: text-bottom" title="Tags"></i>
 			{% for tag in page.taxonomy.tag %}
 				<a href="{{ blog.url }}/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a>
 			{% endfor %}
