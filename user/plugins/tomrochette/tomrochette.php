@@ -82,6 +82,7 @@ class TomRochettePlugin extends Plugin
         header('Pragma: private');
         header('Expires: 0');
         header('Content-Disposition: inline; filename="blog.tomrochette.com - ' . $page->title() . '.' . $format . '"');
+        header('Link: <' . $page->url(true) . '>; rel="canonical"');
         echo $this->getCached($page, $format);
         exit;
     }
