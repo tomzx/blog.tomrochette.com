@@ -4,13 +4,28 @@
 <head>
 {% block head %}
     <meta charset="utf-8" />
-    <title>{% if header.title %}{{ header.title|e('html') }} | {% endif %}{{ site.title|e('html') }}</title>
+    {% set page_title = header.title ? header.title|e('html') ~ " | " ~ site.title|e('html') : site.title|e('html') %}
+    <title>{{ page_title }}</title>
     {% include 'partials/metadata.html.twig' %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ url('theme://images/favicon.png', true) }}" />
     <link rel="canonical" href="{{ page.url(true, true) }}" />
-	<meta name="author" content="Tom Rochette" />
-	{# <meta name="description" content="An open book into a software engineer's mind." /> #}
+    <meta name="author" content="Tom Rochette" />
+
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="{{ page.url(true, true) }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ page_title }}">
+    <meta property="og:description" content="{{ page.metadata.description.content }}">
+    <meta property="og:image" content="{{ url('theme://images/flask.png', true) }}">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="{{ grav.uri.host() }}">
+    <meta property="twitter:url" content="{{ page.url(true, true) }}">
+    <meta name="twitter:title" content="{{ page_title }}">
+    <meta name="twitter:description" content="{{ page.metadata.description.content }}">
+    <meta name="twitter:image" content="{{ url('theme://images/flask.png', true) }}">
 
     {% block stylesheets %}
         {% do assets.addCss('theme://css/pure-0.5.0/grids-min.css', 103) %}
