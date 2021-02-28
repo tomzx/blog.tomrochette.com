@@ -33,7 +33,7 @@
 		<span class="tags">
 			<i class="fa fa-tag" style="vertical-align: text-bottom" title="Tags"></i>
 			{% for tag in page.taxonomy.tag %}
-			<a href="{{ blog.url }}/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a>
+			<a href="/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a>
 			{% endfor %}
 		</span>
 		{% endif %}

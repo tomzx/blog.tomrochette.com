@@ -1,10 +1,10 @@
-{% set taxlist = taxonomylist.get() %}
+{% set taxonomy_list = taxonomylist.get() %}
 
-{% if taxlist %}
+{% if taxonomy_list %}
 <span class="tags">
-    {% for tax,value in taxlist[taxonomy] %}
+    {% for taxon, value in taxonomy_list[taxonomy] %}
         {% set active = uri.param(taxonomy) == tax ? 'active' : '' %}
-        <a class="{{ active }}" href="{{ base_url }}/{{ taxonomy }}{{ config.system.param_sep }}{{ tax }}">{{ tax }}</a>
+        <a class="{{ active }}" href="{{ base_url }}/{{ taxonomy }}{{ config.system.param_sep }}{{ taxon }}">{{ taxon }} ({{ value }})</a>
     {% endfor %}
 </span>
 {% endif %}
