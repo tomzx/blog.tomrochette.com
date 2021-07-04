@@ -5,10 +5,16 @@
 $pagesDirectory = realpath(__DIR__ . '/../../pages');
 $agiDirectory = realpath($pagesDirectory.'/agi');
 $machineLearningDirectory = realpath($pagesDirectory.'/machine-learning');
+$problemsDirectory = realpath($pagesDirectory.'/problems');
+$processesDirectory = realpath($pagesDirectory.'/processes');
+$questionsDirectory = realpath($pagesDirectory.'/questions');
 
 $startPages = [
     $agiDirectory => true,
     $machineLearningDirectory => true,
+    $problemsDirectory => true,
+    $processesDirectory => true,
+    $questionsDirectory => true,
 ];
 
 $redBackground = "\033[41m";
