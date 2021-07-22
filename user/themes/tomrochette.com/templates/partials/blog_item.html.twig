@@ -26,7 +26,7 @@
 		<a href="{{ page.url }}?format=pdf" title="Download as PDF"><i class="fa fa-file-pdf-o"></i> PDF</a> /
 		<a href="{{ page.url }}?format=epub" title="Download as EPUB"><i class="fa fa-file-o"></i> EPUB</a> /
 		<a href="{{ page.url }}?format=bib" title="Download BIB bibliography"><i class="fa fa-book"></i> BIB</a> /
-		<span title="At an average of 200 words per minute">{{ ceil(str_word_count(page.content)/200) }} min read (~{{ str_word_count(page.content) }} words)</span>
+		<span title="At an average of 200 words per minute">{{ ceil(str_word_count(page.rawMarkdown)/200) }} min read (~{{ str_word_count(page.rawMarkdown) }} words)</span>
 		<br/>
 
 		{% if page.taxonomy.tag %}
