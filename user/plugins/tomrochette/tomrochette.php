@@ -185,7 +185,7 @@ class TomRochettePlugin extends Plugin
             '--variable=commit-url:https://github.com/tomzx/blog.tomrochette.com-content/blob/' . $hash . $page->url() . '/' . $page->name(),
             '--variable=commit:' . $hash,
             '--template=' . __DIR__ . '/assets/epub/default.html',
-            '--epub-stylesheet=' . __DIR__ . '/assets/epub/default.css',
+            '--css=' . __DIR__ . '/assets/epub/default.css',
         ];
         $target = $this->getCachedFile($page, 'epub');
         $this->createPathIfNotExist(dirname($target));
