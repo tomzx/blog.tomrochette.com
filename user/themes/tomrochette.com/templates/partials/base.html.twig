@@ -141,6 +141,12 @@
     $(window).on("load", function() {
         mermaid.init({startOnLoad:true}, 'code.language-mermaid');
     });
+
+    // copy articleBody to clipboard
+    function copyToClipboard() {
+        let articleBody = $('div[itemprop~="articleBody"]');
+        navigator.clipboard.writeText(articleBody.text());
+    }
 </script>
 <noscript><p><img src="//www.tomrochette.com/stats/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
 <!-- End Piwik Code -->
