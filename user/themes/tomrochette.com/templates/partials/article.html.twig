@@ -36,10 +36,10 @@
 		<a class="fa fa-clone" title="Copy to clipboard" onclick="copyToClipboard()"></a>
 		<br/>
 		{% if page.header.created %}
-			<span title="The date of creation of the article">Created: <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('F j, Y') }}</span></span> /
+			<span title="The date of creation of the article"><a href="/metadata-definition">Created:</a> <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('F j, Y') }}</span></span> /
 		{% endif %}
-		<span title="The date the article was last edited">Updated: <span itemprop="dateModified">{{ page.date|date('F j, Y') }}</span></span> /
-		<span title="The state of completion of the article">Status: {{ page.header.taxonomy.status ?: 'unknown'  }}</span> /
+		<span title="The date the article was last edited"><a href="/metadata-definition">Updated:</a> <span itemprop="dateModified">{{ page.date|date('F j, Y') }}</span></span> /
+		<span title="The state of completion of the article"><a href="/metadata-definition">Status:</a> {{ page.header.taxonomy.status ?: 'unknown'  }}</span> /
 		<span title="At an average of 200 words per minute">{{ ceil(str_word_count(page.rawMarkdown)/200) }} min read (~{{ str_word_count(page.rawMarkdown) }} words)</span>
 		<br/>
 
