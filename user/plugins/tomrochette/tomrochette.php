@@ -165,7 +165,7 @@ class TomRochettePlugin extends Plugin
         $target = $this->getCachedFile($page, 'pdf');
         $this->createPathIfNotExist(dirname($target));
         $pandocExporter = new PandocExport();
-        return $pandocExporter->exportFile($page->filePath(), $target, 'markdown+lists_without_preceding_blankline+hard_line_breaks', 'latex', $args);
+        return $pandocExporter->exportFile($page->filePath(), $target, 'markdown+lists_without_preceding_blankline+hard_line_breaks', 'latex', $args, true);
     }
 
     /**
@@ -190,7 +190,7 @@ class TomRochettePlugin extends Plugin
         $target = $this->getCachedFile($page, 'epub');
         $this->createPathIfNotExist(dirname($target));
         $pandocExporter = new PandocExport();
-        return $pandocExporter->exportFile($page->filePath(), $target, 'markdown+lists_without_preceding_blankline+hard_line_breaks', 'epub3', $args);
+        return $pandocExporter->exportFile($page->filePath(), $target, 'markdown+lists_without_preceding_blankline+hard_line_breaks', 'epub3', $args, true);
     }
 
     /**
