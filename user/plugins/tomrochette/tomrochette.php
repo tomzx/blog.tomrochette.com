@@ -144,6 +144,7 @@ class TomRochettePlugin extends Plugin
     {
         $hash = $this->getHash($page);
         $args = [
+            '--pdf-engine=lualatex',
             '--variable=author:Tom Rochette <tom.rochette@coreteks.org>',
             '--metadata=author:Tom Rochette',
             '--variable=institute:Coreteks Inc.',
