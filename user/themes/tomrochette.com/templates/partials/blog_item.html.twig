@@ -1,10 +1,5 @@
 <div class="list-item">
 
-	{% set header_image = page.header.header_image|defined(true) %}
-	{% set header_image_width  = page.header.header_image_width|defined(900) %}
-	{% set header_image_height = page.header.header_image_height|defined(300) %}
-	{% set header_image_file = page.header.header_image_file %}
-
 	<div class="list-blog-header">
 		<span class="list-blog-date">
 			<span>{{ page.header.created|date("d") }}</span>
@@ -36,14 +31,6 @@
 			<a href="/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a>
 			{% endfor %}
 		</span>
-		{% endif %}
-		{% if header_image %}
-			{% if header_image_file %}
-				{% set header_image_media = page.media.images[header_image_file] %}
-			{% else %}
-				{% set header_image_media = page.media.images|first %}
-			{% endif %}
-			{{ header_image_media.cropZoom(header_image_width, header_image_height).html }}
 		{% endif %}
 
 	</div>
