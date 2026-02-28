@@ -37,9 +37,9 @@
 		<a class="fa fa-clone" title="Copy to clipboard" onclick="copyToClipboard()"></a>
 		<br/>
 		{% if page.header.created %}
-			<span title="The date of creation of the article"><a href="/metadata-definition#created">Created:</a> <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('Y-m-d\TH:iZ') }}</span></span> /
+			<span title="The date of creation of the article"><a href="/metadata-definition#created">Created:</a> <span itemprop="dateCreated https://schema.org/datePublished">{{ page.header.created|date('Y-m-d\\TH:i\\Z') }}</span></span> /
 		{% endif %}
-		<span title="The date the article was last edited"><a href="/metadata-definition#updated">Updated:</a> <span itemprop="dateModified">{{ page.date|date('Y-m-d\TH:iZ') }}</span></span> /
+		<span title="The date the article was last edited"><a href="/metadata-definition#updated">Updated:</a> <span itemprop="dateModified">{{ page.date|date('Y-m-d\\TH:i\\Z') }}</span></span> /
 		<span title="The state of completion of the article"><a href="/metadata-definition#status">Status:</a> {{ page.header.taxonomy.status ?: 'unknown'  }}</span> /
 		<span title="The readability index of the article"><a href="/metadata-definition#readability">Readability:</a> {{ page.header.taxonomy.readability ? readability_index[page.header.taxonomy.readability] : 'unknown'  }}</span> /
 		<span title="At an average of 200 words per minute">{{ ceil(str_word_count(page.rawMarkdown)/200) }} min read (~{{ str_word_count(page.rawMarkdown) }} words)</span>
