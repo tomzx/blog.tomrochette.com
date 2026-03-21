@@ -1,0 +1,54 @@
+baseURL = "https://tomrochette.com"
+languageCode = "en"
+title = "An open book into a software engineer's mind."
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+  status = "status"
+  readability = "readability"
+
+[permalinks]
+  posts = "/:year/:month/:slug/"
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+
+[outputFormats]
+  [outputFormats.RSS]
+    mediatype = "application/rss"
+    baseName = "feed"
+
+[pagination]
+  pagerSize = 20
+
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+
+[params]
+  description = "An open book into a software engineer's mind."
+  author = "Tom Rochette"
+  email = "tom@tomrochette.com"
+  
+  [[params.css]]
+    href = "/css/pure-0.5.0/grids-min.css"
+  [[params.css]]
+    href = "/css/nucleus.css"
+  [[params.css]]
+    href = "/css/template.css"
+  [[params.css]]
+    href = "/css/font-awesome.min.css"
+  [[params.css]]
+    href = "/css/slidebars.min.css"
+  [[params.css]]
+    href = "/css/prism.css"
+  [[params.css]]
+    href = "/css/prism-vs.css"
+  [[params.css]]
+    href = "/css/mermaid.css"
+  [[params.css]]
+    href = "/css/custom.css"

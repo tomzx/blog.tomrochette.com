@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="content-wrapper blog-content-list grid pure-g">
+    <div id="listing" class="block pure-u-2-3">
+        <h1>Blog Posts</h1>
+        {{ range first 20 (where .Site.RegularPages "Type" "post") }}
+            {{ partial "blog-item.html" (dict "page" . "truncate" true) }}
+        {{ end }}
+    </div>
+    <div id="sidebar" class="block size-1-3 pure-u-1-3">
+        {{ partial "sidebar.html" . }}
+    </div>
+</div>
+{{ end }}

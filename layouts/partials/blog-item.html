@@ -1,0 +1,15 @@
+<div class="hentry">
+    <h2 class="post-title">
+        <a href="{{ .page.Permalink }}">{{ .page.Title }}</a>
+    </h2>
+    <p class="post-meta">
+        <time>{{ .page.Date.Format "2006-01-02" }}</time>
+        {{ if .page.Params.categories }}
+            {{ range .page.Params.categories }}
+                <span class="category">{{ . }}</span>
+            {{ end }}
+        {{ end }}
+    </p>
+    <p>{{ if .truncate }}{{ .page.Summary }}{{ else }}{{ .page.Description }}{{ end }}</p>
+    <a href="{{ .page.Permalink }}" class="u-url">Read More →</a>
+</div>

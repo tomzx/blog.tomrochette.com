@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Lang }}">
+<head>
+    <meta charset="utf-8" />
+    <title>{{ if eq .Kind "home" }}{{ .Site.Title }}{{ else }}{{ .Title | default .Site.Title }}{{ end }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{{ .Site.Params.description }}" />
+    <meta name="author" content="{{ .Site.Params.author }}" />
+    
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="{{ .Permalink }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ .Title | default .Site.Title }}" />
+    <meta property="og:description" content="{{ .Site.Params.description }}" />
+    <meta property="og:image" content="{{ "images/flask.png" | absURL }}" />
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:domain" content="{{ .Site.BaseURL }}" />
+    <meta name="twitter:url" content="{{ .Permalink }}" />
+    <meta name="twitter:title" content="{{ .Title | default .Site.Title }}" />
+    <meta name="twitter:description" content="{{ .Site.Params.description }}" />
+    <meta name="twitter:image" content="{{ "images/flask.png" | absURL }}" />
+    
+    <!-- CSS -->
+    {{ range .Site.Params.css }}
+    <link rel="stylesheet" href="{{ .href | absURL }}">
+    {{ end }}
+</head>
+<body>
+    <div itemscope itemtype="https://schema.org/WebSite">
+        <meta itemprop="url" content="{{ .Site.BaseURL }}" />
+    </div>
+    
+    <div id="sb-site">
+        {{ partial "header.html" . }}
+        
+        <article id="body" class="{{ .Kind }}">
+            {{ block "main" . }}{{ end }}
+        </article>
+        
+        {{ partial "footer.html" . }}
+    </div>
+    
+    {{ block "sidebar" . }}{{ end }}
+</body>
+</html>

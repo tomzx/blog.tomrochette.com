@@ -1,0 +1,57 @@
+<article itemscope itemtype="https://schema.org/Article">
+    <meta itemprop="mainEntityOfPage" content="{{ .Permalink }}" />
+    <meta itemprop="author" content="{{ .Site.Params.author }}" />
+    <meta itemprop="headline" content="{{ .Title }}" />
+    
+    <header>
+        <h1>{{ .Title }}</h1>
+    </header>
+    
+    <div class="list-blog-header">
+        <a href="{{ .Params.history_url | default "#" }}" title="View page history">📜 History</a> /
+        <a href="{{ .Params.edit_url | default "#" }}" title="Edit page">✎ Edit</a> /
+        <a href="{{ .Permalink }}?format=pdf" title="Download as PDF">📄 PDF</a> /
+        <a href="{{ .Permalink }}?format=epub" title="Download as EPUB">📖 EPUB</a> /
+        <a href="{{ .Permalink }}?format=bib" title="Download BIB bibliography">📚 BIB</a>
+        <br/>
+        
+        {{ if .Params.created }}
+            <span title="The date of creation of the article">Created: <time>{{ .Params.created | time.Format "2006-01-02T15:04:05Z" }}</time></span> /
+        {{ end }}
+        <span title="The date the article was last edited">Updated: <time>{{ .Lastmod.Format "2006-01-02T15:04:05Z" }}</time></span> /
+        <span title="The state of completion of the article">Status: {{ .Params.status | default "unknown" }}</span> /
+        <span title="The readability index of the article">Readability: {{ .Params.readability | default "unknown" }}</span> /
+        <span title="At an average of 200 words per minute">{{ .ReadingTime }} min read (~{{ .WordCount }} words)</span>
+        <br/>
+        
+        {{ if .Params.tags }}
+            <span class="tags">
+                <i>🏷</i>
+                {{ range .Params.tags }}
+                    <a href="{{ $.Site.BaseURL }}tag{{ printf "/%s" . }}">{{ . }}</a>
+                {{ end }}
+            </span>
+        {{ end }}
+    </div>
+    
+    <div class="list-blog-padding" itemprop="articleBody text">
+        {{ .Content }}
+    </div>
+    
+    <script src="https://giscus.app/client.js"
+        data-repo="tomzx/blog.tomrochette.com-content"
+        data-repo-id="MDEwOlJlcG9zaXRvcnkzODU0NzU5NQ=="
+        data-category="General"
+        data-category-id="DIC_kwDOAkwwi84C25eP"
+        data-mapping="pathname"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="preferred_color_scheme"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+    </script>
+</article>
