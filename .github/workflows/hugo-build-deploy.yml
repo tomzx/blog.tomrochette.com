@@ -31,11 +31,10 @@ jobs:
 
       - name: Install jq and Pandoc
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
           PANDOC_VERSION=$(curl -s https://api.github.com/repos/jgm/pandoc/releases/latest | jq -r '.tag_name')
           PANDOC_URL="https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz"
-          wget -qO- "$PANDOC_URL" | sudo tar xz -C /usr/local/bin --strip-components=1
+          wget -qO- "$PANDOC_URL" | sudo tar xz -C /tmp
+          sudo mv /tmp/pandoc-${PANDOC_VERSION}/bin/pandoc /usr/local/bin/
           pandoc --version
 
       - name: Install LaTeX packages
