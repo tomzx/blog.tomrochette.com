@@ -10,9 +10,11 @@
     <div class="list-blog-header">
         <a href="{{ .Site.Params.gitRepo }}/commits/{{ .Site.Params.gitBranch }}/{{ .File.Path }}" title="View page history">📜 History</a> /
         <a href="{{ .Site.Params.gitRepo }}/edit/{{ .Site.Params.gitBranch }}/{{ .File.Path }}" title="Edit page">✎ Edit</a> /
-        <a href="{{ .Permalink }}?format=pdf" title="Download as PDF">📄 PDF</a> /
-        <a href="{{ .Permalink }}?format=epub" title="Download as EPUB">📖 EPUB</a> /
-        <a href="{{ .Permalink }}?format=bib" title="Download BIB bibliography">📚 BIB</a>
+        <a href="/exports/{{ .File.TranslationBaseName }}.pdf" title="Download as PDF">📄 PDF</a> /
+        <a href="/exports/{{ .File.TranslationBaseName }}.epub" title="Download as EPUB">📖 EPUB</a> /
+        {{- if fileExists (printf "content/blog/%s.bib" .File.TranslationBaseName) -}}
+        <a href="/exports/{{ .File.TranslationBaseName }}.bib" title="Download BIB bibliography">📚 BIB</a> /
+        {{- end -}}
         <br/>
         
         {{ if .Params.created }}

@@ -174,3 +174,31 @@ The following environment variables can be set in GitHub repository settings:
 This deployment setup replaces the old PHP/Grav deployment script (`build/deploy/update.sh`). The old deployment method has been deprecated.
 
 For any deployment-related issues, check the GitHub Actions workflow logs first.
+
+## Pandoc Export
+
+The site automatically generates PDF, EPUB, and BIBTeX exports for all blog posts during the build process.
+
+### How It Works
+
+- **PDF Generation**: Uses Pandoc with LaTeX to create PDF versions of blog posts
+- **EPUB Generation**: Uses Pandoc to create EPUB3 e-book versions
+- **BIBTeX Export**: Automatically exports bibliography files if they exist
+
+The export generation is handled by the `bin/generate-exports.sh` script, which runs after Hugo builds the site.
+
+### Downloads
+
+Generated exports are available at:
+- `/exports/{slug}.pdf` - PDF version
+- `/exports/{slug}.epub` - EPUB version
+- `/exports/{slug}.bib` - BIBTeX bibliography (if available)
+
+### Templates
+
+Export templates are located in `bin/pandoc/`:
+- `epub/default.html` - EPUB HTML template
+- `epub/default.css` - EPUB styling
+- `latex/default.tex` - LaTeX template for PDF
+
+See `bin/PANDOC_README.md` for detailed documentation on the export system.
