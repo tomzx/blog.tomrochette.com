@@ -31,8 +31,15 @@ jobs:
 
       - name: Install Pandoc
         run: |
+          PANDOC_VERSION=$(curl -s https://api.github.com/repos/jgm/pandoc/releases/latest | jq -r '.tag_name')
+          PANDOC_URL="https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz"
+          wget -qO- "$PANDOC_URL" | sudo tar xz -C /usr/local/bin --strip-components=1
+          pandoc --version
+
+      - name: Install LaTeX packages
+        run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-latex-extra texlive-lang-english
+          sudo apt-get install -y texlive-xetex texlive-fonts-recommended texlive-latex-extra texlive-lang-english
 
       - name: Build with Hugo
         run: hugo --minify --cleanDestinationDir
