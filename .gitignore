@@ -43,6 +43,11 @@ Thumbs.db
 # phpstorm
 .idea/*
 
+# Hugo
+public/
+resources/
+.hugo_build.lock
+
 # testing stuff
 tests/_output/*
 tests/_support/_generated/*
