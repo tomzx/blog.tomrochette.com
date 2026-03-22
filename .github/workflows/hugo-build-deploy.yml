@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -31,8 +32,16 @@ jobs:
           hugo-version: 'latest'
           extended: true
 
+      - name: Install Pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-latex-extra texlive-lang-english
+
       - name: Build with Hugo
         run: hugo --minify --cleanDestinationDir
+
+      - name: Generate Pandoc exports (PDF, EPUB, BIBTeX)
+        run: ./bin/generate-exports.sh
 
       - name: Upload artifact
         if: github.event_name == 'pull_request'
