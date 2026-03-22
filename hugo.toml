@@ -33,6 +33,8 @@ title = "An open book into a software engineer's mind."
   description = "An open book into a software engineer's mind."
   author = "Tom Rochette"
   email = "tom@tomrochette.com"
+  gitRepo = "https://github.com/tomzx/blog.tomrochette.com"
+  gitBranch = "features/Hugo"
   
   [[params.css]]
     href = "/css/pure-0.5.0/grids-min.css"

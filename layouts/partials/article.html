@@ -8,8 +8,8 @@
     </header>
     
     <div class="list-blog-header">
-        <a href="{{ .Params.history_url | default "#" }}" title="View page history">📜 History</a> /
-        <a href="{{ .Params.edit_url | default "#" }}" title="Edit page">✎ Edit</a> /
+        <a href="{{ .Site.Params.gitRepo }}/commits/{{ .Site.Params.gitBranch }}/{{ .File.Path }}" title="View page history">📜 History</a> /
+        <a href="{{ .Site.Params.gitRepo }}/edit/{{ .Site.Params.gitBranch }}/{{ .File.Path }}" title="Edit page">✎ Edit</a> /
         <a href="{{ .Permalink }}?format=pdf" title="Download as PDF">📄 PDF</a> /
         <a href="{{ .Permalink }}?format=epub" title="Download as EPUB">📖 EPUB</a> /
         <a href="{{ .Permalink }}?format=bib" title="Download BIB bibliography">📚 BIB</a>
