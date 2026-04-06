@@ -4,3 +4,7 @@
 [submodule "user/data/smileys/simple_smileys"]
 	path = user/data/smileys/simple_smileys
 	url = https://github.com/Sommerregen/grav-data-smileys-simple-smileys.git
+[submodule "themes/blowfish"]
+	path = themes/blowfish
+	url = https://github.com/nunocoracao/blowfish.git
+	branch = main

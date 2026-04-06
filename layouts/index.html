@@ -1,0 +1,13 @@
+{{ define "main" }}
+  <div class="flex gap-8">
+    <div class="min-w-0 grow">
+      {{ $partial := print "home/" .Site.Params.homepage.layout ".html" }}
+      {{ if templates.Exists ( printf "partials/%s" $partial ) }}
+        {{ partial $partial . }}
+      {{ else }}
+        {{ partial "home/profile.html" . }}
+      {{ end }}
+    </div>
+    {{ partial "sidebar-tags.html" . }}
+  </div>
+{{ end }}

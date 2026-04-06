@@ -1,0 +1,15 @@
+<aside class="shrink-0 w-48 hidden lg:block" style="padding-left: 1.5rem;">
+  <div>
+    <h3 class="text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-3">Tags</h3>
+    <ul class="space-y-1">
+      {{ range ($.Site.Taxonomies.tags.ByCount) }}
+        <li class="flex items-center justify-between">
+          <a href="{{ .Page.RelPermalink }}" class="text-sm text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 hover:underline truncate">
+            {{ .Page.Title }}
+          </a>
+          <span class="ms-2 text-xs text-neutral-400 dark:text-neutral-500 shrink-0">({{ .Count }})</span>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
+</aside>

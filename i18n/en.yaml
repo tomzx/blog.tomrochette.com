@@ -1,0 +1,4 @@
+article:
+  reading_time:
+    one: "{{ .Count }} minute"
+    other: "{{ .Count }} minutes"

@@ -1,0 +1,5 @@
+<span title="At an average of 200 words per minute">
+  {{- $mins := int (math.Ceil (div (float .WordCount) 200)) -}}
+  {{- i18n "article.reading_time" $mins | markdownify | emojify }} read (~{{ .WordCount }} words)
+</span>
+{{- /* Trim EOF */ -}}

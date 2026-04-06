@@ -1,0 +1,63 @@
+{{- if gt .Paginator.TotalPages 1 -}}
+  {{- $baseURL := $.Paginator.First.URL | strings.TrimRight "/" -}}
+  {{- $baseURL = strings.TrimSuffix "/page/1" $baseURL -}}
+  {{- $cur := $.Paginator.PageNumber -}}
+  {{- $max := $.Paginator.TotalPages -}}
+  <ul class="flex flex-row mt-8 justify-center items-center">
+    {{- if gt $cur 1 }}
+      <li>
+        <a
+          href="{{ $.Paginator.First.URL }}"
+          class="mx-1 block min-w-[1.8rem] rounded text-center hover:bg-primary-600 hover:text-neutral"
+          >1</a
+        >
+      </li>
+    {{- end }}
+
+    {{ if $.Paginator.HasPrev }}
+      <li>
+        <a
+          href="{{ $.Paginator.Prev.URL }}"
+          class="mx-1 block min-w-[1.8rem] rounded text-center hover:bg-primary-600 hover:text-neutral"
+          rel="prev"
+          >&larr;</a
+        >
+      </li>
+    {{ end }}
+
+    <li class="mx-1">
+      <input
+        type="number"
+        min="1"
+        max="{{ $max }}"
+        placeholder="{{ $cur }}"
+        data-base-url="{{ $baseURL }}"
+        data-total-pages="{{ $max }}"
+        class="w-14 text-center rounded border border-neutral-300 dark:border-neutral-600 bg-transparent px-1 py-0.5 text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        onkeydown="if(event.key==='Enter'){var p=parseInt(this.value),base=this.dataset.baseUrl,total=parseInt(this.dataset.totalPages);if(p>=1&&p<=total){window.location=p===1?base+'/':base+'/page/'+p+'/';} }"
+        onblur="var p=parseInt(this.value),base=this.dataset.baseUrl,total=parseInt(this.dataset.totalPages);if(p>=1&&p<=total){window.location=p===1?base+'/':base+'/page/'+p+'/';}"
+      />
+    </li>
+
+    {{ if $.Paginator.HasNext }}
+      <li>
+        <a
+          href="{{ $.Paginator.Next.URL }}"
+          class="mx-1 block min-w-[1.8rem] rounded text-center hover:bg-primary-600 hover:text-neutral"
+          rel="next"
+          >&rarr;</a
+        >
+      </li>
+    {{ end }}
+
+    {{- if lt $cur $max }}
+      <li>
+        <a
+          href="{{ $.Paginator.Last.URL }}"
+          class="mx-1 block min-w-[1.8rem] rounded text-center hover:bg-primary-600 hover:text-neutral"
+          >{{ $max }}</a
+        >
+      </li>
+    {{- end }}
+  </ul>
+{{- end -}}

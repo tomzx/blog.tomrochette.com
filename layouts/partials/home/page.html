@@ -1,0 +1,19 @@
+{{ $paginator := .Paginate (where .Site.RegularPages "Section" "in" .Site.Params.mainSections) }}
+<div class="w-full">
+  <section class="space-y-16">
+    {{ range $paginator.Pages }}
+      <article class="prose dark:prose-invert max-w-full">
+        <header class="mb-2">
+          <h2 class="text-2xl font-bold">
+            <a href="{{ .RelPermalink }}" class="hover:underline decoration-primary-500">{{ .Title }}</a>
+          </h2>
+          {{ partial "article-meta/blog-header.html" . }}
+        </header>
+        <section>{{ .Content }}</section>
+      </article>
+      <hr class="border-neutral-200 dark:border-neutral-700">
+    {{ end }}
+    {{ partial "pagination.html" . }}
+  </section>
+
+</div>

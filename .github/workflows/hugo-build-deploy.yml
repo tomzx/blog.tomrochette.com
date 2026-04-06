@@ -2,15 +2,16 @@ name: Build and Deploy Hugo Site
 
 on:
   push:
-  pull_request:
     branches:
-      - main
       - master
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
@@ -21,13 +22,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
-        with:
-          hugo-version: 'latest'
-          extended: true
+        run: |
+          gh release download fork-latest --repo tomzxforks/hugo --pattern "hugo-linux-amd64" --output /usr/local/bin/hugo
+          chmod +x /usr/local/bin/hugo
+          hugo version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install jq and Pandoc
         run: |
@@ -47,14 +50,11 @@ jobs:
       - name: Generate Pandoc exports (PDF, EPUB, BIBTeX)
         run: ./bin/generate-exports.sh
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
-          name: hugo-site
           path: public
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+        id: deployment
+        uses: actions/deploy-pages@v5
