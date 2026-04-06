@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - features/Hugo
   workflow_dispatch:
 
 jobs:
