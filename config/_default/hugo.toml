@@ -6,6 +6,7 @@ theme = "blowfish"
 baseURL = "https://tomrochette.com/"
 defaultContentLanguage = "en"
 
+allowedPathCharacters = "="
 pluralizeListTitles = false
 capitalizeListTitles = false
 
@@ -42,6 +43,7 @@ enableEmoji = true
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]
+  #taxonomy = ["HTML"]
 
 [related]
   threshold = 0
