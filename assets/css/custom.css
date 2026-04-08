@@ -1,0 +1,41 @@
+:root {
+  font-size: 24px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.main-menu a span.active {
+  color: rgba(var(--color-primary-600), 1);
+  font-weight: 700;
+}
+
+.dark .main-menu a span.active {
+  color: rgba(var(--color-primary-400), 1);
+}
+
+.article-meta a {
+  color: rgba(var(--color-primary-600), 1);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.dark .article-meta a {
+  color: rgba(var(--color-primary-400), 1);
+}
+
+.article-meta a.tag-link {
+  border-radius: 0.25rem !important;
+  transition: background-color 0.2s ease;
+}
+
+.article-meta a.tag-link:hover {
+  background-color: rgba(var(--color-primary-600), 0.1);
+  border-radius: 0.25rem !important;
+}
+
+.dark .article-meta a.tag-link:hover {
+  background-color: rgba(var(--color-primary-400), 0.15);
+}

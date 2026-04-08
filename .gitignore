@@ -1,37 +1,7 @@
-# Composer
-.composer
-vendor/*
-!*/vendor/*
-
-# Sass
-.sass-cache
-
-# Grav Specific
-backup/*
-!backup/.*
-cache/*
-!cache/.*
-assets/*
-!assets/.*
-logs/*
-!logs/.*
-images/*
-!images/.*
-user/accounts/*
-!user/accounts/.*
-user/data/*
-!user/data/.*
-user/pages
-user/plugins/*
-!user/plugins/.*
-!user/plugins/defaulttemplate
-!user/plugins/toc
-!user/plugins/tomrochette
-user/themes/*
-!user/themes/.*
-!user/themes/tomrochette.com
-user/localhost/config/security.yaml
-user/config/security.yaml
+# Hugo
+public/
+resources/
+.hugo_build.lock
 
 # OS Generated
 .DS_Store*
@@ -40,17 +10,8 @@ Icon?
 Thumbs.db
 *.swp
 
-# phpstorm
+# IDE
 .idea/*
 
-# Hugo
-public/
-resources/
-.hugo_build.lock
-
-# testing stuff
-tests/_output/*
-tests/_support/_generated/*
-tests/cache/*
-tests/error.log
-system/templates/testing/*
+# Content
+content
