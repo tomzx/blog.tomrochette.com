@@ -1,0 +1,112 @@
+{{ define "main" }}
+  {{ $pages := .Site.RegularPages }}
+  {{ $groups := $pages.GroupByDate "2006" }}
+  {{ $firstYear := "" }}
+  {{ if $groups }}
+    {{ $firstYear = (index $groups 0).Key }}
+  {{ end }}
+
+  <header>
+    {{ if .Params.showBreadcrumbs | default (site.Params.list.showBreadcrumbs | default false) }}
+      {{ partial "breadcrumbs.html" . }}
+    {{ end }}
+    <h1 class="mt-5 text-4xl font-extrabold text-neutral-900 dark:text-neutral">{{ .Title }}</h1>
+  </header>
+
+  <section class="mt-8 prose max-w-full dark:prose-invert mb-4">
+    {{ .Content }}
+  </section>
+
+  {{ if gt (len $groups) 0 }}
+    <nav class="mb-8">
+      <ul class="flex flex-wrap gap-2 justify-center items-center" id="archive-year-nav">
+        {{ range $idx, $group := $groups }}
+          <li>
+            <button
+              data-year="{{ .Key }}"
+              class="archive-year-btn mx-1 block min-w-[3.5rem] rounded text-center px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 hover:bg-primary-600 hover:text-neutral transition-colors {{ if eq $idx 0 }}bg-primary-600 text-neutral{{ else }}bg-transparent{{ end }}"
+            >{{ .Key }}</button>
+          </li>
+        {{ end }}
+      </ul>
+    </nav>
+
+    {{ range $idx, $group := $groups }}
+      <section
+        class="archive-year-section {{ if gt $idx 0 }}hidden{{ end }}"
+        data-year="{{ .Key }}"
+      >
+        <h2 class="mt-6 mb-4 text-2xl font-bold text-neutral-700 dark:text-neutral-300">{{ .Key }}</h2>
+        <ul class="space-y-3">
+          {{ range .Pages }}
+            <li class="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+              <time datetime="{{ .Date.Format "2006-01-02" }}" class="shrink-0 text-sm text-neutral-500 dark:text-neutral-400">
+                {{ .Date.Format "January 02" }}
+              </time>
+              <a href="{{ .RelPermalink }}" class="hover:underline decoration-primary-500 text-neutral-800 dark:text-neutral-200">
+                {{ .Title }}
+              </a>
+            </li>
+          {{ end }}
+        </ul>
+      </section>
+    {{ end }}
+
+
+  {{ else }}
+    <section class="mt-10 prose dark:prose-invert">
+      <p class="py-8 border-t">
+        <em>{{ i18n "list.no_articles" | default "No articles found." | emojify }}</em>
+      </p>
+    </section>
+  {{ end }}
+
+  <script>
+  (function() {
+    function selectYear(year) {
+      var sections = document.querySelectorAll('.archive-year-section');
+      sections.forEach(function(s) {
+        if (s.dataset.year === year) {
+          s.classList.remove('hidden');
+        } else {
+          s.classList.add('hidden');
+        }
+      });
+
+      var allBtns = document.querySelectorAll('.archive-year-btn, .archive-year-btn-bottom');
+      allBtns.forEach(function(btn) {
+        if (btn.dataset.year === year) {
+          btn.classList.add('bg-primary-600', 'text-neutral');
+          btn.classList.remove('bg-transparent');
+        } else {
+          btn.classList.remove('bg-primary-600', 'text-neutral');
+          btn.classList.add('bg-transparent');
+        }
+      });
+
+      var url = new URL(window.location);
+      if (year) {
+        url.hash = year;
+      }
+      history.replaceState(null, '', url);
+    }
+
+    document.querySelectorAll('.archive-year-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        selectYear(this.dataset.year);
+      });
+    });
+
+    document.querySelectorAll('.archive-year-btn-bottom').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        selectYear(this.dataset.year);
+      });
+    });
+
+    var hash = window.location.hash.replace('#', '');
+    if (hash) {
+      selectYear(hash);
+    }
+  })();
+  </script>
+{{ end }}
