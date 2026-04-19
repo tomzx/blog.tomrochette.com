@@ -43,8 +43,22 @@ enableEmoji = true
   filename = 'sitemap.xml'
   priority = 0.5
 
+[mediaTypes]
+  [mediaTypes."text/markdown"]
+    suffixes = ["md"]
+
+[outputFormats]
+  [outputFormats.Markdown]
+    mediaType = "text/markdown"
+    isPlainText = true
+    isHTML = false
+    rel = "alternate"
+    permalinkable = true
+
 [outputs]
   home = ["HTML", "RSS", "JSON"]
+  page = ["HTML", "Markdown"]
+  section = ["HTML", "Markdown"]
   #taxonomy = ["HTML"]
 
 [related]
