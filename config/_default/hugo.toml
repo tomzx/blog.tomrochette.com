@@ -58,7 +58,6 @@ enableEmoji = true
 [outputs]
   home = ["HTML", "RSS", "JSON"]
   page = ["HTML", "Markdown"]
-  section = ["HTML", "Markdown"]
   #taxonomy = ["HTML"]
 
 [related]
