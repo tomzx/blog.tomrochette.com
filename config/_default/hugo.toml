@@ -3,7 +3,7 @@
 # https://blowfish.page/docs/getting-started/
 
 theme = "blowfish"
-baseURL = "https://tomrochette.com/"
+baseURL = "https://blog.tomrochette.com/"
 defaultContentLanguage = "en"
 
 allowedPathCharacters = "="
