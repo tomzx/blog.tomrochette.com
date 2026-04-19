@@ -19,7 +19,6 @@ enableStructuredBreadcrumbs = false
 
 replyByEmail = false
 
-mainSections = ["agi", "machine-learning", "questions", "processes", "problems", "learning", "books", "architectures"]
 # robots = ""
 
 disableImageOptimization = false
