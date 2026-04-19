@@ -1,0 +1,10 @@
+<script>
+  (function() {
+    var btn = document.getElementById('font-switcher');
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      var isSerif = document.documentElement.classList.toggle('serif');
+      localStorage.setItem('font-preference', isSerif ? 'serif' : 'sans-serif');
+    });
+  })();
+</script>

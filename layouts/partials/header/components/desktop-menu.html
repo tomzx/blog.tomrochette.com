@@ -24,6 +24,15 @@
     {{ partial "icon.html" "rss" }}
   </a>
 
+  <button
+    id="font-switcher"
+    aria-label="Font switcher"
+    type="button"
+    class="text-base bf-icon-color-hover"
+    title="Toggle serif/sans-serif font">
+    <span class="font-toggle-icon">Aa</span>
+  </button>
+
   {{ if .Site.Params.footer.showAppearanceSwitcher | default false }}
     <div class="flex items-center">
       <button

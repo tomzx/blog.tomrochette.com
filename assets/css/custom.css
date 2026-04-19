@@ -7,6 +7,22 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
+html.serif,
+html.serif body {
+  font-family: 'Lora', Georgia, serif;
+}
+
+.font-toggle-icon {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.9em;
+  font-weight: 700;
+  line-height: 1;
+}
+
+html.serif .font-toggle-icon {
+  font-family: 'Open Sans', Arial, sans-serif;
+}
+
 .main-menu a span.active {
   color: rgba(var(--color-primary-600), 1);
   font-weight: 700;
