@@ -60,6 +60,11 @@
   url = "/work/"
   weight = 10
 
+[[main]]
+  name = "Archives"
+  url = "/archives/"
+  weight = 11
+
 #[[subnavigation]]
 #  name = "An interesting topic"
 #  pageRef = "tags/interesting-topic"
