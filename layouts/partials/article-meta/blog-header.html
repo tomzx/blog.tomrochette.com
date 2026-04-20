@@ -30,7 +30,7 @@
       {{ partial "meta/reading-time.html" . }}
     {{ end }}
   </div>
-  {{ $tags := (cond (reflect.IsSlice .Params.tags) .Params.tags (slice .Params.tags)) }}
+  {{ $tags := sort (cond (reflect.IsSlice .Params.tags) .Params.tags (slice .Params.tags)) }}
   {{ $hasTags := false }}
   {{ range $tags }}{{ if . }}{{ $hasTags = true }}{{ end }}{{ end }}
   {{ if $hasTags }}
