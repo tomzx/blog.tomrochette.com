@@ -4,7 +4,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CONTENT_DIR="$PROJECT_ROOT/content/blog"
+CONTENT_DIR="$PROJECT_ROOT/content"
 PUBLIC_DIR="$PROJECT_ROOT/public"
 PANDOC_DIR="$SCRIPT_DIR/pandoc"
 
@@ -17,10 +17,10 @@ AUTHOR="Tom Rochette"
 INSTITUTE="Coreteks Inc."
 COMMIT_SHA="$(git rev-parse --short HEAD)"
 
-echo "Generating Pandoc exports for blog posts..."
+echo "Generating Pandoc exports for posts..."
 
 if [ ! -d "$CONTENT_DIR" ]; then
-  echo "Error: Blog content directory not found: $CONTENT_DIR"
+  echo "Error: Content directory not found: $CONTENT_DIR"
   exit 1
 fi
 
@@ -53,7 +53,7 @@ for md_file in "$CONTENT_DIR"/*.md; do
     --variable="colorlinks"
     --number-sections
     --variable="date:$formatted_date"
-    --variable="commit-url:https://github.com/tomzx/blog.tomrochette.com-content/blob/$COMMIT_SHA/content/blog/${basename}.md"
+    --variable="commit-url:https://github.com/tomzx/blog.tomrochette.com-content/blob/$COMMIT_SHA/${basename}.md"
     --variable="commit:$COMMIT_SHA"
   )
 
