@@ -13,10 +13,10 @@
   </div>
   <div class="flex flex-row items-center flex-wrap gap-y-1 mt-1">
     {{ if .Params.created }}
-      <span title="The date of creation of the article"><a href="/metadata-definition#created">Created:</a> <time itemprop="dateCreated datePublished">{{ .Params.created | time.Format "2006-01-02T15:04Z" }}</time></span>
+      <span title="The date of creation of the article"><a href="/metadata-definition#created">Created:</a> <time itemprop="dateCreated datePublished">{{ (.Params.created | time.AsTime).UTC.Format "2006-01-02T15:04Z" }}</time></span>
       <span class="px-2 text-primary-500">/</span>
     {{ end }}
-    <span title="The date the article was last edited"><a href="/metadata-definition#updated">Updated:</a> <time itemprop="dateModified">{{ .Lastmod.Format "2006-01-02T15:04Z" }}</time></span>
+    <span title="The date the article was last edited"><a href="/metadata-definition#updated">Updated:</a> <time itemprop="dateModified">{{ .Lastmod.UTC.Format "2006-01-02T15:04Z" }}</time></span>
     {{ with .Params.status }}
       <span class="px-2 text-primary-500">/</span>
       <span title="The state of completion of the article"><a href="/metadata-definition#status">Status:</a> {{ . }}</span>
