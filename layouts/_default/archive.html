@@ -35,7 +35,7 @@
           <ul class="space-y-3">
             {{ range .Pages }}
               <li class="flex items-baseline gap-3">
-                <time datetime="{{ .Date.Format "2006-01-02" }}" class="shrink-0 text-sm text-neutral-500 dark:text-neutral-400">
+                <time datetime="{{ .Date.Format "2006-01-02" }}" class="shrink-0 text-neutral-500 dark:text-neutral-400">
                   {{ .Date.Format "02" }}
                 </time>
                 <a href="{{ .RelPermalink }}" class="hover:underline decoration-primary-500 text-neutral-800 dark:text-neutral-200">
