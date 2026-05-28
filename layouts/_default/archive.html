@@ -31,7 +31,7 @@
       <section id="year-{{ .Key }}" class="mb-8">
         <h2 class="mt-6 mb-4 text-2xl font-bold text-neutral-700 dark:text-neutral-300">{{ .Key }}</h2>
         {{ range .Pages.GroupByDate "2006-01" }}
-          <h3 id="{{ .Key }}" class="mt-4 mb-2 text-lg font-semibold text-neutral-600 dark:text-neutral-400">{{ .Key }}</h3>
+          <h3 id="{{ .Key }}" class="mt-4 mb-2 text-lg font-semibold text-neutral-600 dark:text-neutral-400">{{ (index .Pages 0).Date.Format "January" }}</h3>
           <ul class="space-y-3">
             {{ range .Pages }}
               <li class="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
