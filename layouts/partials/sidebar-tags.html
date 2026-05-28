@@ -18,7 +18,7 @@
       {{ range (.Site.RegularPages.GroupByDate "2006-01" "desc") }}
         <li class="flex items-center justify-between">
           <a href="/archives/{{ .Key }}" class="text-sm text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 hover:underline">
-            {{ dateFormat "January 2006" .Key }}
+            {{ .Key }}
           </a>
           <span class="ms-2 text-xs text-neutral-400 dark:text-neutral-500 shrink-0">({{ .Pages.Len }})</span>
         </li>
