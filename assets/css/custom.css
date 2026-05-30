@@ -41,9 +41,9 @@ body {
 }
 
 .external-link-favicon {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
+  display: inline;
+  width: 16px;
+  height: 16px;
   margin-right: 0.15em;
-  vertical-align: -0.125em;
+  vertical-align: -2px;
 }
