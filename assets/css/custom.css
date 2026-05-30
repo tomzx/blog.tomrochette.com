@@ -39,3 +39,11 @@ body {
 .dark .article-meta a.tag-link:hover {
   background-color: rgba(var(--color-primary-400), 0.15);
 }
+
+.external-link-favicon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 0.15em;
+  vertical-align: text-bottom;
+}
