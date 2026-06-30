@@ -2,7 +2,8 @@
   {{ .Scratch.Set "scope" "single" }}
   <article itemscope itemtype="https://schema.org/Article">
     <meta itemprop="mainEntityOfPage" content="{{ .Permalink }}" />
-    <meta itemprop="author" content="{{ site.Params.author.name }}" />
+    {{ $effectiveAuthor := partial "article-meta/effective-author.html" . }}
+    <meta itemprop="author" content="{{ $effectiveAuthor | default site.Params.author.name }}" />
     <meta itemprop="headline" content="{{ .Title }}" />
     <div itemprop="publisher" itemscope itemtype="https://schema.org/Organization" hidden>
       <meta itemprop="name" content="{{ site.Params.author.name }}" />

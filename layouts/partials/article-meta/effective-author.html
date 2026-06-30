@@ -1,0 +1,24 @@
+{{- /* Renders the author name(s) to display for a page. */ -}}
+{{- /* - fully-ai-generated + llm=* tags: the LLM name(s) only */ -}}
+{{- /* - partially-ai-generated + llm=* tags: the blog author and the LLM name(s) */ -}}
+{{- /* - otherwise: nothing (caller falls back to the default author) */ -}}
+{{- $tags := .Params.tags | default slice -}}
+{{- $tags := cond (reflect.IsSlice $tags) $tags (slice $tags) -}}
+{{- $isFullyAI := in $tags "fully-ai-generated" -}}
+{{- $isPartiallyAI := in $tags "partially-ai-generated" -}}
+{{- $llmNames := slice -}}
+{{- range $tags -}}
+  {{- if strings.HasPrefix . "llm=" -}}
+    {{- $llmNames = $llmNames | append (strings.TrimPrefix "llm=" .) -}}
+  {{- end -}}
+{{- end -}}
+{{- if and (or $isFullyAI $isPartiallyAI) $llmNames -}}
+  {{- $authors := $llmNames -}}
+  {{- if $isPartiallyAI -}}
+    {{- $authors = slice site.Params.author.name -}}
+    {{- range $llmNames -}}
+      {{- $authors = $authors | append . -}}
+    {{- end -}}
+  {{- end -}}
+  {{- delimit $authors ", " -}}
+{{- end -}}
