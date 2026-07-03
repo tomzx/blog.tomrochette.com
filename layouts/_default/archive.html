@@ -27,7 +27,7 @@
             {{ with index (where $yearGroups "Key" "==" $year) 0 }}
               <li>
                 <a
-                  href="#year-{{ .Key }}"
+                  href="#{{ .Key }}"
                   class="archive-year-btn block w-full rounded text-center px-1 py-1 text-sm border border-neutral-300 dark:border-neutral-600 hover:bg-primary-600 hover:text-neutral transition-colors bg-transparent"
                 >{{ .Key }}</a>
               </li>
@@ -40,10 +40,10 @@
     </nav>
 
     {{ range $yearGroups }}
-      <section id="year-{{ .Key }}" class="mb-8">
-        <h2 class="mt-6 mb-4 text-2xl font-bold text-neutral-700 dark:text-neutral-300">{{ .Key }}</h2>
+      <section id="{{ .Key }}" class="mb-8">
+        <h2 class="mt-6 mb-4 text-2xl font-bold"><a href="#{{ .Key }}" class="text-neutral-700 dark:text-neutral-300 hover:underline decoration-primary-500">{{ .Key }}</a></h2>
         {{ range .Pages.GroupByDate "2006-01" }}
-          <h3 id="{{ .Key }}" class="mt-4 mb-2 text-lg font-semibold text-neutral-600 dark:text-neutral-400">{{ (index .Pages 0).Date.Format "January" }} <span class="text-sm font-normal text-neutral-400 dark:text-neutral-500">({{ .Pages.Len }})</span></h3>
+          <h3 id="{{ .Key }}" class="mt-4 mb-2 text-lg font-semibold"><a href="#{{ .Key }}" class="text-neutral-600 dark:text-neutral-400 hover:underline decoration-primary-500">{{ (index .Pages 0).Date.Format "January" }} <span class="text-sm font-normal text-neutral-400 dark:text-neutral-500">({{ .Pages.Len }})</span></a></h3>
           <ul class="space-y-3">
             {{ range .Pages }}
               <li class="flex items-baseline gap-3">
