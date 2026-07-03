@@ -1,6 +1,7 @@
 {{ define "main" }}
   {{ $pages := .Site.RegularPages }}
   {{ $yearGroups := $pages.GroupByDate "2006" }}
+  {{ $yearGroups = where $yearGroups "Key" ">=" "1970" }}
 
   <header>
     {{ if .Params.showBreadcrumbs | default (site.Params.list.showBreadcrumbs | default false) }}
