@@ -17,7 +17,15 @@
   {{ if gt (len $yearGroups) 0 }}
     <nav class="mb-8">
       <ul class="flex flex-wrap gap-2 justify-center items-center" id="archive-year-nav">
+        {{ $prevDecade := -1 }}
         {{ range $yearGroups }}
+          {{ $decade := mul (div (int .Key) 10) 10 }}
+          {{ if ne $decade $prevDecade }}
+            {{ if ne $prevDecade -1 }}
+              <li class="basis-full h-0" aria-hidden="true"></li>
+            {{ end }}
+            {{ $prevDecade = $decade }}
+          {{ end }}
           <li>
             <a
               href="#year-{{ .Key }}"
