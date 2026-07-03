@@ -48,5 +48,8 @@ body {
   vertical-align: middle;
 }
 
-#archive-year-nav .basis-full { flex-basis: 100%; }
-#archive-year-nav .h-0 { height: 0; }
+#archive-year-nav.archive-year-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 0.5rem;
+}

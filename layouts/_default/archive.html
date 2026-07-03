@@ -16,22 +16,25 @@
 
   {{ if gt (len $yearGroups) 0 }}
     <nav class="mb-8">
-      <ul class="flex flex-wrap gap-2 justify-center items-center" id="archive-year-nav">
-        {{ $prevDecade := -1 }}
-        {{ range $yearGroups }}
-          {{ $decade := mul (div (int .Key) 10) 10 }}
-          {{ if ne $decade $prevDecade }}
-            {{ if ne $prevDecade -1 }}
-              <li class="basis-full h-0" aria-hidden="true"></li>
+      <ul class="archive-year-grid" id="archive-year-nav">
+        {{ $newest := (index $yearGroups 0).Key }}
+        {{ $oldest := (index $yearGroups (sub (len $yearGroups) 1)).Key }}
+        {{ $maxDecade := div (int $newest) 10 }}
+        {{ $minDecade := div (int $oldest) 10 }}
+        {{ range $decade := seq $maxDecade -1 $minDecade }}
+          {{ range $pos := seq 9 -1 0 }}
+            {{ $year := string (add (mul $decade 10) $pos) }}
+            {{ with index (where $yearGroups "Key" "==" $year) 0 }}
+              <li>
+                <a
+                  href="#year-{{ .Key }}"
+                  class="archive-year-btn block w-full rounded text-center px-1 py-1 text-sm border border-neutral-300 dark:border-neutral-600 hover:bg-primary-600 hover:text-neutral transition-colors bg-transparent"
+                >{{ .Key }}</a>
+              </li>
+            {{ else }}
+              <li aria-hidden="true"></li>
             {{ end }}
-            {{ $prevDecade = $decade }}
           {{ end }}
-          <li>
-            <a
-              href="#year-{{ .Key }}"
-              class="archive-year-btn mx-1 block min-w-[3.5rem] rounded text-center px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 hover:bg-primary-600 hover:text-neutral transition-colors bg-transparent"
-            >{{ .Key }}</a>
-          </li>
         {{ end }}
       </ul>
     </nav>
