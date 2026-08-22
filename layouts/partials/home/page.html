@@ -1,4 +1,4 @@
-{{ $paginator := .Paginate .Site.RegularPages }}
+{{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" .Site.Params.mainSections) }}
 <div class="w-full">
   <section class="space-y-16">
     {{ range $paginator.Pages }}
