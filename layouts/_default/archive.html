@@ -1,5 +1,5 @@
 {{ define "main" }}
-  {{ $pages := .Site.RegularPages }}
+  {{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
   {{ $yearGroups := $pages.GroupByDate "2006" }}
   {{ $yearGroups = where $yearGroups "Key" ">=" "1970" }}
 
