@@ -1,5 +1,12 @@
 {{ define "main" }}
   {{ .Scratch.Set "scope" "single" }}
+  {{ $showReadingProgress := site.Params.article.showReadingProgress | default false }}
+  {{ if isset .Params "showreadingprogress" }}
+    {{ $showReadingProgress = .Params.showReadingProgress }}
+  {{ end }}
+  {{ if $showReadingProgress }}
+    {{ partial "reading-progress.html" . }}
+  {{ end }}
   <article itemscope itemtype="https://schema.org/Article">
     <meta itemprop="mainEntityOfPage" content="{{ .Permalink }}" />
     {{ $effectiveAuthor := partial "article-meta/effective-author.html" . }}
