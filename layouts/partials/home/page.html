@@ -1,4 +1,6 @@
-{{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" .Site.Params.mainSections) }}
+{{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
+{{ $pages = sort (sort $pages "Lastmod" "desc") "Date" "desc" }}
+{{ $paginator := .Paginate $pages }}
 <div class="w-full">
   <section class="space-y-16">
     {{ range $paginator.Pages }}

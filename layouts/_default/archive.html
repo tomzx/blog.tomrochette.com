@@ -45,7 +45,7 @@
         {{ range .Pages.GroupByDate "2006-01" }}
           <h3 id="{{ .Key }}" class="mt-4 mb-2 text-lg font-semibold"><a href="#{{ .Key }}" class="text-neutral-600 dark:text-neutral-400 hover:underline decoration-primary-500">{{ (index .Pages 0).Date.Format "January" }} <span class="text-sm font-normal text-neutral-400 dark:text-neutral-500">({{ .Pages.Len }})</span></a></h3>
           <ul class="space-y-3">
-            {{ range .Pages }}
+            {{ range sort (sort .Pages "Lastmod" "desc") "Date" "desc" }}
               <li class="flex items-baseline gap-3">
                 <time datetime="{{ .Date.Format "2006-01-02" }}" class="shrink-0 text-neutral-500 dark:text-neutral-400">
                   {{ .Date.Format "02" }}
