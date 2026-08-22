@@ -8,6 +8,10 @@
 colorScheme = "github"
 gitRepo = "https://github.com/tomzx/blog.tomrochette.com-content"
 gitBranch = "master"
+# Sections whose pages count as blog posts for the home listing and recent
+# articles. Root articles carry `type: post`; section archives (agi, agents,
+# questions, ...) are excluded from the stream.
+mainSections = ["post"]
 defaultAppearance = "light" # valid options: light or dark
 autoSwitchAppearance = true
 
