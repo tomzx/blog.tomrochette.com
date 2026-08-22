@@ -10,11 +10,6 @@ allowedPathCharacters = "="
 pluralizeListTitles = false
 capitalizeListTitles = false
 
-# AGENTS.md files are repo instructions for coding agents, not content.
-# Hugo lowercases URLs, so a root AGENTS.md would become a page at /agents/
-# and displace the agents/ section's _index.md; keep them out of the build.
-ignoreFiles = ["AGENTS\\.md$"]
-
 enableRobotsTXT = true
 summaryLength = 0
 
