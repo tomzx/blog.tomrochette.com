@@ -88,4 +88,7 @@
       </p>
     {{ end }}
   </div>
+  {{ if templates.Exists "partials/extend-footer.html" }}
+    {{ partialCached "extend-footer.html" . }}
+  {{ end }}
 </footer>

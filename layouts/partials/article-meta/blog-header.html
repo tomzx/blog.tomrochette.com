@@ -6,7 +6,8 @@
     <a href="{{ $gitRepo }}/commits/{{ $gitBranch }}/{{ $filePath }}" title="View page history on GitHub"><span class="inline-block align-middle">{{ partial "icon.html" "history" }}</span> History</a> /
     <a href="{{ $gitRepo }}/edit/{{ $gitBranch }}/{{ $filePath }}/{{ .File.LogicalName }}" title="Edit page on GitHub"><span class="inline-block align-middle">{{ partial "icon.html" "edit" }}</span> Edit</a> /
     <a href="/exports/{{ $filePath }}.pdf" title="Download as PDF"><span class="inline-block align-middle">{{ partial "icon.html" "picture-as-pdf" }}</span> PDF</a> /
-    <a href="/exports/{{ $filePath }}.epub" title="Download as EPUB"><span class="inline-block align-middle">{{ partial "icon.html" "auto-stories" }}</span> EPUB</a>
+    <a href="/exports/{{ $filePath }}.epub" title="Download as EPUB"><span class="inline-block align-middle">{{ partial "icon.html" "auto-stories" }}</span> EPUB</a> /
+    {{ with .OutputFormats.Get "Markdown" }}<a href="{{ .RelPermalink }}" title="Copy article as Markdown" data-copy-markdown><span class="inline-block align-middle">{{ partial "icon.html" "content-copy" }}</span> MD</a>{{ end }}
     {{ if fileExists (printf "content/%s.bib" $filePath) }}
       / <a href="/exports/{{ $filePath }}.bib" title="Download BIB bibliography"><span class="inline-block align-middle">{{ partial "icon.html" "menu-book" }}</span> BIB</a>
     {{ end }}

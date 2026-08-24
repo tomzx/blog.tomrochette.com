@@ -1,0 +1,20 @@
+<script>
+  document.addEventListener('click', async function (e) {
+    const link = e.target.closest('[data-copy-markdown]');
+    if (!link) return;
+    e.preventDefault();
+    const original = link.innerHTML;
+    try {
+      const res = await fetch(link.href);
+      if (!res.ok) throw new Error('Failed to fetch markdown');
+      const text = await res.text();
+      await navigator.clipboard.writeText(text);
+      link.textContent = '✓ Copied';
+    } catch (err) {
+      link.textContent = '✗ Failed';
+    }
+    setTimeout(function () {
+      link.innerHTML = original;
+    }, 2000);
+  });
+</script>
