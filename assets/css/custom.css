@@ -99,20 +99,20 @@ body {
 }
 
 /* Left article rail: jump navigation for the articles on the current page.
+   Rests as a thin tick gutter; the labeled panel opens on hover/focus.
    Sizes in px: the site root font-size is 24px, so rem values triple. */
 .article-rail-layout {
   display: flex;
-  column-gap: 40px;
+  column-gap: 24px;
 }
 
 .article-rail {
   display: none;
   flex-shrink: 0;
-  width: 240px;
+  width: 32px;
 }
 
-/* Show only on very wide viewports; the content column must stay readable
-   next to this rail and the right tags sidebar. */
+/* Show only on very wide viewports; the open panel overlays content. */
 @media (width >= 1536px) {
   .article-rail {
     display: block;
@@ -121,35 +121,40 @@ body {
 
 .article-rail-sticky {
   position: sticky;
-  top: 60px;
+  top: 80px;
+  height: calc(100vh - 160px);
 }
 
-.article-rail-list {
-  max-height: calc(100vh - 240px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 4px 4px 4px 0;
+.article-rail-nav {
+  position: relative;
+  height: 100%;
+  z-index: 30;
 }
 
-.article-rail-target {
-  scroll-margin-top: 60px;
+.article-rail-gutter {
+  position: absolute;
+  top: 50%;
+  inset-inline: 0;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
 }
 
-.article-rail-link {
+.article-rail-tick {
   position: relative;
   display: block;
-  padding: 6px 6px 6px 22px;
-  text-decoration: none;
+  width: 100%;
+  height: 18px;
+  cursor: pointer;
 }
 
-/* Tick marker: widens and colors on hover/active, like the prompt rail */
-.article-rail-link::before {
+.article-rail-tick::before {
   content: "";
   position: absolute;
   inset-inline-start: 0;
-  top: 21px;
-  width: 9px;
-  height: 3px;
+  top: 7px;
+  width: 12px;
+  height: 4px;
   border-radius: 9999px;
   background-color: rgba(var(--color-neutral-400), 1);
   transition:
@@ -157,17 +162,82 @@ body {
     background-color 0.2s ease;
 }
 
-.article-rail-link:hover::before,
-.article-rail-link.active::before {
+.article-rail-tick:hover::before,
+.article-rail-tick.active::before {
   background-color: rgba(var(--color-primary-500), 1);
 }
 
-.article-rail-link:hover::before {
-  width: 15px;
+.article-rail-tick:hover::before {
+  width: 20px;
 }
 
-.article-rail-link.active::before {
-  width: 21px;
+.article-rail-tick.active::before {
+  width: 26px;
+}
+
+.article-rail-panel {
+  position: absolute;
+  inset-inline-start: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  max-height: min(480px, calc(100vh - 200px));
+  padding: 12px;
+  border: 1px solid rgba(var(--color-neutral-300), 1);
+  border-radius: 12px;
+  background-color: rgba(var(--color-neutral-100), 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  /* Grace delay before hiding so the pointer can travel into the panel */
+  transition:
+    opacity 0.15s ease 0.16s,
+    transform 0.15s ease 0.16s,
+    visibility 0s linear 0.31s;
+}
+
+.article-rail-nav:hover .article-rail-panel,
+.article-rail-nav:focus-within .article-rail-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+  transition-delay: 0s;
+}
+
+.dark .article-rail-panel {
+  border-color: rgba(var(--color-neutral-600), 1);
+  background-color: rgba(var(--color-neutral-700), 1);
+}
+
+.article-rail-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.article-rail-target {
+  scroll-margin-top: 60px;
+}
+
+.article-rail-link {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.article-rail-link:hover,
+.article-rail-link.active {
+  background-color: rgba(var(--color-primary-600), 0.08);
+}
+
+.dark .article-rail-link:hover,
+.dark .article-rail-link.active {
+  background-color: rgba(var(--color-primary-400), 0.15);
 }
 
 .article-rail-title {

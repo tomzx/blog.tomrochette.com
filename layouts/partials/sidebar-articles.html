@@ -1,24 +1,35 @@
 {{/* Left rail listing the articles rendered on the current page.
-     Scroll-spy highlights the article in view, clicking jumps to it. */}}
+     Rests as a thin gutter of ticks; hovering or focusing it opens the
+     labeled panel. Scroll-spy highlights the article in view, clicking
+     jumps to it. */}}
 {{ $pages := .pages }}
 {{ if ge (len $pages) 2 }}
   <aside class="article-rail" aria-label="{{ i18n "sidebar.on_this_page" }}">
     <div class="article-rail-sticky">
-      <h3 class="text-sm font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-3">
-        {{ i18n "sidebar.on_this_page" }}
-      </h3>
-      <nav class="article-rail-list">
-        <ul class="space-y-1">
+      <div class="article-rail-nav">
+        <nav class="article-rail-gutter">
           {{ range $index, $page := $pages }}
-            <li>
-              <a href="#article-{{ add $index 1 }}" class="article-rail-link">
-                <span class="article-rail-title text-sm text-neutral-700 dark:text-neutral-300">{{ $page.Title | emojify }}</span>
-                <span class="article-rail-date text-xs text-neutral-400 dark:text-neutral-500">{{ $page.Date | time.Format ":date_medium" }}</span>
-              </a>
-            </li>
+            <a href="#article-{{ add $index 1 }}" class="article-rail-tick" aria-label="{{ $page.Title | emojify }}"></a>
           {{ end }}
-        </ul>
-      </nav>
+        </nav>
+        <div class="article-rail-panel">
+          <h3 class="text-sm font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-3">
+            {{ i18n "sidebar.on_this_page" }}
+          </h3>
+          <div class="article-rail-list">
+            <ul class="space-y-1">
+              {{ range $index, $page := $pages }}
+                <li>
+                  <a href="#article-{{ add $index 1 }}" class="article-rail-link">
+                    <span class="article-rail-title text-sm text-neutral-700 dark:text-neutral-300">{{ $page.Title | emojify }}</span>
+                    <span class="article-rail-date text-xs text-neutral-400 dark:text-neutral-500">{{ $page.Date | time.Format ":date_medium" }}</span>
+                  </a>
+                </li>
+              {{ end }}
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </aside>
   <script>
@@ -51,18 +62,21 @@
             link.classList.toggle('active', isActive)
             if (isActive) {
               link.setAttribute('aria-current', 'true')
-              // Keep the active link centered in the rail list.
-              // Only scrolls the list element, never the window.
-              if (list) {
-                const listRect = list.getBoundingClientRect()
-                const linkRect = link.getBoundingClientRect()
-                const target = list.scrollTop + (linkRect.top - listRect.top) - (list.clientHeight - linkRect.height) / 2
-                list.scrollTo({ top: target, behavior: 'smooth' })
-              }
             } else {
               link.removeAttribute('aria-current')
             }
           })
+          // Keep the active link centered in the panel list.
+          // Only scrolls the list element, never the window.
+          if (list) {
+            const link = list.querySelector('a[href="#' + id + '"]')
+            if (link) {
+              const listRect = list.getBoundingClientRect()
+              const linkRect = link.getBoundingClientRect()
+              const target = list.scrollTop + (linkRect.top - listRect.top) - (list.clientHeight - linkRect.height) / 2
+              list.scrollTo({ top: target, behavior: 'smooth' })
+            }
+          }
         }
 
         window.addEventListener('scroll', update, { passive: true })
