@@ -53,3 +53,39 @@ body {
   grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 0.5rem;
 }
+
+/* Line-number gutter on p/li/h*, so readers can link directly to a given line */
+.article-content .has-line {
+  position: relative;
+  scroll-margin-top: 2rem;
+}
+
+.article-content .line-no {
+  position: absolute;
+  inset-inline-start: -3rem;
+  width: 2.5rem;
+  padding-inline-end: 0.5rem;
+  text-align: right;
+  font-size: 0.667rem;
+  line-height: inherit;
+  font-variant-numeric: tabular-nums;
+  color: rgba(var(--color-neutral-400), 1);
+  text-decoration: none;
+  user-select: none;
+}
+
+.article-content .has-line:hover > .line-no {
+  color: rgba(var(--color-primary-500), 1);
+}
+
+.article-content .has-line:target,
+.article-content .has-line:has(:target) {
+  background-color: rgba(var(--color-primary-500), 0.08);
+  border-radius: 0.25rem;
+}
+
+@media (width < 640px) {
+  .article-content .line-no {
+    display: none;
+  }
+}

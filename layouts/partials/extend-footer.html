@@ -18,3 +18,39 @@
     }, 2000);
   });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var content = document.querySelector('.article-content');
+    if (!content) return;
+    var els = content.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6');
+    var n = 0;
+    els.forEach(function (el) {
+      if (
+        el.children.length === 1 &&
+        el.children[0].tagName === 'IMG' &&
+        !el.textContent.trim()
+      ) {
+        return;
+      }
+      n++;
+      var id = el.id;
+      if (!id) {
+        var anchor = el.querySelector(':scope > .anchor[id]');
+        if (anchor) {
+          id = anchor.id;
+        } else {
+          id = 'L' + n;
+          el.id = id;
+        }
+      }
+      el.classList.add('has-line');
+      var a = document.createElement('a');
+      a.className = 'line-no';
+      a.href = '#' + id;
+      a.textContent = n;
+      a.setAttribute('aria-label', 'Link to line ' + n);
+      el.insertBefore(a, el.firstChild);
+    });
+  });
+</script>
