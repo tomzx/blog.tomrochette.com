@@ -2,3 +2,6 @@ article:
   reading_time:
     one: "{{ .Count }} minute"
     other: "{{ .Count }} minutes"
+sidebar:
+  on_this_page:
+    other: "On this page"

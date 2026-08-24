@@ -1,0 +1,86 @@
+{{/* Left rail listing the articles rendered on the current page.
+     Scroll-spy highlights the article in view, clicking jumps to it. */}}
+{{ $pages := .pages }}
+{{ if ge (len $pages) 2 }}
+  <aside class="article-rail" aria-label="{{ i18n "sidebar.on_this_page" }}">
+    <div class="article-rail-sticky">
+      <h3 class="text-sm font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-3">
+        {{ i18n "sidebar.on_this_page" }}
+      </h3>
+      <nav class="article-rail-list">
+        <ul class="space-y-1">
+          {{ range $index, $page := $pages }}
+            <li>
+              <a href="#article-{{ add $index 1 }}" class="article-rail-link">
+                <span class="article-rail-title text-sm text-neutral-700 dark:text-neutral-300">{{ $page.Title | emojify }}</span>
+                <span class="article-rail-date text-xs text-neutral-400 dark:text-neutral-500">{{ $page.Date | time.Format ":date_medium" }}</span>
+              </a>
+            </li>
+          {{ end }}
+        </ul>
+      </nav>
+    </div>
+  </aside>
+  <script>
+    (function () {
+      'use strict'
+
+      const SCROLL_OFFSET_RATIO = 0.33
+
+      function start(rail, targets) {
+        const links = [...rail.querySelectorAll('a[href^="#"]')]
+        const list = rail.querySelector('.article-rail-list')
+
+        function getActiveId() {
+          const threshold = window.scrollY + window.innerHeight * SCROLL_OFFSET_RATIO
+          for (let i = targets.length - 1; i >= 0; i--) {
+            if (targets[i].getBoundingClientRect().top + window.scrollY <= threshold) {
+              return targets[i].id
+            }
+          }
+          return targets[0] ? targets[0].id : ''
+        }
+
+        let activeId = null
+        function update() {
+          const id = getActiveId()
+          if (id === activeId) return
+          activeId = id
+          links.forEach((link) => {
+            const isActive = link.getAttribute('href') === '#' + id
+            link.classList.toggle('active', isActive)
+            if (isActive) {
+              link.setAttribute('aria-current', 'true')
+              // Keep the active link centered in the rail list.
+              // Only scrolls the list element, never the window.
+              if (list) {
+                const listRect = list.getBoundingClientRect()
+                const linkRect = link.getBoundingClientRect()
+                const target = list.scrollTop + (linkRect.top - listRect.top) - (list.clientHeight - linkRect.height) / 2
+                list.scrollTo({ top: target, behavior: 'smooth' })
+              }
+            } else {
+              link.removeAttribute('aria-current')
+            }
+          })
+        }
+
+        window.addEventListener('scroll', update, { passive: true })
+        window.addEventListener('hashchange', update, { passive: true })
+        update()
+      }
+
+      function init() {
+        const rail = document.querySelector('.article-rail')
+        if (!rail) return
+        const targets = [...document.querySelectorAll('.article-rail-target')]
+        if (targets.length === 0) return
+        start(rail, targets)
+      }
+
+      document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', init)
+        : init()
+    })()
+  </script>
+{{ end }}

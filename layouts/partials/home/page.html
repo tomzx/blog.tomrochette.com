@@ -1,21 +1,23 @@
 {{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
 {{ $pages = sort (sort $pages "Lastmod" "desc") "Date" "desc" }}
 {{ $paginator := .Paginate $pages }}
-<div class="w-full">
-  <section class="space-y-16">
-    {{ range $paginator.Pages }}
-      <article class="prose dark:prose-invert max-w-full">
-        <header class="mb-2">
-          <h2 class="text-2xl font-bold">
-            <a href="{{ .RelPermalink }}" class="hover:underline decoration-primary-500">{{ .Title }}</a>
-          </h2>
-          {{ partial "article-meta/blog-header.html" . }}
-        </header>
-        <section>{{ .Content }}</section>
-      </article>
-      <hr class="border-neutral-200 dark:border-neutral-700">
-    {{ end }}
-    {{ partial "pagination.html" . }}
-  </section>
-
+<div class="w-full article-rail-layout">
+  {{ partial "sidebar-articles.html" (dict "pages" $paginator.Pages) }}
+  <div class="min-w-0 grow">
+    <section class="space-y-16">
+      {{ range $index, $page := $paginator.Pages }}
+        <article id="article-{{ add $index 1 }}" class="article-rail-target prose dark:prose-invert max-w-full">
+          <header class="mb-2">
+            <h2 class="text-2xl font-bold">
+              <a href="{{ .RelPermalink }}" class="hover:underline decoration-primary-500">{{ .Title }}</a>
+            </h2>
+            {{ partial "article-meta/blog-header.html" . }}
+          </header>
+          <section>{{ .Content }}</section>
+        </article>
+        <hr class="border-neutral-200 dark:border-neutral-700">
+      {{ end }}
+      {{ partial "pagination.html" . }}
+    </section>
+  </div>
 </div>

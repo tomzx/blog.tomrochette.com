@@ -97,3 +97,99 @@ body {
     display: none;
   }
 }
+
+/* Left article rail: jump navigation for the articles on the current page.
+   Sizes in px: the site root font-size is 24px, so rem values triple. */
+.article-rail-layout {
+  display: flex;
+  column-gap: 40px;
+}
+
+.article-rail {
+  display: none;
+  flex-shrink: 0;
+  width: 240px;
+}
+
+/* Show only on very wide viewports; the content column must stay readable
+   next to this rail and the right tags sidebar. */
+@media (width >= 1536px) {
+  .article-rail {
+    display: block;
+  }
+}
+
+.article-rail-sticky {
+  position: sticky;
+  top: 60px;
+}
+
+.article-rail-list {
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 4px 4px 0;
+}
+
+.article-rail-target {
+  scroll-margin-top: 60px;
+}
+
+.article-rail-link {
+  position: relative;
+  display: block;
+  padding: 6px 6px 6px 22px;
+  text-decoration: none;
+}
+
+/* Tick marker: widens and colors on hover/active, like the prompt rail */
+.article-rail-link::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 21px;
+  width: 9px;
+  height: 3px;
+  border-radius: 9999px;
+  background-color: rgba(var(--color-neutral-400), 1);
+  transition:
+    width 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.article-rail-link:hover::before,
+.article-rail-link.active::before {
+  background-color: rgba(var(--color-primary-500), 1);
+}
+
+.article-rail-link:hover::before {
+  width: 15px;
+}
+
+.article-rail-link.active::before {
+  width: 21px;
+}
+
+.article-rail-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.article-rail-link:hover .article-rail-title,
+.article-rail-link.active .article-rail-title {
+  color: rgba(var(--color-primary-600), 1);
+  font-weight: 600;
+}
+
+.dark .article-rail-link:hover .article-rail-title,
+.dark .article-rail-link.active .article-rail-title {
+  color: rgba(var(--color-primary-400), 1);
+}
+
+.article-rail-date {
+  display: block;
+  margin-top: 2px;
+}
