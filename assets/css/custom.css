@@ -54,9 +54,12 @@ body {
   gap: 0.5rem;
 }
 
-/* Line-number gutter on p/li/h*, so readers can link directly to a given line */
-.article-content .has-line {
+/* Line-number gutter on p/li/h*, so readers can link directly at a given line */
+.article-content {
   position: relative;
+}
+
+.article-content .has-line {
   scroll-margin-top: 2rem;
 }
 
@@ -72,9 +75,14 @@ body {
   color: rgba(var(--color-neutral-400), 1);
   text-decoration: none;
   user-select: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.article-content .has-line:hover > .line-no {
+.article-content .has-line:hover > .line-no,
+.article-content .has-line:target > .line-no,
+.article-content .has-line:has(:target) > .line-no {
+  opacity: 1;
   color: rgba(var(--color-primary-500), 1);
 }
 
