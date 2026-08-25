@@ -1,10 +1,20 @@
-// Wide-table controls: column picker chips + row filter, progressive enhancement
-// for .tbl-wide tables emitted by the render-table.html hook. No dependencies.
+// Wide-table controls for .tbl-wide tables emitted by the render-table.html hook:
+// - column picker chips (persisted per browser)
+// - row text search
+// - value-based column filter: click a cell to keep only the columns whose cell
+//   in that row shares the clicked cell's state glyph (shift-click inverts);
+//   click the same cell again, or the filter chip, to clear. No dependencies.
 (function () {
   'use strict';
 
   function cellText(el) {
     return el.textContent.replace(/\s+/g, ' ').trim();
+  }
+
+  function stateOf(text) {
+    var first = text.charAt(0);
+    if (first === '\u2713' || first === '\u2717' || first === '~' || first === '?') return first;
+    return text;
   }
 
   function init(wrap, ordinal) {
@@ -21,6 +31,8 @@
       saved = headerCells.map(function () { return true; });
     }
 
+    var rowFilter = null; // { rowIdx, state, invert }
+
     var bar = document.createElement('div');
     bar.className = 'tbl-controls';
 
@@ -29,6 +41,19 @@
     filter.className = 'tbl-filter';
     filter.setAttribute('placeholder', 'Filter rows');
     filter.setAttribute('aria-label', 'Filter table rows');
+
+    var hint = document.createElement('span');
+    hint.className = 'tbl-hint';
+    hint.textContent = 'Click a cell to keep tools matching its value (Shift-click to invert)';
+
+    var clearChip = document.createElement('button');
+    clearChip.type = 'button';
+    clearChip.className = 'tbl-chip tbl-rowfilter';
+    clearChip.hidden = true;
+    clearChip.addEventListener('click', function () {
+      rowFilter = null;
+      apply();
+    });
 
     var chips = headerCells.map(function (th, i) {
       var chip = document.createElement('button');
@@ -41,15 +66,35 @@
       return chip;
     });
 
+    function columnVisible(i) {
+      if (!saved[i]) return false;
+      if (!rowFilter || i === 0) return true;
+      var cellState = stateOf(cellText(bodyRows[rowFilter.rowIdx].cells[i]));
+      return rowFilter.invert ? cellState !== rowFilter.state : cellState === rowFilter.state;
+    }
+
     function apply() {
       Array.prototype.forEach.call(table.rows, function (row) {
         Array.prototype.forEach.call(row.cells, function (cell, i) {
-          cell.style.display = saved[i] ? '' : 'none';
+          cell.style.display = columnVisible(i) ? '' : 'none';
         });
       });
       chips.forEach(function (chip, i) {
         chip.setAttribute('aria-pressed', saved[i] ? 'true' : 'false');
       });
+      bodyRows.forEach(function (row, idx) {
+        var active = rowFilter && rowFilter.rowIdx === idx;
+        row.classList.toggle('tbl-rowactive', !!active);
+        if (active) {
+          clearChip.hidden = false;
+          clearChip.textContent = '';
+          var label = cellText(row.cells[0]);
+          clearChip.appendChild(document.createTextNode(
+            (rowFilter.invert ? 'not ' : '') + label + ' = ' + rowFilter.state + ' \u00d7'
+          ));
+        }
+      });
+      if (!rowFilter) clearChip.hidden = true;
       try { localStorage.setItem(storeKey, JSON.stringify(saved)); } catch (e) { /* private mode */ }
     }
 
@@ -63,6 +108,26 @@
       apply();
     }
 
+    table.addEventListener('click', function (e) {
+      var td = e.target.closest('td');
+      if (!td || td.cellIndex === 0) return;
+      var tr = td.parentElement;
+      var rowIdx = bodyRows.indexOf(tr);
+      if (rowIdx === -1) return;
+      var state = stateOf(cellText(td));
+      var invert = e.shiftKey;
+      if (rowFilter && rowFilter.rowIdx === rowIdx && rowFilter.state === state && rowFilter.invert === invert) {
+        rowFilter = null; // same cell clicked twice: clear
+      } else {
+        rowFilter = { rowIdx: rowIdx, state: state, invert: invert };
+      }
+      apply();
+    });
+
+    Array.prototype.forEach.call(table.querySelectorAll('tbody td:not(:first-child)'), function (td) {
+      td.title = 'Click to keep columns matching this value (Shift-click for the opposite)';
+    });
+
     filter.addEventListener('input', function () {
       var q = filter.value.toLowerCase();
       bodyRows.forEach(function (row) {
@@ -73,6 +138,8 @@
 
     bar.appendChild(filter);
     chips.forEach(function (chip) { bar.appendChild(chip); });
+    bar.appendChild(clearChip);
+    bar.appendChild(hint);
     wrap.parentNode.insertBefore(bar, wrap);
     apply();
   }

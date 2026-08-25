@@ -399,3 +399,48 @@ body {
   outline: 2px solid rgba(var(--color-primary-500), 1);
   outline-offset: 1px;
 }
+
+/* Value-based column filter: clickable cells, hint, active row, filter chip. */
+.tbl-wide tbody td:not(:first-child) {
+  cursor: pointer;
+}
+
+.tbl-wide tbody td:not(:first-child):hover {
+  background-color: rgba(var(--color-primary-100), 0.7) !important;
+}
+
+.dark .tbl-wide tbody td:not(:first-child):hover {
+  background-color: rgba(var(--color-primary-900), 0.7) !important;
+}
+
+.tbl-wide tbody tr.tbl-rowactive td:first-child {
+  font-weight: 700;
+  color: rgba(var(--color-primary-700), 1);
+}
+
+.dark .tbl-wide tbody tr.tbl-rowactive td:first-child {
+  color: rgba(var(--color-primary-300), 1);
+}
+
+.tbl-hint {
+  flex: 1 1 100%;
+  font-size: 0.75rem;
+  color: rgba(var(--color-neutral-500), 1);
+}
+
+.dark .tbl-hint {
+  color: rgba(var(--color-neutral-400), 1);
+}
+
+.tbl-chip.tbl-rowfilter {
+  color: rgba(var(--color-neutral-700), 1);
+  background-color: rgba(var(--color-primary-200), 1);
+  border-color: rgba(var(--color-primary-400), 1);
+  font-weight: 600;
+}
+
+.dark .tbl-chip.tbl-rowfilter {
+  color: rgba(var(--color-primary-100), 1);
+  background-color: rgba(var(--color-primary-800), 1);
+  border-color: rgba(var(--color-primary-500), 1);
+}
