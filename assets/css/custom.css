@@ -123,6 +123,9 @@ body {
   position: sticky;
   top: 80px;
   height: calc(100vh - 160px);
+  /* sticky creates a stacking context at z0; without this the panel
+     paints under the article headers' positioned icons */
+  z-index: 30;
 }
 
 .article-rail-nav {
@@ -231,11 +234,13 @@ body {
 }
 
 .article-rail-link:hover,
+.article-rail-link.highlighted,
 .article-rail-link.active {
   background-color: rgba(var(--color-primary-600), 0.08);
 }
 
 .dark .article-rail-link:hover,
+.dark .article-rail-link.highlighted,
 .dark .article-rail-link.active {
   background-color: rgba(var(--color-primary-400), 0.15);
 }
@@ -249,17 +254,14 @@ body {
 }
 
 .article-rail-link:hover .article-rail-title,
+.article-rail-link.highlighted .article-rail-title,
 .article-rail-link.active .article-rail-title {
   color: rgba(var(--color-primary-600), 1);
   font-weight: 600;
 }
 
 .dark .article-rail-link:hover .article-rail-title,
+.dark .article-rail-link.highlighted .article-rail-title,
 .dark .article-rail-link.active .article-rail-title {
   color: rgba(var(--color-primary-400), 1);
-}
-
-.article-rail-date {
-  display: block;
-  margin-top: 2px;
 }

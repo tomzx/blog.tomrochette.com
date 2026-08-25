@@ -22,7 +22,6 @@
                 <li>
                   <a href="#article-{{ add $index 1 }}" class="article-rail-link">
                     <span class="article-rail-title text-sm text-neutral-700 dark:text-neutral-300">{{ $page.Title | emojify }}</span>
-                    <span class="article-rail-date text-xs text-neutral-400 dark:text-neutral-500">{{ $page.Date | time.Format ":date_medium" }}</span>
                   </a>
                 </li>
               {{ end }}
@@ -40,7 +39,20 @@
 
       function start(rail, targets) {
         const links = [...rail.querySelectorAll('a[href^="#"]')]
+        const ticks = [...rail.querySelectorAll('.article-rail-tick')]
+        const panelLinks = [...rail.querySelectorAll('.article-rail-link')]
+        const panelLinkByHref = new Map(panelLinks.map((link) => [link.getAttribute('href'), link]))
         const list = rail.querySelector('.article-rail-list')
+
+        // Keep a link centered in the panel list.
+        // Only scrolls the list element, never the window.
+        function centerLink(link) {
+          if (!list || !link) return
+          const listRect = list.getBoundingClientRect()
+          const linkRect = link.getBoundingClientRect()
+          const target = list.scrollTop + (linkRect.top - listRect.top) - (list.clientHeight - linkRect.height) / 2
+          list.scrollTo({ top: target, behavior: 'smooth' })
+        }
 
         function getActiveId() {
           const threshold = window.scrollY + window.innerHeight * SCROLL_OFFSET_RATIO
@@ -66,18 +78,26 @@
               link.removeAttribute('aria-current')
             }
           })
-          // Keep the active link centered in the panel list.
-          // Only scrolls the list element, never the window.
-          if (list) {
-            const link = list.querySelector('a[href="#' + id + '"]')
-            if (link) {
-              const listRect = list.getBoundingClientRect()
-              const linkRect = link.getBoundingClientRect()
-              const target = list.scrollTop + (linkRect.top - listRect.top) - (list.clientHeight - linkRect.height) / 2
-              list.scrollTo({ top: target, behavior: 'smooth' })
-            }
-          }
+          centerLink(panelLinkByHref.get('#' + id))
         }
+
+        // Hovering a tick highlights and centers its entry in the panel
+        let hoveredHref = null
+        function setHovered(href) {
+          if (href === hoveredHref) return
+          hoveredHref = href
+          panelLinks.forEach((link) => {
+            link.classList.toggle('highlighted', link.getAttribute('href') === href)
+          })
+          centerLink(panelLinkByHref.get(href))
+        }
+
+        ticks.forEach((tick) => {
+          tick.addEventListener('mouseenter', () => setHovered(tick.getAttribute('href')))
+          tick.addEventListener('focus', () => setHovered(tick.getAttribute('href')))
+        })
+        const gutter = rail.querySelector('.article-rail-gutter')
+        if (gutter) gutter.addEventListener('mouseleave', () => setHovered(null))
 
         window.addEventListener('scroll', update, { passive: true })
         window.addEventListener('hashchange', update, { passive: true })
