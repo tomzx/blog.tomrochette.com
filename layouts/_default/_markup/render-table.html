@@ -1,0 +1,42 @@
+{{/* Table render hook: wrap tables in a scrollable region; tag wide tables for sticky-column styling. */}}
+{{- $cols := 0 -}}
+{{- with index .THead 0 -}}{{- $cols = len . -}}{{- end -}}
+<div
+  class="tbl-wrap{{ if ge $cols 6 }} tbl-wide{{ end }}"
+  role="region"
+  aria-label="Table, horizontally scrollable"
+  tabindex="0"
+>
+  <table{{ range $k, $v := .Attributes }}{{ if $v }}{{ printf " %s=%q" $k $v | safeHTMLAttr }}{{ end }}{{ end }}>
+    <thead>
+      {{- range .THead }}
+        <tr>
+          {{- range . }}
+            <th
+              {{- with .Alignment }}
+                {{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+              {{- end -}}
+            >
+              {{- .Text -}}
+            </th>
+          {{- end }}
+        </tr>
+      {{- end }}
+    </thead>
+    <tbody>
+      {{- range .TBody }}
+        <tr>
+          {{- range . }}
+            <td
+              {{- with .Alignment }}
+                {{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+              {{- end -}}
+            >
+              {{- .Text -}}
+            </td>
+          {{- end }}
+        </tr>
+      {{- end }}
+    </tbody>
+  </table>
+</div>

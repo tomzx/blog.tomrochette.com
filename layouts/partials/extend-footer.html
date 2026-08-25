@@ -54,3 +54,6 @@
     });
   });
 </script>
+
+{{- $tablesJS := resources.Get "js/tables.js" | resources.Minify | resources.Fingerprint "sha512" -}}
+<script defer src="{{ $tablesJS.RelPermalink }}" integrity="{{ $tablesJS.Data.Integrity }}"></script>
