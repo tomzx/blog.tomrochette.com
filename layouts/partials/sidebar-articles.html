@@ -13,15 +13,12 @@
           {{ end }}
         </nav>
         <div class="article-rail-panel">
-          <h3 class="text-sm font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-3">
-            {{ i18n "sidebar.on_this_page" }}
-          </h3>
           <div class="article-rail-list">
             <ul class="space-y-1">
               {{ range $index, $page := $pages }}
                 <li>
                   <a href="#article-{{ add $index 1 }}" class="article-rail-link">
-                    <span class="article-rail-title text-sm text-neutral-700 dark:text-neutral-300">{{ $page.Title | emojify }}</span>
+                    <span class="article-rail-title">{{ $page.Title | emojify }}</span>
                   </a>
                 </li>
               {{ end }}

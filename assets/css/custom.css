@@ -183,7 +183,7 @@ body {
   inset-inline-start: calc(100% + 12px);
   top: 50%;
   transform: translateY(-50%) translateX(-6px);
-  width: 260px;
+  width: 360px;
   display: flex;
   flex-direction: column;
   max-height: min(480px, calc(100vh - 200px));
@@ -250,7 +250,14 @@ body {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  color: rgba(var(--color-neutral-700), 1);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
   transition: color 0.2s ease;
+}
+
+.dark .article-rail-title {
+  color: rgba(var(--color-neutral-300), 1);
 }
 
 .article-rail-link:hover .article-rail-title,
