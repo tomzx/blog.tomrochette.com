@@ -1,4 +1,6 @@
-// Wide-table controls for .tbl-wide tables emitted by the render-table.html hook:
+// Table controls for .tbl-wrap tables emitted by the render-table.html hook
+// (the .tbl-wide class only adds sticky-header/label scrolling for 6+ columns;
+// every table gets the controls):
 // - column picker chips (persisted per browser)
 // - row text search
 // - value-based column filter: click a cell to keep only the columns whose cell
@@ -145,7 +147,7 @@
   }
 
   function start() {
-    var wraps = document.querySelectorAll('.tbl-wrap.tbl-wide');
+    var wraps = document.querySelectorAll('.tbl-wrap');
     Array.prototype.forEach.call(wraps, function (wrap, i) {
       init(wrap, i);
     });
