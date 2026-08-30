@@ -1,7 +1,9 @@
 // Table controls for .tbl-wrap tables emitted by the render-table.html hook
 // (the .tbl-wide class only adds sticky-header/label scrolling for 6+ columns;
 // every table gets the controls):
-// - column picker chips (persisted per browser)
+// - column picker chips (persisted per browser): click a chip to show only
+//   that column (click it again to show all), Ctrl/Cmd-click to toggle a
+//   single column so several can be shown at once
 // - row text search
 // - value-based column filter: click a cell to keep only the columns whose cell
 //   in that row shares the clicked cell's state glyph (shift-click inverts);
@@ -46,7 +48,7 @@
 
     var hint = document.createElement('span');
     hint.className = 'tbl-hint';
-    hint.textContent = 'Click a cell to keep tools matching its value (Shift-click to invert)';
+    hint.textContent = 'Chips: click to show only that column, Ctrl/Cmd-click to toggle; cells: click to keep columns matching the value, Shift-click to invert';
 
     var clearChip = document.createElement('button');
     clearChip.type = 'button';
@@ -62,8 +64,13 @@
       chip.type = 'button';
       chip.className = 'tbl-chip';
       chip.textContent = cellText(th) || ('Col ' + (i + 1));
-      chip.addEventListener('click', function () {
-        toggle(i, !saved[i]);
+      chip.title = 'Click to show only this column (click again to show all); Ctrl/Cmd-click to show/hide';
+      chip.addEventListener('click', function (e) {
+        if (e.ctrlKey || e.metaKey) {
+          toggle(i, !saved[i]);
+        } else {
+          isolate(i);
+        }
       });
       return chip;
     });
@@ -107,6 +114,17 @@
         if (visible <= 2) return; // keep the label column plus at least one
       }
       saved[i] = on;
+      apply();
+    }
+
+    function isolate(i) {
+      var onlyThis = saved[i];
+      for (var j = 1; j < saved.length; j++) {
+        if (j !== i && saved[j]) { onlyThis = false; break; }
+      }
+      saved = onlyThis
+        ? headerCells.map(function () { return true; }) // isolated chip clicked again: restore all
+        : headerCells.map(function (_, j) { return j === 0 || j === i; });
       apply();
     }
 
