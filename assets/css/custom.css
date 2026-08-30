@@ -373,7 +373,7 @@ body {
   color: rgba(var(--color-neutral-500), 1);
   background-color: rgba(var(--color-neutral-100), 1);
   border: 1px solid rgba(var(--color-neutral-200), 1);
-  border-radius: 9999px;
+  border-radius: 0.375rem;
   cursor: pointer;
 }
 
