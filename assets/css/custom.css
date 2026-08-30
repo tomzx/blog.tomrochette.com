@@ -304,6 +304,15 @@ body {
   border: none;
 }
 
+/* Uniform cell padding: the theme zeroes first/last column inline padding for
+   flush-with-text prose tables, which pinches cells against the component
+   border here. */
+.tbl-wrap thead th,
+.tbl-wrap tbody td,
+.tbl-wrap tfoot td {
+  padding: 0.5714286em 0.75em;
+}
+
 .tbl-wrap thead th {
   position: sticky;
   top: 0;
