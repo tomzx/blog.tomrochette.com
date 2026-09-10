@@ -1,0 +1,13 @@
+{{- /* Render ```mermaid code fences like the theme's mermaid shortcode, and load the theme's mermaid bundle once per page */ -}}
+<pre class="not-prose mermaid">{{ .Inner | htmlEscape | safeHTML }}</pre>
+{{- if not (.Page.Store.Get "hasMermaid") }}
+  {{- .Page.Store.Set "hasMermaid" true }}
+  {{- $mermaidLib := resources.Get "lib/mermaid/mermaid.min.js" }}
+  {{- $mermaidConfig := resources.Get "js/mermaid.js" }}
+  {{- $mermaidJS := slice $mermaidLib ($mermaidConfig | resources.Minify) | resources.Concat "js/mermaid-codeblock.bundle.js" | resources.Fingerprint (site.Params.fingerprintAlgorithm | default "sha512") }}
+  <script
+    defer
+    type="text/javascript"
+    src="{{ $mermaidJS.RelPermalink }}"
+    integrity="{{ $mermaidJS.Data.Integrity }}"></script>
+{{- end }}
