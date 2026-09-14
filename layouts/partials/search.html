@@ -8,7 +8,7 @@
     <header class="relative z-10 flex items-center justify-between flex-none px-2">
       <form class="flex items-center flex-auto min-w-0">
         <div class="flex items-center justify-center w-8 h-8 text-neutral-400">
-          {{ partial "icon.html" "search" }}
+          {{ partialCached "icon.html" "search" "search" }}
         </div>
         <input
           type="search"
@@ -21,7 +21,7 @@
         id="close-search-button"
         class="flex items-center justify-center w-8 h-8 text-neutral-700 hover:text-primary-600 dark:text-neutral dark:hover:text-primary-400"
         title="{{ i18n "search.close_button_title" }}">
-        {{ partial "icon.html" "xmark" }}
+        {{ partialCached "icon.html" "xmark" "xmark" }}
       </button>
     </header>
     <section class="flex-auto px-2 overflow-auto">

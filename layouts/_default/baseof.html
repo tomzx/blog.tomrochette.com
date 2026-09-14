@@ -5,7 +5,7 @@
   class="scroll-smooth"
   data-default-appearance="{{ site.Params.defaultAppearance | default `light` }}"
   data-auto-appearance="{{ site.Params.autoSwitchAppearance | default `true` }}">
-  {{- partial "head.html" . -}}
+  {{- partialCached "head.html" . .RelPermalink -}}
   {{- partialCached "init.html" . -}}
 
   {{ $bodyLayout := "flex flex-col h-screen m-auto leading-7 w-full px-6 sm:px-14 md:px-24 lg:px-32" }}
@@ -21,20 +21,20 @@
     </div>
     {{ $header := print "header/" site.Params.header.layout ".html" }}
     {{ if templates.Exists ( printf "partials/%s" $header ) }}
-      {{ partial $header . }}
+      {{ partialCached $header . }}
     {{ else }}
-      {{ partial "header/basic.html" . }}
+      {{ partialCached "header/basic.html" . }}
     {{ end }}
     <div class="relative flex flex-col grow">
       <main id="main-content" class="grow">
         {{ block "main" . }}{{ end }}
         {{ if and (site.Params.footer.showScrollToTop | default true) }}
-          {{- partial "scroll-to-top.html" . -}}
+          {{- partialCached "scroll-to-top.html" . -}}
         {{ end }}
       </main>
-      {{- partial "footer.html" . -}}
+      {{- partialCached "footer.html" . -}}
       {{ if site.Params.enableSearch | default false }}
-        {{- partial "search.html" . -}}
+        {{- partialCached "search.html" . -}}
       {{ end }}
     </div>
   </body>

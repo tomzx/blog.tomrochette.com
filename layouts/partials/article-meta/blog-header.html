@@ -3,13 +3,13 @@
 {{ $filePath := .File.Dir | strings.TrimSuffix "/" }}
 <div class="mt-1 mb-6 text-base text-neutral-500 dark:text-neutral-400 print:hidden article-meta">
   <div>
-    <a href="{{ $gitRepo }}/commits/{{ $gitBranch }}/{{ $filePath }}" title="View page history on GitHub"><span class="inline-block align-middle">{{ partial "icon.html" "history" }}</span> History</a> /
-    <a href="{{ $gitRepo }}/edit/{{ $gitBranch }}/{{ $filePath }}/{{ .File.LogicalName }}" title="Edit page on GitHub"><span class="inline-block align-middle">{{ partial "icon.html" "edit" }}</span> Edit</a> /
-    <a href="/exports/{{ $filePath }}.pdf" title="Download as PDF"><span class="inline-block align-middle">{{ partial "icon.html" "picture-as-pdf" }}</span> PDF</a> /
-    <a href="/exports/{{ $filePath }}.epub" title="Download as EPUB"><span class="inline-block align-middle">{{ partial "icon.html" "auto-stories" }}</span> EPUB</a> /
-    {{ with .OutputFormats.Get "Markdown" }}<a href="{{ .RelPermalink }}" title="Copy article as Markdown" data-copy-markdown><span class="inline-block align-middle">{{ partial "icon.html" "content-copy" }}</span> MD</a>{{ end }}
+    <a href="{{ $gitRepo }}/commits/{{ $gitBranch }}/{{ $filePath }}" title="View page history on GitHub"><span class="inline-block align-middle">{{ partialCached "icon.html" "history" "history" }}</span> History</a> /
+    <a href="{{ $gitRepo }}/edit/{{ $gitBranch }}/{{ $filePath }}/{{ .File.LogicalName }}" title="Edit page on GitHub"><span class="inline-block align-middle">{{ partialCached "icon.html" "edit" "edit" }}</span> Edit</a> /
+    <a href="/exports/{{ $filePath }}.pdf" title="Download as PDF"><span class="inline-block align-middle">{{ partialCached "icon.html" "picture-as-pdf" "picture-as-pdf" }}</span> PDF</a> /
+    <a href="/exports/{{ $filePath }}.epub" title="Download as EPUB"><span class="inline-block align-middle">{{ partialCached "icon.html" "auto-stories" "auto-stories" }}</span> EPUB</a> /
+    {{ with .OutputFormats.Get "Markdown" }}<a href="{{ .RelPermalink }}" title="Copy article as Markdown" data-copy-markdown><span class="inline-block align-middle">{{ partialCached "icon.html" "content-copy" "content-copy" }}</span> MD</a>{{ end }}
     {{ if fileExists (printf "content/%s.bib" $filePath) }}
-      / <a href="/exports/{{ $filePath }}.bib" title="Download BIB bibliography"><span class="inline-block align-middle">{{ partial "icon.html" "menu-book" }}</span> BIB</a>
+      / <a href="/exports/{{ $filePath }}.bib" title="Download BIB bibliography"><span class="inline-block align-middle">{{ partialCached "icon.html" "menu-book" "menu-book" }}</span> BIB</a>
     {{ end }}
   </div>
   <div class="flex flex-row items-center flex-wrap gap-y-1 mt-1">
@@ -28,7 +28,7 @@
     {{ end }}
     {{ if ne .WordCount 0 }}
       <span class="px-2 text-primary-500">/</span>
-      {{ partial "meta/reading-time.html" . }}
+      {{ partialCached "meta/reading-time.html" . .WordCount }}
     {{ end }}
   </div>
   {{ $tags := sort (cond (reflect.IsSlice .Params.tags) .Params.tags (slice .Params.tags)) }}
@@ -36,7 +36,7 @@
   {{ range $tags }}{{ if . }}{{ $hasTags = true }}{{ end }}{{ end }}
   {{ if $hasTags }}
     <div class="mt-1" itemprop="keywords">
-      <span class="inline-block align-middle">{{ partial "icon.html" "tag" }}</span>
+      <span class="inline-block align-middle">{{ partialCached "icon.html" "tag" "tag" }}</span>
       {{ range $tags }}
         {{ if . }}
           {{ $tagSlug := . | urlize }}

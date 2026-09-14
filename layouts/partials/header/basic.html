@@ -28,10 +28,10 @@
   {{ end }}
   <div class="flex items-center ms-auto">
     <div class="hidden md:flex">
-      {{ partial "header/components/desktop-menu.html" . }}
+      {{ partialCached "header/components/desktop-menu.html" . }}
     </div>
     <div class="flex md:hidden">
-      {{ partial "header/components/mobile-menu.html" . }}
+      {{ partialCached "header/components/mobile-menu.html" . }}
     </div>
   </div>
 </div>
@@ -51,7 +51,7 @@
           class="flex items-center bf-icon-color-hover">
           {{ if .Pre }}
             <span {{ if and .Pre .Name }}class="mr-1"{{ end }}>
-              {{ partial "icon.html" .Pre }}
+              {{ partialCached "icon.html" .Pre .Pre }}
             </span>
           {{ end }}
           <span class="text-xs font-light" title="{{ .Title }}">

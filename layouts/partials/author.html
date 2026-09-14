@@ -1,4 +1,4 @@
-{{ $aiAuthor := partial "article-meta/effective-author.html" . }}
+{{ $aiAuthor := partialCached "article-meta/effective-author.html" . .Params.tags }}
 {{ if $aiAuthor }}
   <div class="flex author">
     <div class="place-self-center">

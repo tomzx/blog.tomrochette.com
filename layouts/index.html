@@ -5,9 +5,9 @@
       {{ if templates.Exists ( printf "partials/%s" $partial ) }}
         {{ partial $partial . }}
       {{ else }}
-        {{ partial "home/profile.html" . }}
+        {{ partialCached "home/profile.html" . .RelPermalink }}
       {{ end }}
     </div>
-    {{ partial "sidebar-tags.html" . }}
+    {{ partialCached "sidebar-tags.html" . }}
   </div>
 {{ end }}

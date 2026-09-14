@@ -5,9 +5,9 @@
     {{ end }}
   {{ end }}
 
-  {{ partial "header/components/translations.html" . }}
+  {{ partialCached "header/components/translations.html" . .RelPermalink }}
   {{ if .Site.Params.enableA11y | default false }}
-    {{ partial "header/components/a11y.html" (dict "prefix" "desktop-") }}
+    {{ partialCached "header/components/a11y.html" (dict "prefix" "desktop-") "desktop-" }}
   {{ end }}
 
   {{ if .Site.Params.enableSearch | default false }}
@@ -16,12 +16,12 @@
       aria-label="Search"
       class="text-base bf-icon-color-hover"
       title="{{ i18n "search.open_button_title" }}">
-      {{ partial "icon.html" "search" }}
+      {{ partialCached "icon.html" "search" "search" }}
     </button>
   {{ end }}
 
   <a href="{{ "/index.xml" | relURL }}" type="application/rss+xml" aria-label="RSS feed" class="text-base bf-icon-color-hover" title="RSS feed">
-    {{ partial "icon.html" "rss" }}
+    {{ partialCached "icon.html" "rss" "rss" }}
   </a>
 
   {{ if .Site.Params.footer.showAppearanceSwitcher | default false }}
@@ -32,10 +32,10 @@
         type="button"
         class="text-base bf-icon-color-hover">
         <div class="flex items-center justify-center dark:hidden">
-          {{ partial "icon.html" "moon" }}
+          {{ partialCached "icon.html" "moon" "moon" }}
         </div>
         <div class="items-center justify-center hidden dark:flex">
-          {{ partial "icon.html" "sun" }}
+          {{ partialCached "icon.html" "sun" "sun" }}
         </div>
       </button>
     </div>
@@ -60,14 +60,14 @@
           title="{{ .Title }}">
           {{ if .Pre }}
             <span {{ if and .Pre .Name }}class="mr-1"{{ end }}>
-              {{ partial "icon.html" .Pre }}
+              {{ partialCached "icon.html" .Pre .Pre }}
             </span>
           {{ end }}
           <span class="text-bg font-bg break-normal" title="{{ .Title }}">
             {{ .Name | markdownify }}
           </span>
           <span>
-            {{ partial "icon.html" "chevron-down" }}
+            {{ partialCached "icon.html" "chevron-down" "chevron-down" }}
           </span>
         </a>
       </div>
@@ -84,7 +84,7 @@
                 class="flex items-center bf-icon-color-hover">
                 {{ if .Pre }}
                   <span {{ if and .Pre .Name }}class="mr-1"{{ end }}>
-                    {{ partial "icon.html" .Pre }}
+                    {{ partialCached "icon.html" .Pre .Pre }}
                   </span>
                 {{ end }}
                 <span class="text-sm font-sm" title="{{ .Title }}">
@@ -107,7 +107,7 @@
       title="{{ .Title }}">
       {{ if .Pre }}
         <span {{ if and .Pre .Name }}class="mr-1"{{ end }}>
-          {{ partial "icon.html" .Pre }}
+          {{ partialCached "icon.html" .Pre .Pre }}
         </span>
       {{ end }}
       {{ if .Name }}

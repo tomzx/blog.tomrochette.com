@@ -7,22 +7,22 @@
   {{ if site.Params.list.showHero | default false }}
     {{ $heroStyle := print "hero/" site.Params.list.heroStyle ".html" }}
     {{ if templates.Exists ( printf "partials/%s" $heroStyle ) }}
-      {{ partial $heroStyle . }}
+      {{ partialCached $heroStyle . .RelPermalink }}
     {{ else }}
-      {{ partial "hero/basic.html" . }}
+      {{ partialCached "hero/basic.html" . .RelPermalink }}
     {{ end }}
   {{ end }}
 
   {{/* Header */}}
   <header>
     {{ if .Params.showBreadcrumbs | default (site.Params.list.showBreadcrumbs | default false) }}
-      {{ partial "breadcrumbs.html" . }}
+      {{ partialCached "breadcrumbs.html" . .RelPermalink }}
     {{ end }}
     <h1 class="mt-5 text-4xl font-extrabold text-neutral-900 dark:text-neutral">{{ .Title }}</h1>
     <div class="mt-1 mb-2 text-base text-neutral-500 dark:text-neutral-400 print:hidden">
-      {{ partial "article-meta/list.html" (dict "context" . "scope" "single") }}
+      {{ partialCached "article-meta/list.html" (dict "context" . "scope" "single") .RelPermalink "single" }}
     </div>
-    {{ if .File }}{{ partial "article-meta/blog-header.html" . }}{{ end }}
+    {{ if .File }}{{ partialCached "article-meta/blog-header.html" . .RelPermalink }}{{ end }}
   </header>
 
   {{/* Description (markdown content) */}}
@@ -32,7 +32,7 @@
     {{ if $showToc }}
       <div class="order-first lg:ms-auto px-0 lg:order-last lg:ps-8 lg:max-w-2xs">
         <div class="toc ps-5 print:hidden lg:sticky {{ $topClass }}">
-          {{ partial "toc.html" . }}
+          {{ partialCached "toc.html" . .RelPermalink }}
         </div>
       </div>
     {{ end }}
@@ -60,12 +60,12 @@
               </h2>
             {{ end }}
             {{ range .Pages }}
-              {{ partial "article-link/simple.html" . }}
+              {{ partialCached "article-link/simple.html" . .RelPermalink }}
             {{ end }}
           {{ end }}
         {{ else }}
           {{ range (.Paginate (.Pages.ByWeight)).Pages }}
-            {{ partial "article-link/simple.html" . }}
+            {{ partialCached "article-link/simple.html" . .RelPermalink }}
           {{ end }}
         {{ end }}
       </section>
@@ -80,7 +80,7 @@
               </h2>
               <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {{ range .Pages }}
-                  {{ partial "article-link/card.html" . }}
+                  {{ partialCached "article-link/card.html" . .RelPermalink }}
                 {{ end }}
               </section>
             </div>
@@ -90,7 +90,7 @@
             </h2>
             <section class="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               {{ range .Pages }}
-                {{ partial "article-link/card.html" . }}
+                {{ partialCached "article-link/card.html" . .RelPermalink }}
               {{ end }}
             </section>
           {{ end }}
@@ -104,12 +104,12 @@
               {{ if not $orderByWeight }}
                 {{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
                   {{ range .Pages }}
-                    {{ partial "article-link/card.html" . }}
+                    {{ partialCached "article-link/card.html" . .RelPermalink }}
                   {{ end }}
                 {{ end }}
               {{ else }}
                 {{ range (.Paginate (.Pages.ByWeight)).Pages }}
-                  {{ partial "article-link/card.html" . }}
+                  {{ partialCached "article-link/card.html" . .RelPermalink }}
                 {{ end }}
               {{ end }}
             </section>
@@ -119,12 +119,12 @@
             {{ if not $orderByWeight }}
               {{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
                 {{ range .Pages }}
-                  {{ partial "article-link/card.html" . }}
+                  {{ partialCached "article-link/card.html" . .RelPermalink }}
                 {{ end }}
               {{ end }}
             {{ else }}
               {{ range (.Paginate (.Pages.ByWeight)).Pages }}
-                {{ partial "article-link/card.html" . }}
+                {{ partialCached "article-link/card.html" . .RelPermalink }}
               {{ end }}
             {{ end }}
           </section>
@@ -139,5 +139,5 @@
       </p>
     </section>
   {{ end }}
-  {{ if $showArticleList }}{{ partial "pagination.html" . }}{{ end }}
+  {{ if $showArticleList }}{{ partialCached "pagination.html" . .Paginator.PageNumber .RelPermalink }}{{ end }}
 {{ end }}
